@@ -1,1 +1,1 @@
-# Bilkent-CS102-Project-SpendW-se
+# Bilkent-CS102-Project-SpendWise
