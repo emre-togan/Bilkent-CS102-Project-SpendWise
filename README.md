@@ -1,1 +1,1 @@
-# SpendWise Backend
+# Bilkent-CS102-Project-SpendWise
