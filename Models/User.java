@@ -1,6 +1,6 @@
 package Models;
 
-import java.security.Timestamp;
+import java.sql.Timestamp;
 
 public class User {
     
@@ -10,18 +10,20 @@ public class User {
     private String eMail;
     private Timestamp accountCreationTime;
     
+    
+    public User(String userName, String password, String eMail){
+        this.userName = userName;
+        this.password = password;
+        this.eMail = eMail;
+    }
+
+    // this constructor for get the data from database
     public User(String userName, String password, String eMail, int id, Timestamp accountCreationTime){
         this.userName = userName;
         this.password = password;
         this.eMail = eMail;
         this.id = id;
         this.accountCreationTime = accountCreationTime;
-    }
-
-    public User(String userName, String password, String eMail){
-        this.userName = userName;
-        this.password = password;
-        this.eMail = eMail;
     }
 
     public int getId() {

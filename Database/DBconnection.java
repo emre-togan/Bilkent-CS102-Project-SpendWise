@@ -8,7 +8,7 @@ import java.sql.SQLException;
 
 public class DBconnection {
 
-    private static final String URL = "jdbc:mysql://localhost:3306/spendwise_db"; 
+    private static final String URL = "jdbc:mysql://localhost:3306/spendwise"; 
     private static final String USER = "root";
     private static final String PASSWORD = "42Aeb562..06"; 
     private static Connection connection = null;

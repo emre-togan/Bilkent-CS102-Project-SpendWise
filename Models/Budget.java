@@ -38,7 +38,7 @@ public class Budget {
         this.expenses = new ArrayList<>();
     }
 
-    public class CategoryBudget{
+    public static class CategoryBudget{
 
         String categoryName;
         double allocatedPart;
@@ -53,13 +53,11 @@ public class Budget {
         }
 
         public void addExpense(double spendAmount){
-
-
+            totalSpentInCategory += spendAmount;
         }
 
         public double getRemainingBudget(){
-
-            return 0;
+            return allocatedPart - totalSpentInCategory;
         }
 
     }
@@ -86,6 +84,7 @@ public class Budget {
 
             if(catBudget.categoryName.equals(e.getCategory())){
                 catBudget.addExpense(amount);
+                break;
             }
         }
     }
@@ -107,7 +106,7 @@ public class Budget {
     }
 
     public void addCategoryBudget(CategoryBudget newCatBudget){
-
+        this.categories.add(newCatBudget);
     }
 
     public int getUserId() {
@@ -133,5 +132,8 @@ public class Budget {
     public double getTotalSpending() {
         return totalSpending;
     }
-    
+
+    public int getBudgetId() {
+        return budgetId;
+    }
 }
