@@ -1,7 +1,6 @@
-package view;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import java.awt.CardLayout;
 import java.awt.color.ProfileDataException;
@@ -26,44 +25,51 @@ public class MainFrame extends JFrame{
     private RegularUser currentUser;
 
     public MainFrame(){
+        this.setTitle("SpendWise - Personal Finance & Smart Shopping");
         this.setSize(1200, 800);
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setLocationRelativeTo(null);
+        this.setResizable(false);
         this.cardLayout = new CardLayout();
         this.mainPanel = new JPanel();
         initializePanels();
-        showPanel(loginPanel);
+        this.add(mainPanel);
+        showPanel("LOGIN");
 
     }
 
     private void initializePanels(){
-        this.loginPanel = new JPanel();
-        this.mainPanel.add(loginPanel, "LOGIN_PANEL");
+        this.loginPanel = new LoginPanel();
+        this.mainPanel.add(loginPanel, "LOGIN");
 
-        this.signUpPanel = new JPanel();
-        this.mainPanel.add(signUpPanel, "SIGNUP_PANEL");
+        this.signUpPanel = new SignUpPanel();
+        this.mainPanel.add(signUpPanel, "SIGNUP");
 
-        this.forgotPasswordPanel = new JPanel();
-        this.mainPanel.add(forgotPasswordPanel, "FORGOTPASSWORD_PANEL");  
+        this.forgotPasswordPanel = new ForgotPasswordPanel();
+        this.forgotPasswordPanel.setOnBackToLoginClicked(() -> showPanel("LOGIN"));
+        this.mainPanel.add(forgotPasswordPanel, "FORGOTPASSWORD");  
 
-        this.dashBoardPanel = new JPanel();
-        this.mainPanel.add(dashBoardPanel, "DASHBOARD_PANEL");
+        this.dashBoardPanel = new DashBoardPanel(this);
+        this.mainPanel.add(dashBoardPanel, "DASHBOARD");
 
-        this.budgetPanel = new JPanel();
-        this.mainPanel.add(budgetPanel, "BUDGET_PANEL");
+        this.budgetPanel = new BudgetPanel(this);
+        this.mainPanel.add(budgetPanel, "BUDGET");
 
-        this.expensesPanel = new JPanel();
-        this.mainPanel.add(expensesPanel, "EXPENSE_PANEL");
+        this.expensesPanel = new ExpensesPanel(this);
+        this.mainPanel.add(expensesPanel, "EXPENSE");
     
-        this.shopPanel = new JPanel();
-        this.mainPanel.add(shopPanel, "SHOP_PANEL");
+        this.shopPanel = new ShopPanel(this);
+        this.mainPanel.add(shopPanel, "SHOP");
 
-        this.chatPanel = new JPanel();
-        this.mainPanel.add(chatPanel, "CHAT_PANEL");
+        this.chatPanel = new ChatPanel();
+        this.mainPanel.add(chatPanel, "CHAT");
 
-        this.profilePanel = new JPanel();
-        this.mainPanel.add(profilePanel, "PROFILE_PANEL");
+        this.profilePanel = new ProfilePanel();
+        this.mainPanel.add(profilePanel, "PROFILE");
 
-        this.settingsPanel = new JPanel();
-        this.mainPanel.add(settingsPanel, "SETTINGS_PANEL");
+        this.settingsPanel = new SettingsPanel();
+        settingsPanel.setOnLogoutClicked(() -> logout());
+        this.mainPanel.add(settingsPanel, "SETTINGS");
 
 
     }
@@ -119,6 +125,15 @@ public class MainFrame extends JFrame{
         
     }
 
+    public void showDashBoard(RegularUser user){
+        this.currentUser = user;
+        this.dashBoardPanel.setCurrentUser(user);
+        this.expensesPanel.setCurrentUser(user);
+        this.shopPanel.setCurrentUser(user);
+
+        showPanel("DASHBOARD");
+    }
+
     public RegularUser getCurrentUser() {
         return currentUser;
     }
@@ -137,7 +152,15 @@ public class MainFrame extends JFrame{
         profilePanel.clearData();
         settingsPanel.clearData();
 
-        showPanel(loginPanel);
+        showPanel("LOGIN");
 
+    }
+
+    public static void main (String[] args){
+        SwingUtilities.invokeLater(() -> {
+            MainFrame frame = new MainFrame();
+            frame.setVisible(true);
+
+        });
     }
 }
