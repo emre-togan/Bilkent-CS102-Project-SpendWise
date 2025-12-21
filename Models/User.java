@@ -16,7 +16,7 @@ public class User {
         this.password = password;
         this.eMail = eMail;
     }
-
+    
     // this constructor for get the data from database
     public User(String userName, String password, String eMail, int id, Timestamp accountCreationTime){
         this.userName = userName;
