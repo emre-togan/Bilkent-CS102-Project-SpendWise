@@ -11,7 +11,7 @@ public class Expense {
     private double amount;
     private Date date;
 
-    // default.
+    // default constructor.
     public Expense(int expenseId, String category, String description, double amount, Date date){
         this.expenseId = expenseId;
         this.category = category;

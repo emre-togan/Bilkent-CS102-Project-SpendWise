@@ -10,7 +10,7 @@ public class User {
     private String eMail;
     private Timestamp accountCreationTime;
     
-    
+    // default
     public User(String userName, String password, String eMail){
         this.userName = userName;
         this.password = password;
