@@ -11,6 +11,9 @@ public class SignUpPanel extends JPanel {
     private JPasswordField passwordField;
     private JPasswordField confirmPasswordField;
 
+    private Runnable onSignInClicked;
+
+
     public SignUpPanel() {
         setLayout(new GridBagLayout()); 
 
@@ -133,6 +136,9 @@ public class SignUpPanel extends JPanel {
         panel.add(Box.createVerticalStrut(5)); 
         panel.add(field);
         return panel;
+    }
+    public void setOnSignInClicked(Runnable callback) {
+        this.onSignInClicked = callback;
     }
 
     @Override
