@@ -1,4 +1,4 @@
-import Utilities.UIConstants;
+import Utils.UIConstants;
 
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
