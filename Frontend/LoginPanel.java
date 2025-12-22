@@ -12,6 +12,11 @@ public class LoginPanel extends JPanel {
     private JPasswordField passwordField;
     private JToggleButton showPasswordToggle;
 
+    private Runnable onForgotPasswordClicked;
+    private Runnable onSignUpClicked;
+    private Runnable onLoginSuccess;
+    
+
     public LoginPanel() {
         setLayout(new GridBagLayout());
 
@@ -133,6 +138,17 @@ public class LoginPanel extends JPanel {
         add(cardPanel);
     }
 
+    public void setOnForgotPasswordClicked(Runnable callback) {
+        this.onForgotPasswordClicked = callback;
+    }
+    public void setOnSignUpClicked(Runnable callback) {
+        this.onSignUpClicked = callback;
+    }
+
+    public void setOnLoginSuccess(Runnable callback) {
+        this.onLoginSuccess = callback;
+    }
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -144,9 +160,53 @@ public class LoginPanel extends JPanel {
         g2d.fillRect(0, 0, getWidth(), getHeight());
     }
 
+     private void handleLogin() {
+        String username = usernameField.getText();
+        String password = new String(passwordField.getPassword());
+        
+        // Validation
+        if (username.isEmpty() || username.equals("Enter your username or email")) {
+            JOptionPane.showMessageDialog(
+                this, 
+                "Please enter username or email", 
+                "Error", 
+                JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+        
+        if (password.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                this, 
+                "Please enter password", 
+                "Error", 
+                JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+        
+        // Backend integration here
+        // For now, simulate successful login for testing
+        // TODO: Replace with actual backend call
+        // Example:
+        // RegularUser user = AuthService.login(username, password);
+        // if (user != null) {
+        //     if (onLoginSuccess != null) {
+        //         onLoginSuccess.run();
+        //     }
+        // }
+        
+        // TEMPORARY: Auto-login for testing
+        if (onLoginSuccess != null) {
+            onLoginSuccess.run();
+        }
+    }
+
+    /* 
     private void handleLogin() {
         String username = usernameField.getText();
         String password = new String(passwordField.getPassword());
         // Backend
     }
+     */
 }
