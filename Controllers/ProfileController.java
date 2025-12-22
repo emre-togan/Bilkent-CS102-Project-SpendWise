@@ -3,10 +3,10 @@ package Controllers;
 import java.util.List;
 
 import Models.RegularUser;
+import Models.Address;
 import Models.Product;
 import Models.Purchase; 
 import Services.ProfileService;
-import Services.AddressService; 
 
 public class ProfileController {
 
@@ -26,11 +26,11 @@ public class ProfileController {
         return ProfileService.getOrders(filter);
     }
  
-    public List<AddressService.AddressDTO> getAddresses(){
+    public List<Address> getAddresses(){
         return ProfileService.getAddresses();
     }
 
-    public void addAddress(AddressService.AddressDTO address){
+    public void addAddress(Address address){
         ProfileService.addAddress(address);
     }
 

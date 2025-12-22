@@ -6,10 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import Database.DBconnection;
-import Models.RegularUser; 
+import Models.RegularUser;
+import Models.Address;
 import Models.Product;
 import Models.Purchase;
-import Services.AddressService.AddressDTO; 
 
 public class ProfileService {
 
@@ -64,21 +64,19 @@ public class ProfileService {
         return orders; 
     }
 
-    public static List<AddressDTO> getAddresses() {
-        return new AddressService().getAddresses(1);
-    }
-
-    public static void addAddress(AddressDTO addr) {
-        new AddressService().addAddress(
-            1, addr.label, addr.fullName, addr.street, addr.city, addr.state, addr.zip, addr.phone, addr.isDefault
-        );
-    }
-
     public static void deleteAddress(int addressId) {
         new AddressService().deleteAddress(addressId);
     }
 
     public static void setDefaultAddress(int addressId) {
         new AddressService().setDefaultAddress(1, addressId);
+    }
+
+    public static List<Address> getAddresses() {
+        return new AddressService().getAddresses(1);
+    }
+
+    public static void addAddress(Address addr) {
+        new AddressService().addAddress(addr);
     }
 }
