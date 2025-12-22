@@ -90,7 +90,7 @@ public class ChatService {
         try{
         ResultSet resultSet = DBconnection.executeQuery(sql, currentUserId, friendId, friendId, currentUserId);
 
-            if( resultSet!= null && resultSet.next()){
+            while( resultSet!= null && resultSet.next()){
 
                 int msgId = resultSet.getInt("message_id");
                 int sId = resultSet.getInt("sender_id");
@@ -144,10 +144,14 @@ public class ChatService {
         String sql = "SELECT user_id FROM users WHERE username = ?";
 
         try{
-            ResultSet resultSet = DBconnection.executeQuery(sql, userName){
-                
+            ResultSet resultSet = DBconnection.executeQuery(sql, userName);
+                if(resultSet != null && resultSet.next()){
+                    return resultSet.getInt("user_id");
+                }
             }
+        catch (SQLException e) {
+            e.printStackTrace();
         }
-        return 1;
+        return -1;
     }
 }
