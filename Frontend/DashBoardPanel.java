@@ -24,9 +24,11 @@ import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 
+import Models.User;
+
 public class DashBoardPanel extends JPanel{
     private MainFrame mainFrame;
-    private RegularUser currentUser;
+    private User currentUser;
 
     private JPanel sideMenuPanel;
     private JPanel menuPanel;
@@ -59,9 +61,9 @@ public class DashBoardPanel extends JPanel{
     public DashBoardPanel(MainFrame mainFrame){
         this.mainFrame = mainFrame;
         this.setLayout(new BorderLayout());
-        this.setBackground(UIConstants.WHITE_BG);
+        this.setBackground(Color.WHITE);
         this.add(createSideMenu(),BorderLayout.WEST);
-        createContent();
+        createContentPanel();
         this.add(contentPanel, BorderLayout.CENTER);
     }
 
@@ -396,7 +398,7 @@ public class DashBoardPanel extends JPanel{
         int itemY = 60;
 
         for(String[] trans : transactions){
-            JPanel item = createTransactionItem(trans[0],trans[1],trans[2],trans[3]);
+            JPanel item = createTransactionsItem(trans[0],trans[1],trans[2],trans[3]);
             item.setBounds(15,itemY,370,70);
             transCard.add(item);
             itemY += 80;
