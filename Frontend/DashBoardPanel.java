@@ -375,6 +375,77 @@ public class DashBoardPanel extends JPanel{
         panel.add(chartCard);
     }
 
-    
+    private void createRecentTransactions(JPanel panel){
+        JPanel transCard = new JPanel();
+        transCard.setBounds(700,360,400,330);
+        transCard.setBackground(Color.WHITE);
+        transCard.setLayout(null);
+        transCard.setBorder(BorderFactory.createLineBorder(new Color(230,230,230)));
+
+        JLabel title = new JLabel("Recent Transactions");
+        title.setBounds(20,15,300,25);
+        title.setFont(new Font("Arial", Font.BOLD, 16));
+        transCard.add(title);
+
+        String[][] transactions = {
+            {"🛒", "Grocery Shopping", "Food", "$85.50"},
+            {"🚗", "Uber Ride", "Transport", "$12.30"},
+            {"🛍", "Online Purchase", "Shopping", "$156.00"}
+        };
+
+        int itemY = 60;
+
+        for(String[] trans : transactions){
+            JPanel item = createTransactionItem(trans[0],trans[1],trans[2],trans[3]);
+            item.setBounds(15,itemY,370,70);
+            transCard.add(item);
+            itemY += 80;
+        }
+
+        panel.add(transCard);
+
+    }
+
+    private JPanel createTransactionsItem(String emoji, String desc, String category, String amount){
+        JPanel item = new JPanel();
+        item.setLayout(null);
+        item.setBackground(Color.WHITE);
+        item.setBorder(BorderFactory.createMatteBorder(0,0,1,0,new Color(240,240,240)));
+
+        JLabel icon = new JLabel(emoji);
+        icon.setBounds(10,15,40,40);
+        icon.setFont(new Font("Arial", Font.PLAIN,28));
+        item.add(icon);
+
+        JLabel descLabel = new JLabel(desc);
+        descLabel.setBounds(60,12,200,20);
+        descLabel.setFont(new Font("Arial", Font.BOLD,14));
+        item.add(descLabel);
+
+        JLabel catLabel = new JLabel(category);
+        catLabel.setBounds(60,35,200,18);
+        catLabel.setFont(new Font("Arial", Font.PLAIN,12));
+        catLabel.setForeground(new Color(120,120,120));
+        item.add(catLabel);
+
+        JLabel amountLabel = new JLabel(amount);
+        amountLabel.setBounds(270,20,90,25);
+        amountLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        amountLabel.setForeground(new Color(220,53,69));
+        amountLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        item.add(amountLabel);
+
+        return item;
+
+    }
+
+    public void refreshData(){
+        //backend integration
+    }
+
+    public void clearData(){
+        greetingLabel.setText("Good Morning");
+        balanceLabel.setText("&0");
+    }
 
 }
