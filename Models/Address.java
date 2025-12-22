@@ -24,7 +24,7 @@ public class Address {
         this.phone = phone;
         this.isDefault = isDefault;
     }
-    
+
     // Constructor for database 
     public Address(int id, int userId, String label, String fullName, String street, String city, String state, String zip, String phone, boolean isDefault) {
         this.id = id;
@@ -77,6 +77,17 @@ public class Address {
 
     public boolean isDefault() {
         return isDefault;
+    }
+
+    public String getFullAddress() { 
+        return street; 
+    }
+
+    public String getCityStateZip() {
+
+        String s = (state == null || state.isEmpty()) ? "" : ", " + state;
+        String z = (zip == null || zip.isEmpty()) ? "" : " " + zip;
+        return city + s + z;
     }
 
 }

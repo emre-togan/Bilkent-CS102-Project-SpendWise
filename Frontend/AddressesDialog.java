@@ -1,8 +1,12 @@
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+
+import Models.Address;
+import Services.ProfileService;
+
 import java.awt.*;
 import java.util.List;
-import java.util.UUID; 
+
 
 // import Models.Address;
 // import Services.ProfileService;
@@ -113,15 +117,16 @@ public class AddressesDialog extends JDialog {
         
         saveBtn.addActionListener(e -> {
             // This part will be rewrited
-            Address newAddr = new Address(
-                UUID.randomUUID().toString(), 
-                labelField.getText(),
-                nameField.getText(),
-                addressField.getText(),
-                cityField.getText(),
-                phoneField.getText(),
-                false
-            );
+        Address newAddr = new Address(
+            labelField.getText(),      // label
+            nameField.getText(),       // fullName
+            addressField.getText(),    // street
+            cityField.getText(),       // city
+            "",                        // state (Empty because UI doesn't have it)
+            "",                        // zip   (Empty because UI doesn't have it)
+            phoneField.getText(),      // phone
+            false                      // isDefault
+        );
             
             // Backend
             ProfileService.addAddress(newAddr);
