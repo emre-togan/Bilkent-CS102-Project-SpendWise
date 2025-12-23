@@ -14,7 +14,7 @@ public class TrendyolScraper {
 
         try (Playwright playwright = Playwright.create()) {
             Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions()
-                    .setHeadless(false)
+                    .setHeadless(true)
                     .setArgs(Arrays.asList(
                             "--disable-blink-features=AutomationControlled",
                             "--disable-dev-shm-usage",

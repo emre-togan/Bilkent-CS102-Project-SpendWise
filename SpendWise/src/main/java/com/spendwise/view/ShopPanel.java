@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.spendwise.models.Product;
+import com.spendwise.scrapers.AmazonScraper;
+import com.spendwise.scrapers.HepsiburadaScraper;
+import com.spendwise.scrapers.N11Scraper;
 import com.spendwise.scrapers.TrendyolScraper;
 import com.spendwise.services.productService;
 
@@ -20,9 +23,12 @@ public class ShopPanel extends JPanel {
     private JComboBox<String> sortByBox;
     private JToggleButton onlineDealsBtn;
     private JToggleButton secondHandBtn;
-    
+
     private productService productServiceInstance;
-    private TrendyolScraper scraper;
+    private TrendyolScraper trendyolScraper;
+    private AmazonScraper amazonScraper;
+    private N11Scraper n11Scraper;
+    private HepsiburadaScraper hepsiburadaScraper;
     private List<Product> currentProducts;
     private boolean showOnlineDeals = true;
     private boolean showSecondHand = false;
@@ -30,15 +36,18 @@ public class ShopPanel extends JPanel {
     public ShopPanel(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
         this.productServiceInstance = new productService();
-        this.scraper = new TrendyolScraper();
+        this.trendyolScraper = new TrendyolScraper();
+        this.amazonScraper = new AmazonScraper();
+        this.n11Scraper = new N11Scraper();
+        this.hepsiburadaScraper = new HepsiburadaScraper();
         this.currentProducts = new ArrayList<>();
-        
+
         setLayout(new BorderLayout());
         setBackground(new Color(250, 250, 250));
 
         add(createSideMenu(), BorderLayout.WEST);
         add(createContent(), BorderLayout.CENTER);
-        
+
         // Initial data load
         refreshData();
     }
@@ -190,7 +199,7 @@ public class ShopPanel extends JPanel {
         sortLabel.setFont(new Font("Arial", Font.PLAIN, 13));
         content.add(sortLabel);
 
-        String[] sortOptions = {"Relevance", "Price: Low to High", "Price: High to Low", "Newest"};
+        String[] sortOptions = { "Relevance", "Price: Low to High", "Price: High to Low", "Newest" };
         sortByBox = new JComboBox<>(sortOptions);
         sortByBox.setBounds(820, 120, 150, 40);
         sortByBox.setFont(new Font("Arial", Font.PLAIN, 13));
@@ -242,7 +251,7 @@ public class ShopPanel extends JPanel {
 
     private void performSearch() {
         String searchTerm = searchField.getText().trim();
-        
+
         if (searchTerm.isEmpty() || searchTerm.equals("Search for products, deals, or brands...")) {
             JOptionPane.showMessageDialog(this, "Please enter a search term", "Search", JOptionPane.WARNING_MESSAGE);
             return;
@@ -256,13 +265,41 @@ public class ShopPanel extends JPanel {
         loadingDialog.add(loadingLabel);
         loadingDialog.setSize(300, 150);
         loadingDialog.setLocationRelativeTo(this);
-        
+
         // Perform search in background thread
         SwingWorker<List<Product>, Void> worker = new SwingWorker<List<Product>, Void>() {
             @Override
             protected List<Product> doInBackground() throws Exception {
-                // Search using scraper
-                return scraper.searchAndSearch(searchTerm);
+                // Search using all scrapers
+                List<Product> allResults = new ArrayList<>();
+
+                // We can run these in parallel if needed, but for now sequential is
+                // safer/simpler
+                try {
+                    allResults.addAll(trendyolScraper.searchAndSearch(searchTerm));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                try {
+                    allResults.addAll(amazonScraper.searchAndSearch(searchTerm));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                try {
+                    allResults.addAll(n11Scraper.searchAndSearch(searchTerm));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                try {
+                    allResults.addAll(hepsiburadaScraper.searchAndSearch(searchTerm));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                return allResults;
             }
 
             @Override
@@ -273,42 +310,42 @@ public class ShopPanel extends JPanel {
                     if (results != null && !results.isEmpty()) {
                         currentProducts = results;
                         displayProducts(currentProducts);
-                        JOptionPane.showMessageDialog(ShopPanel.this, 
-                            "Found " + results.size() + " products!", 
-                            "Success", 
-                            JOptionPane.INFORMATION_MESSAGE);
+                        JOptionPane.showMessageDialog(ShopPanel.this,
+                                "Found " + results.size() + " products!",
+                                "Success",
+                                JOptionPane.INFORMATION_MESSAGE);
                     } else {
-                        JOptionPane.showMessageDialog(ShopPanel.this, 
-                            "No products found. Try different keywords.", 
-                            "No Results", 
-                            JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(ShopPanel.this,
+                                "No products found. Try different keywords.",
+                                "No Results",
+                                JOptionPane.WARNING_MESSAGE);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
-                    JOptionPane.showMessageDialog(ShopPanel.this, 
-                        "Error searching products: " + e.getMessage(), 
-                        "Error", 
-                        JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(ShopPanel.this,
+                            "Error searching products: " + e.getMessage(),
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE);
                 }
             }
         };
-        
+
         worker.execute();
         loadingDialog.setVisible(true);
     }
 
     private void filterProducts() {
         List<Product> filtered = new ArrayList<>();
-        
+
         for (Product p : currentProducts) {
             boolean matchesOnline = !showOnlineDeals || !p.isSecondHand();
             boolean matchesSecondHand = !showSecondHand || p.isSecondHand();
-            
+
             if (matchesOnline && matchesSecondHand) {
                 filtered.add(p);
             }
         }
-        
+
         displayProducts(filtered);
     }
 
@@ -338,9 +375,8 @@ public class ShopPanel extends JPanel {
         card.setLayout(new BorderLayout());
         card.setBackground(Color.WHITE);
         card.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(230, 230, 230)),
-            new EmptyBorder(15, 15, 15, 15)
-        ));
+                BorderFactory.createLineBorder(new Color(230, 230, 230)),
+                new EmptyBorder(15, 15, 15, 15)));
         card.setPreferredSize(new Dimension(330, 280));
         card.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
@@ -349,7 +385,7 @@ public class ShopPanel extends JPanel {
         imagePlaceholder.setBackground(new Color(245, 245, 245));
         imagePlaceholder.setPreferredSize(new Dimension(300, 150));
         imagePlaceholder.setLayout(new BorderLayout());
-        
+
         JLabel imageLabel = new JLabel("🖼️", SwingConstants.CENTER);
         imageLabel.setFont(new Font("Arial", Font.PLAIN, 48));
         imagePlaceholder.add(imageLabel, BorderLayout.CENTER);
@@ -369,7 +405,7 @@ public class ShopPanel extends JPanel {
         sellerLabel.setForeground(Color.GRAY);
         sellerLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JLabel priceLabel = new JLabel(String.format("$%.2f", product.getPrice()));
+        JLabel priceLabel = new JLabel(String.format("₺%.2f", product.getPrice()));
         priceLabel.setFont(new Font("Arial", Font.BOLD, 18));
         priceLabel.setForeground(UIConstants.SUCCESS_GREEN);
         priceLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -409,8 +445,10 @@ public class ShopPanel extends JPanel {
     }
 
     private String truncateText(String text, int maxLength) {
-        if (text == null) return "";
-        if (text.length() <= maxLength) return text;
+        if (text == null)
+            return "";
+        if (text.length() <= maxLength)
+            return text;
         return text.substring(0, maxLength) + "...";
     }
 
@@ -421,13 +459,13 @@ public class ShopPanel extends JPanel {
         try {
             // Load products from database
             currentProducts = productServiceInstance.getAllProducts();
-            
+
             if (currentProducts == null) {
                 currentProducts = new ArrayList<>();
             }
-            
+
             displayProducts(currentProducts);
-            
+
         } catch (Exception e) {
             e.printStackTrace();
             currentProducts = new ArrayList<>();
@@ -441,17 +479,17 @@ public class ShopPanel extends JPanel {
     public void clearData() {
         currentProducts.clear();
         productsContainer.removeAll();
-        
+
         productsContainer.setLayout(new BorderLayout());
         JLabel emptyLabel = new JLabel("Please login to view products");
         emptyLabel.setFont(new Font("Arial", Font.PLAIN, 16));
         emptyLabel.setForeground(Color.GRAY);
         emptyLabel.setHorizontalAlignment(SwingConstants.CENTER);
         productsContainer.add(emptyLabel, BorderLayout.CENTER);
-        
+
         productsContainer.revalidate();
         productsContainer.repaint();
-        
+
         // Reset search and filters
         if (searchField != null) {
             searchField.setText("Search for products, deals, or brands...");
