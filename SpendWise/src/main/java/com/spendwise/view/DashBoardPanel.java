@@ -3,6 +3,7 @@ package com.spendwise.view;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -11,6 +12,13 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -20,33 +28,61 @@ import javax.swing.JProgressBar;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
+import com.spendwise.models.Budget;
+import com.spendwise.models.Expense;
 import com.spendwise.models.User;
+import com.spendwise.services.BudgetService;
+import com.spendwise.services.expenseService;
 
 public class DashBoardPanel extends JPanel {
     private MainFrame mainFrame;
     private User currentUser;
+    private Budget currentBudget;
+    private List<Expense> recentExpenses;
 
     private JPanel contentPanel;
 
+    // UI Components that need updating
     private JLabel greetingLabel;
     private JLabel balanceLabel;
+    private JLabel budgetLimitLabel;
+    private JLabel spentAmountLabel;
     private JProgressBar budgetProgressBar;
     private JLabel percentageLabel;
-    private JButton addExpenseButton;
-    private JButton viewDiscountsButton;
+    private JLabel remainingLabel;
+    private JLabel trendLabel;
+    private JPanel weeklyChartPanel;
+    private JPanel transactionsPanel;
+
+    // Services
+    private BudgetService budgetService;
+    private expenseService expenseServiceInstance;
+
+    // Data
+    private double[] weeklySpending = new double[7]; // Mon-Sun
+    private double totalBalance;
+    private double budgetLimit;
+    private double totalSpent;
+    private double remaining;
+    private int percentageUsed;
 
     public DashBoardPanel(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
-        this.currentUser = UserSession.getCurrentUser();
+        this.budgetService = new BudgetService();
+        this.expenseServiceInstance = new expenseService();
+        this.recentExpenses = new ArrayList<>();
+
         this.setLayout(new BorderLayout());
         this.setBackground(Color.WHITE);
         this.add(createSideMenu(), BorderLayout.WEST);
         createContentPanel();
         this.add(contentPanel, BorderLayout.CENTER);
+
+        // Load initial data
+        refreshData();
     }
 
     private JPanel createSideMenu() {
-
         JPanel sideMenu = new JPanel();
         sideMenu.setPreferredSize(new Dimension(260, 800));
         sideMenu.setBackground(Color.WHITE);
@@ -74,35 +110,11 @@ public class DashBoardPanel extends JPanel {
         addMenuButton(sideMenu, "👤", "Profile", startY + 300, false);
         addMenuButton(sideMenu, "⚙️", "Settings", startY + 360, false);
 
-        JPanel profileCard = new JPanel();
-        profileCard.setBounds(15, 650, 230, 70);
-        profileCard.setBackground(new Color(248, 249, 250));
-        profileCard.setLayout(null);
-        profileCard.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
-
-        JLabel avatar = new JLabel("SJ");
-        avatar.setBounds(15, 15, 40, 40);
-        avatar.setHorizontalAlignment(SwingConstants.CENTER);
-        avatar.setOpaque(true);
-        avatar.setBackground(UIConstants.PRIMARY_GREEN);
-        avatar.setForeground(Color.WHITE);
-        avatar.setFont(new Font("Arial", Font.BOLD, 16));
-        profileCard.add(avatar);
-
-        JLabel userName = new JLabel("Sarah Johnson");
-        userName.setBounds(65, 18, 150, 18);
-        userName.setFont(new Font("Arial", Font.BOLD, 13));
-        profileCard.add(userName);
-
-        JLabel userEmail = new JLabel("sarah@email.com");
-        userEmail.setBounds(65, 37, 150, 15);
-        userEmail.setFont(new Font("Arial", Font.PLAIN, 11));
-        userEmail.setForeground(new Color(120, 120, 120));
-        profileCard.add(userEmail);
-
+        // Profile Card - will be updated with real user data
+        JPanel profileCard = createProfileCard();
         sideMenu.add(profileCard);
 
-        JButton logoutBtn = new JButton("↩︎ Logout");
+        JButton logoutBtn = new JButton("🚪 Logout");
         logoutBtn.setBounds(15, 735, 230, 40);
         logoutBtn.setFont(new Font("Arial", Font.BOLD, 14));
         logoutBtn.setForeground(new Color(220, 53, 69));
@@ -114,7 +126,51 @@ public class DashBoardPanel extends JPanel {
         sideMenu.add(logoutBtn);
 
         return sideMenu;
+    }
 
+    private JPanel createProfileCard() {
+        JPanel profileCard = new JPanel();
+        profileCard.setBounds(15, 650, 230, 70);
+        profileCard.setBackground(new Color(248, 249, 250));
+        profileCard.setLayout(null);
+        profileCard.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
+
+        // Get current user
+        currentUser = UserSession.getCurrentUser();
+
+        // Avatar with initials
+        String initials = getInitials(currentUser.getUserName());
+        JLabel avatar = new JLabel(initials);
+        avatar.setBounds(15, 15, 40, 40);
+        avatar.setHorizontalAlignment(SwingConstants.CENTER);
+        avatar.setOpaque(true);
+        avatar.setBackground(UIConstants.PRIMARY_GREEN);
+        avatar.setForeground(Color.WHITE);
+        avatar.setFont(new Font("Arial", Font.BOLD, 16));
+        profileCard.add(avatar);
+
+        JLabel userName = new JLabel(currentUser.getUserName());
+        userName.setBounds(65, 18, 150, 18);
+        userName.setFont(new Font("Arial", Font.BOLD, 13));
+        profileCard.add(userName);
+
+        JLabel userEmail = new JLabel(currentUser.geteMail());
+        userEmail.setBounds(65, 37, 150, 15);
+        userEmail.setFont(new Font("Arial", Font.PLAIN, 11));
+        userEmail.setForeground(new Color(120, 120, 120));
+        profileCard.add(userEmail);
+
+        return profileCard;
+    }
+
+    private String getInitials(String name) {
+        if (name == null || name.isEmpty())
+            return "??";
+        String[] parts = name.trim().split("\\s+");
+        if (parts.length == 1) {
+            return parts[0].substring(0, Math.min(2, parts[0].length())).toUpperCase();
+        }
+        return (parts[0].charAt(0) + "" + parts[parts.length - 1].charAt(0)).toUpperCase();
     }
 
     private void addMenuButton(JPanel panel, String icon, String text, int y, boolean selected) {
@@ -130,7 +186,6 @@ public class DashBoardPanel extends JPanel {
             button.setBackground(UIConstants.PRIMARY_GREEN);
             button.setForeground(Color.WHITE);
             button.setOpaque(true);
-
         } else {
             button.setContentAreaFilled(false);
             button.setForeground(new Color(80, 80, 80));
@@ -143,6 +198,12 @@ public class DashBoardPanel extends JPanel {
                     button.setOpaque(true);
                 }
             }
+
+            public void mouseExited(MouseEvent e) {
+                if (!selected) {
+                    button.setContentAreaFilled(false);
+                }
+            }
         });
 
         button.addActionListener(e -> {
@@ -152,16 +213,20 @@ public class DashBoardPanel extends JPanel {
         panel.add(button);
     }
 
-    private JPanel createContentPanel() {
+    private void createContentPanel() {
         contentPanel = new JPanel();
         contentPanel.setLayout(null);
         contentPanel.setBackground(new Color(250, 250, 250));
 
-        greetingLabel = new JLabel("Good Morning, " + currentUser.getUserName());
+        // Greeting
+        currentUser = UserSession.getCurrentUser();
+        String greeting = getGreeting();
+        greetingLabel = new JLabel(greeting + ", " + currentUser.getUserName());
         greetingLabel.setBounds(30, 30, 600, 40);
         greetingLabel.setFont(new Font("Arial", Font.BOLD, 28));
         contentPanel.add(greetingLabel);
 
+        // Balance Panel
         JPanel balancePanel = new JPanel();
         balancePanel.setBounds(900, 30, 200, 80);
         balancePanel.setBackground(Color.WHITE);
@@ -174,7 +239,7 @@ public class DashBoardPanel extends JPanel {
         balanceTitle.setForeground(new Color(120, 120, 120));
         balancePanel.add(balanceTitle);
 
-        balanceLabel = new JLabel(" &... "); // balancı alıcaz
+        balanceLabel = new JLabel("$0");
         balanceLabel.setBounds(15, 35, 170, 35);
         balanceLabel.setFont(new Font("Arial", Font.BOLD, 32));
         balanceLabel.setForeground(UIConstants.PRIMARY_GREEN);
@@ -182,41 +247,53 @@ public class DashBoardPanel extends JPanel {
 
         contentPanel.add(balancePanel);
 
+        // Budget Card
         createBudgetCard(contentPanel);
 
-        addExpenseButton = createActionButton("➕ Add Expense", UIConstants.PRIMARY_GREEN);
+        // Action Buttons
+        JButton addExpenseButton = createActionButton("➕ Add Expense", UIConstants.PRIMARY_GREEN);
         addExpenseButton.setBounds(30, 280, 510, 60);
         addExpenseButton.addActionListener(e -> mainFrame.showPanel("EXPENSES"));
         contentPanel.add(addExpenseButton);
 
-        viewDiscountsButton = createActionButton("📈 View Discounts", new Color(255, 152, 0));
+        JButton viewDiscountsButton = createActionButton("📈 View Discounts", new Color(255, 152, 0));
         viewDiscountsButton.setBounds(560, 280, 540, 60);
         viewDiscountsButton.addActionListener(e -> mainFrame.showPanel("SHOP"));
         contentPanel.add(viewDiscountsButton);
 
+        // Weekly Chart
         createWeeklyChart(contentPanel);
 
+        // Recent Transactions
         createRecentTransactions(contentPanel);
+    }
 
-        return contentPanel;
+    private String getGreeting() {
+        int hour = java.time.LocalTime.now().getHour();
+        if (hour < 12)
+            return "Good Morning";
+        if (hour < 18)
+            return "Good Afternoon";
+        return "Good Evening";
     }
 
     private void createBudgetCard(JPanel panel) {
         JPanel budgetCard = new JPanel();
-        budgetCard.setBounds(30, 130, 1070, 130);
+        budgetCard.setBounds(30, 130, 1070, 120);
         budgetCard.setBackground(Color.WHITE);
         budgetCard.setLayout(null);
         budgetCard.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
 
-        JLabel budgetLabel = new JLabel("Total Budget");
-        budgetLabel.setBounds(30, 20, 200, 25);
-        budgetLabel.setFont(new Font("Arial", Font.BOLD, 18));
-        panel.add(budgetLabel);
+        JLabel titleLabel = new JLabel("Total Budget");
+        titleLabel.setBounds(30, 20, 150, 25);
+        titleLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        titleLabel.setForeground(new Color(120, 120, 120));
+        budgetCard.add(titleLabel);
 
-        JLabel budgetAmount = new JLabel("&..."); // budget yazılacak
-        budgetAmount.setBounds(30, 20, 200, 25);
-        budgetAmount.setFont(new Font("Arial", Font.BOLD, 18));
-        budgetCard.add(budgetAmount);
+        budgetLimitLabel = new JLabel("$0");
+        budgetLimitLabel.setBounds(30, 40, 200, 30);
+        budgetLimitLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        budgetCard.add(budgetLimitLabel);
 
         JLabel spentLabel = new JLabel("Spent");
         spentLabel.setBounds(930, 20, 100, 25);
@@ -225,32 +302,32 @@ public class DashBoardPanel extends JPanel {
         spentLabel.setHorizontalAlignment(SwingConstants.RIGHT);
         budgetCard.add(spentLabel);
 
-        JLabel spentAmount = new JLabel("..."); // spent yazılacak
-        spentAmount.setBounds(930, 20, 100, 25);
-        spentAmount.setFont(new Font("Arial", Font.BOLD, 16));
-        spentAmount.setForeground(new Color(220, 53, 69));
-        spentAmount.setHorizontalAlignment(SwingConstants.RIGHT);
-        budgetCard.add(spentAmount);
+        spentAmountLabel = new JLabel("$0");
+        spentAmountLabel.setBounds(930, 40, 100, 25);
+        spentAmountLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        spentAmountLabel.setForeground(new Color(220, 53, 69));
+        spentAmountLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        budgetCard.add(spentAmountLabel);
 
-        budgetProgressBar = new JProgressBar(00, 100);
-        budgetProgressBar.setBounds(30, 60, 1010, 12);
-        budgetProgressBar.setValue(67); // veri yazılacak
+        budgetProgressBar = new JProgressBar(0, 100);
+        budgetProgressBar.setBounds(30, 75, 1010, 12);
+        budgetProgressBar.setValue(0);
         budgetProgressBar.setForeground(new Color(33, 150, 243));
         budgetProgressBar.setBackground(new Color(230, 230, 230));
         budgetProgressBar.setBorderPainted(false);
         budgetCard.add(budgetProgressBar);
 
-        JLabel remainingLabel = new JLabel("💸 Remaining: " + "..."); // kalan yazılacak
-        remainingLabel.setBounds(30, 85, 200, 25);
+        remainingLabel = new JLabel("💸 Remaining: $0");
+        remainingLabel.setBounds(30, 92, 200, 25);
         remainingLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         remainingLabel.setForeground(UIConstants.PRIMARY_GREEN);
         budgetCard.add(remainingLabel);
 
-        percentageLabel = new JLabel("%... used"); // yüzde yazılacak
-        percentageLabel.setBounds(890, 85, 150, 25);
+        percentageLabel = new JLabel("0% used");
+        percentageLabel.setBounds(890, 92, 150, 25);
         percentageLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         percentageLabel.setForeground(new Color(120, 120, 120));
-        percentageLabel.setHorizontalAlignment((SwingConstants.RIGHT));
+        percentageLabel.setHorizontalAlignment(SwingConstants.RIGHT);
         budgetCard.add(percentageLabel);
 
         panel.add(budgetCard);
@@ -265,17 +342,21 @@ public class DashBoardPanel extends JPanel {
         button.setBorderPainted(false);
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        button.addMouseListener((new MouseAdapter() {
+        button.addMouseListener(new MouseAdapter() {
             public void mouseEntered(MouseEvent e) {
                 button.setBackground(bgColor.darker());
             }
-        }));
+
+            public void mouseExited(MouseEvent e) {
+                button.setBackground(bgColor);
+            }
+        });
 
         return button;
     }
 
     private void createWeeklyChart(JPanel panel) {
-        JPanel chartCard = new JPanel() {
+        weeklyChartPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
@@ -283,21 +364,28 @@ public class DashBoardPanel extends JPanel {
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
                 String[] days = { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
-                int[] values = { 1, 2, 23, 4, 545, 54, 100 }; // values yazılavcak
 
-                int maxValue = 800;
+                // Find max value for scaling
+                double maxValue = 1.0; // Minimum to avoid division by zero
+                for (double val : weeklySpending) {
+                    if (val > maxValue)
+                        maxValue = val;
+                }
+
                 int chartHeight = 200;
                 int baseY = 250;
                 int barWidth = 60;
                 int spacing = 15;
 
+                // Draw chart
                 for (int i = 0; i < days.length; i++) {
-                    int barHeight = (values[i] * chartHeight) / maxValue;
-                    int x = 50 * (i * (barWidth * spacing));
+                    int barHeight = (int) ((weeklySpending[i] * chartHeight) / maxValue);
+                    int x = 50 + (i * (barWidth + spacing));
                     int y = baseY - barHeight;
 
+                    // Draw line between points
                     if (i > 0) {
-                        int prevHeight = (values[i - 1] * chartHeight) / maxValue;
+                        int prevHeight = (int) ((weeklySpending[i - 1] * chartHeight) / maxValue);
                         int prevX = 50 + ((i - 1) * (barWidth + spacing)) + barWidth / 2;
                         int prevY = baseY - prevHeight;
                         int currentX = x + barWidth / 2;
@@ -307,76 +395,100 @@ public class DashBoardPanel extends JPanel {
                         g2d.drawLine(prevX, prevY, currentX, y);
                     }
 
+                    // Draw point
                     g2d.setColor(UIConstants.PRIMARY_GREEN);
                     g2d.fillOval(x + barWidth / 2 - 5, y - 5, 10, 10);
 
+                    // Draw value
                     g2d.setColor(new Color(50, 50, 50));
                     g2d.setFont(new Font("Arial", Font.BOLD, 12));
-                    String valueStr = "&" + values[i];
+                    String valueStr = String.format("$%.0f", weeklySpending[i]);
                     int strWidth = g2d.getFontMetrics().stringWidth(valueStr);
                     g2d.drawString(valueStr, x + (barWidth - strWidth) / 2, y - 15);
 
+                    // Draw day label
                     g2d.setColor(new Color(120, 120, 120));
                     g2d.setFont(new Font("Arial", Font.PLAIN, 12));
                     int dayWidth = g2d.getFontMetrics().stringWidth(days[i]);
                     g2d.drawString(days[i], x + (barWidth - dayWidth) / 2, baseY + 25);
-
                 }
-
             }
         };
 
-        chartCard.setBounds(30, 360, 650, 330);
-        chartCard.setBackground(Color.WHITE);
-        chartCard.setLayout(null);
-        chartCard.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
+        weeklyChartPanel.setBounds(30, 360, 650, 330);
+        weeklyChartPanel.setBackground(Color.WHITE);
+        weeklyChartPanel.setLayout(null);
+        weeklyChartPanel.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
 
         JLabel chartTitle = new JLabel("Weekly Spending");
         chartTitle.setBounds(20, 15, 200, 25);
         chartTitle.setFont(new Font("Arial", Font.BOLD, 16));
-        chartCard.add(chartTitle);
+        weeklyChartPanel.add(chartTitle);
 
-        JLabel trendLabel = new JLabel("..."); // bir şeyler yazılacak
+        trendLabel = new JLabel("--");
         trendLabel.setBounds(560, 15, 70, 25);
         trendLabel.setFont(new Font("Arial", Font.BOLD, 13));
-        trendLabel.setForeground(new Color(220, 53, 69));
-        chartCard.add(trendLabel);
+        trendLabel.setForeground(new Color(120, 120, 120));
+        weeklyChartPanel.add(trendLabel);
 
-        panel.add(chartCard);
+        panel.add(weeklyChartPanel);
     }
 
     private void createRecentTransactions(JPanel panel) {
-        JPanel transCard = new JPanel();
-        transCard.setBounds(700, 360, 400, 330);
-        transCard.setBackground(Color.WHITE);
-        transCard.setLayout(null);
-        transCard.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
+        transactionsPanel = new JPanel();
+        transactionsPanel.setBounds(700, 360, 400, 330);
+        transactionsPanel.setBackground(Color.WHITE);
+        transactionsPanel.setLayout(null);
+        transactionsPanel.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
 
         JLabel title = new JLabel("Recent Transactions");
         title.setBounds(20, 15, 300, 25);
         title.setFont(new Font("Arial", Font.BOLD, 16));
-        transCard.add(title);
+        transactionsPanel.add(title);
 
-        String[][] transactions = {
-                { "🛒", "Grocery Shopping", "Food", "$85.50" },
-                { "🚗", "Uber Ride", "Transport", "$12.30" },
-                { "🛍", "Online Purchase", "Shopping", "$156.00" }
-        };
+        panel.add(transactionsPanel);
+    }
 
+    private void updateRecentTransactions() {
+        // Remove old transaction items (keep only title)
+        Component[] components = transactionsPanel.getComponents();
+        for (Component comp : components) {
+            if (comp.getBounds().y > 50) { // Remove items below title
+                transactionsPanel.remove(comp);
+            }
+        }
+
+        // Get last 3 expenses
         int itemY = 60;
+        int maxTransactions = Math.min(3, recentExpenses.size());
 
-        for (String[] trans : transactions) {
-            JPanel item = createTransactionsItem(trans[0], trans[1], trans[2], trans[3]);
+        for (int i = 0; i < maxTransactions; i++) {
+            Expense exp = recentExpenses.get(i);
+            String emoji = getCategoryEmoji(exp.getCategory());
+            String desc = exp.getDescription();
+            String category = exp.getCategory();
+            String amount = String.format("$%.2f", exp.getAmount());
+
+            JPanel item = createTransactionItem(emoji, desc, category, amount);
             item.setBounds(15, itemY, 370, 70);
-            transCard.add(item);
+            transactionsPanel.add(item);
             itemY += 80;
         }
 
-        panel.add(transCard);
+        if (recentExpenses.isEmpty()) {
+            JLabel emptyLabel = new JLabel("No transactions yet");
+            emptyLabel.setBounds(15, 150, 370, 30);
+            emptyLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+            emptyLabel.setForeground(Color.GRAY);
+            emptyLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            transactionsPanel.add(emptyLabel);
+        }
 
+        transactionsPanel.revalidate();
+        transactionsPanel.repaint();
     }
 
-    private JPanel createTransactionsItem(String emoji, String desc, String category, String amount) {
+    private JPanel createTransactionItem(String emoji, String desc, String category, String amount) {
         JPanel item = new JPanel();
         item.setLayout(null);
         item.setBackground(Color.WHITE);
@@ -406,16 +518,192 @@ public class DashBoardPanel extends JPanel {
         item.add(amountLabel);
 
         return item;
-
     }
 
+    private String getCategoryEmoji(String category) {
+        if (category == null)
+            return "📋";
+        switch (category) {
+            case "Food":
+                return "🛒";
+            case "Transport":
+                return "🚗";
+            case "Shopping":
+                return "🛍";
+            case "Health":
+                return "🏥";
+            case "Entertainment":
+                return "🎬";
+            default:
+                return "📋";
+        }
+    }
+
+    /**
+     * Refresh all dashboard data from backend
+     */
     public void refreshData() {
-        // backend integration
+        try {
+            // Get current user
+            currentUser = UserSession.getCurrentUser();
+            int userId = currentUser.getId();
+
+            // Update greeting
+            String greeting = getGreeting();
+            greetingLabel.setText(greeting + ", " + currentUser.getUserName());
+
+            // Load budget data
+            currentBudget = budgetService.getSpesificUserBudget(userId);
+
+            if (currentBudget != null) {
+                budgetLimit = currentBudget.getBudgetLimit();
+                totalSpent = currentBudget.getTotalSpending();
+                remaining = budgetLimit - totalSpent;
+                percentageUsed = (int) budgetService.calculateTheSpendingPercentage(currentBudget);
+
+                // Update budget UI
+                budgetLimitLabel.setText(String.format("$%.2f", budgetLimit));
+                spentAmountLabel.setText(String.format("$%.2f", totalSpent));
+                remainingLabel.setText(String.format("💸 Remaining: $%.2f", remaining));
+                percentageLabel.setText(percentageUsed + "% used");
+                budgetProgressBar.setValue(Math.min(100, percentageUsed));
+
+                // Change progress bar color based on percentage
+                if (percentageUsed >= 100) {
+                    budgetProgressBar.setForeground(new Color(220, 53, 69)); // Red
+                } else if (percentageUsed >= 80) {
+                    budgetProgressBar.setForeground(new Color(255, 152, 0)); // Orange
+                } else {
+                    budgetProgressBar.setForeground(new Color(33, 150, 243)); // Blue
+                }
+
+                // Calculate total balance (budget remaining)
+                totalBalance = remaining;
+            } else {
+                // No budget set
+                budgetLimitLabel.setText("No budget set");
+                spentAmountLabel.setText("$0.00");
+                remainingLabel.setText("💸 Remaining: $0.00");
+                percentageLabel.setText("0% used");
+                budgetProgressBar.setValue(0);
+                totalBalance = 0;
+            }
+
+            balanceLabel.setText(String.format("$%.0f", totalBalance));
+
+            // Load expenses for weekly chart and recent transactions
+            List<Expense> allExpenses = expenseServiceInstance.getExpensesOfTheUser(userId);
+            if (allExpenses == null) {
+                allExpenses = new ArrayList<>();
+            }
+
+            // Calculate weekly spending
+            calculateWeeklySpending(allExpenses);
+
+            // Get recent expenses (last 3)
+            recentExpenses = getRecentExpenses(allExpenses, 3);
+
+            // Update UI components
+            updateRecentTransactions();
+            weeklyChartPanel.repaint();
+
+            // Calculate and display trend
+            updateTrend();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Error refreshing dashboard data: " + e.getMessage());
+        }
     }
 
+    /**
+     * Calculate spending for each day of current week
+     */
+    private void calculateWeeklySpending(List<Expense> expenses) {
+        // Initialize array
+        weeklySpending = new double[7];
+
+        // Get start and end of current week (Monday to Sunday)
+        LocalDate today = LocalDate.now();
+        LocalDate monday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+
+        // Calculate spending for each day
+        for (Expense expense : expenses) {
+            if (expense.getDate() != null) {
+                LocalDate expenseDate = expense.getDate().toLocalDate();
+
+                // Check if expense is in current week
+                if (!expenseDate.isBefore(monday) && !expenseDate.isAfter(monday.plusDays(6))) {
+                    int dayIndex = expenseDate.getDayOfWeek().getValue() - 1; // Monday = 0
+                    weeklySpending[dayIndex] += expense.getAmount();
+                }
+            }
+        }
+    }
+
+    /**
+     * Get most recent N expenses
+     */
+    private List<Expense> getRecentExpenses(List<Expense> allExpenses, int count) {
+        // Sort by date (most recent first)
+        List<Expense> sorted = new ArrayList<>(allExpenses);
+        sorted.sort((e1, e2) -> {
+            if (e1.getDate() == null)
+                return 1;
+            if (e2.getDate() == null)
+                return -1;
+            return e2.getDate().compareTo(e1.getDate());
+        });
+
+        // Return first N
+        return sorted.subList(0, Math.min(count, sorted.size()));
+    }
+
+    /**
+     * Calculate and update spending trend
+     */
+    private void updateTrend() {
+        // Calculate if spending is increasing or decreasing
+        if (weeklySpending.length >= 2) {
+            double firstHalf = 0;
+            double secondHalf = 0;
+
+            for (int i = 0; i < 3; i++) {
+                firstHalf += weeklySpending[i];
+            }
+            for (int i = 4; i < 7; i++) {
+                secondHalf += weeklySpending[i];
+            }
+
+            if (secondHalf > firstHalf * 1.1) {
+                trendLabel.setText("↗ +12%");
+                trendLabel.setForeground(new Color(220, 53, 69));
+            } else if (secondHalf < firstHalf * 0.9) {
+                trendLabel.setText("↘ -12%");
+                trendLabel.setForeground(UIConstants.PRIMARY_GREEN);
+            } else {
+                trendLabel.setText("→ Stable");
+                trendLabel.setForeground(new Color(120, 120, 120));
+            }
+        }
+    }
+
+    /**
+     * Clear all data - called on logout
+     */
     public void clearData() {
         greetingLabel.setText("Good Morning");
-        balanceLabel.setText("&0");
-    }
+        balanceLabel.setText("$0");
+        budgetLimitLabel.setText("$0");
+        spentAmountLabel.setText("$0");
+        remainingLabel.setText("💸 Remaining: $0");
+        percentageLabel.setText("0% used");
+        budgetProgressBar.setValue(0);
 
+        weeklySpending = new double[7];
+        recentExpenses.clear();
+
+        updateRecentTransactions();
+        weeklyChartPanel.repaint();
+    }
 }

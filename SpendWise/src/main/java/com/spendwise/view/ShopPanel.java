@@ -7,6 +7,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.net.URL;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 
 import com.spendwise.models.Product;
 import com.spendwise.scrapers.AmazonScraper;
@@ -390,6 +393,11 @@ public class ShopPanel extends JPanel {
         imageLabel.setFont(new Font("Arial", Font.PLAIN, 48));
         imagePlaceholder.add(imageLabel, BorderLayout.CENTER);
 
+        // Load image asynchronously
+        if (product.getImageUrl() != null && !product.getImageUrl().isEmpty()) {
+            loadProductImage(product.getImageUrl(), imageLabel);
+        }
+
         // Product Info
         JPanel infoPanel = new JPanel();
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
@@ -442,6 +450,51 @@ public class ShopPanel extends JPanel {
         });
 
         return card;
+    }
+
+    private void loadProductImage(String imageUrl, JLabel imageLabel) {
+        SwingWorker<ImageIcon, Void> worker = new SwingWorker<ImageIcon, Void>() {
+            @Override
+            protected ImageIcon doInBackground() throws Exception {
+                try {
+                    URL url = new URL(imageUrl);
+                    BufferedImage image = ImageIO.read(url);
+                    if (image != null) {
+                        // Scale image to fit the 300x150 area nicely
+                        // We can use a slightly smarter scaling to preserve aspect ratio within bounds
+                        int maxWidth = 300;
+                        int maxHeight = 150;
+
+                        double widthRatio = (double) maxWidth / image.getWidth();
+                        double heightRatio = (double) maxHeight / image.getHeight();
+                        double ratio = Math.min(widthRatio, heightRatio);
+
+                        int newWidth = (int) (image.getWidth() * ratio);
+                        int newHeight = (int) (image.getHeight() * ratio);
+
+                        Image scaledImage = image.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
+                        return new ImageIcon(scaledImage);
+                    }
+                } catch (Exception e) {
+                    // Fail silently
+                }
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    ImageIcon icon = get();
+                    if (icon != null) {
+                        imageLabel.setText("");
+                        imageLabel.setIcon(icon);
+                    }
+                } catch (Exception e) {
+                    // Ignore
+                }
+            }
+        };
+        worker.execute();
     }
 
     private String truncateText(String text, int maxLength) {
