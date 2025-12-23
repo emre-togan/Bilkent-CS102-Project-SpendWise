@@ -18,6 +18,10 @@ public class AuthController {
 
         User userFromTheList = userService.getUserByUserName(userName);
 
+        if (userFromTheList == null) {
+            userFromTheList = userService.getUserByEmail(userName);
+        }
+
         if (userFromTheList != null) {
             if (userFromTheList.getPassword().equals(passWord)) {
                 this.currentUser = userFromTheList;
