@@ -5,6 +5,8 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import com.spendwise.controllers.AuthController;
+
 public class SignUpPanel extends JPanel {
 
     private JTextField fullNameField;
@@ -14,8 +16,10 @@ public class SignUpPanel extends JPanel {
     private JPasswordField confirmPasswordField;
 
     private Runnable onSignInClicked;
+    private AuthController authController;
 
     public SignUpPanel() {
+        this.authController = new AuthController();
         setLayout(new GridBagLayout());
 
         // 1. White Card Panel
@@ -45,23 +49,18 @@ public class SignUpPanel extends JPanel {
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         // 3. Form parts
-        // Full Name
         fullNameField = new JTextField();
         JPanel fullNamePanel = createFieldPanel("Full Name", fullNameField);
 
-        // Username
         usernameField = new JTextField();
         JPanel usernamePanel = createFieldPanel("Username", usernameField);
 
-        // Email
         emailField = new JTextField();
         JPanel emailPanel = createFieldPanel("Email Address", emailField);
 
-        // Password
         passwordField = new JPasswordField();
         JPanel passwordPanel = createFieldPanel("Password", passwordField);
 
-        // Confirm Password
         confirmPasswordField = new JPasswordField();
         JPanel confirmPassPanel = createFieldPanel("Confirm Password", confirmPasswordField);
 
@@ -83,13 +82,12 @@ public class SignUpPanel extends JPanel {
         loginLink.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         loginLink.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // clicking link
         loginLink.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                // backend
-                JOptionPane.showMessageDialog(SignUpPanel.this, "Going back to login screen...");
-
+                if (onSignInClicked != null) {
+                    onSignInClicked.run();
+                }
             }
         });
 
@@ -155,17 +153,58 @@ public class SignUpPanel extends JPanel {
     }
 
     private void handleSignUp() {
+        String fullName = fullNameField.getText().trim();
+        String username = usernameField.getText().trim();
+        String email = emailField.getText().trim();
         String pass = new String(passwordField.getPassword());
         String confirm = new String(confirmPasswordField.getPassword());
-        String fullName = new String(fullNameField.getText());
-        String username = new String(usernameField.getText());
-        String email = new String(emailField.getText());
+
+        // Validation
+        if (fullName.isEmpty() || username.isEmpty() || email.isEmpty() || pass.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill in all fields!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
         if (!pass.equals(confirm)) {
             JOptionPane.showMessageDialog(this, "Passwords do not match!", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        // backend
+        if (pass.length() < 4) {
+            JOptionPane.showMessageDialog(this, "Password must be at least 4 characters!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Backend registration
+        boolean registrationSuccess = authController.register(username, pass, email);
+        
+        if (registrationSuccess) {
+            JOptionPane.showMessageDialog(this, 
+                "Account created successfully!\nYou can now login with your credentials.", 
+                "Registration Successful", 
+                JOptionPane.INFORMATION_MESSAGE);
+            
+            // Clear fields
+            fullNameField.setText("");
+            usernameField.setText("");
+            emailField.setText("");
+            passwordField.setText("");
+            confirmPasswordField.setText("");
+            
+            // Go back to login
+            if (onSignInClicked != null) {
+                onSignInClicked.run();
+            }
+        } else {
+            // More specific error message
+            JOptionPane.showMessageDialog(this, 
+                "<html><body style='width: 250px'>" +
+                "<b>Registration Failed!</b><br><br>" +
+                "This username or email is already registered.<br>" +
+                "Please try with different credentials or login if you already have an account." +
+                "</body></html>", 
+                "Registration Error", 
+                JOptionPane.ERROR_MESSAGE);
+        }
     }
 }

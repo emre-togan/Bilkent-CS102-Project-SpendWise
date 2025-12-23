@@ -5,25 +5,36 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Map;
 
-// import Services.SettingsService; 
-// import Services.UserSession;     
+import com.spendwise.services.SettingsService;
 
 public class SettingsPanel extends JPanel {
 
     private MainFrame mainFrame;
-    // Callback to notify MainFrame when logout occurs
     private Runnable onLogoutClicked;
+    private SettingsService settingsService;
+    private JPanel contentPanel;
+
+    // Toggle Buttons References (to update them)
+    private JCheckBox budgetAlertsToggle;
+    private JCheckBox discountAlertsToggle;
 
     public SettingsPanel(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
+        this.settingsService = new SettingsService();
         setLayout(new BorderLayout());
         setBackground(UIConstants.WHITE_BG);
 
         add(createSideMenu(), BorderLayout.WEST);
+        add(createContent(), BorderLayout.CENTER);
 
         // Load UI and Settings
         loadSettings();
+    }
+
+    public void setOnLogoutClicked(Runnable callback) {
+        this.onLogoutClicked = callback;
     }
 
     private JPanel createSideMenu() {
@@ -46,14 +57,15 @@ public class SettingsPanel extends JPanel {
         sideMenu.add(appName);
 
         int startY = 120;
-        addMenuItem(sideMenu, "🏠", "Dashboard", startY, false);
-        addMenuItem(sideMenu, "💳", "Budget", startY + 60, false);
-        addMenuItem(sideMenu, "🧾", "Expenses", startY + 120, false);
-        addMenuItem(sideMenu, "🛍️", "Shop", startY + 180, false);
-        addMenuItem(sideMenu, "💬", "Chat", startY + 240, false);
-        addMenuItem(sideMenu, "👤", "Profile", startY + 300, false);
-        addMenuItem(sideMenu, "⚙️", "Settings", startY + 360, true);
+        addMenuButton(sideMenu, "🏠", "Dashboard", startY, false);
+        addMenuButton(sideMenu, "💳", "Budget", startY + 60, false);
+        addMenuButton(sideMenu, "🧾", "Expenses", startY + 120, false);
+        addMenuButton(sideMenu, "🛍️", "Shop", startY + 180, false);
+        addMenuButton(sideMenu, "💬", "Chat", startY + 240, false);
+        addMenuButton(sideMenu, "👤", "Profile", startY + 300, false);
+        addMenuButton(sideMenu, "⚙️", "Settings", startY + 360, true);
 
+        // Profile Card at bottom
         JPanel profileCard = new JPanel();
         profileCard.setBounds(15, 650, 230, 70);
         profileCard.setBackground(new Color(248, 249, 250));
@@ -82,7 +94,7 @@ public class SettingsPanel extends JPanel {
 
         sideMenu.add(profileCard);
 
-        JButton logoutBtn = new JButton("↩︎ Logout");
+        JButton logoutBtn = new JButton("🚪 Logout");
         logoutBtn.setBounds(15, 735, 230, 40);
         logoutBtn.setFont(new Font("Arial", Font.BOLD, 14));
         logoutBtn.setForeground(new Color(220, 53, 69));
@@ -90,183 +102,108 @@ public class SettingsPanel extends JPanel {
         logoutBtn.setFocusPainted(false);
         logoutBtn.setBorder(BorderFactory.createLineBorder(new Color(220, 53, 69)));
         logoutBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        logoutBtn.addActionListener(e -> mainFrame.logout());
+        logoutBtn.addActionListener(e -> {
+            if (onLogoutClicked != null)
+                onLogoutClicked.run();
+        });
         sideMenu.add(logoutBtn);
 
         return sideMenu;
     }
 
-    private void addMenuItem(JPanel parent, String emoji, String text, int y, boolean active) {
-        JButton btn = new JButton(emoji + "  " + text);
-        btn.setBounds(10, y, 240, 50);
-        btn.setFont(new Font("Arial", Font.PLAIN, 14));
-        btn.setHorizontalAlignment(SwingConstants.LEFT);
-        btn.setBorder(new EmptyBorder(0, 15, 0, 0));
-        btn.setFocusPainted(false);
-        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    private void addMenuButton(JPanel panel, String icon, String text, int y, boolean selected) {
+        JButton button = new JButton(icon + "  " + text);
+        button.setBounds(10, y, 240, 50);
+        button.setFont(new Font("Arial", Font.PLAIN, 14));
+        button.setHorizontalAlignment(SwingConstants.LEFT);
+        button.setBorder(new EmptyBorder(0, 15, 0, 0));
+        button.setFocusPainted(false);
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        if (active) {
-            btn.setBackground(UIConstants.PRIMARY_GREEN);
-            btn.setForeground(Color.WHITE);
-            btn.setOpaque(true);
+        if (selected) {
+            button.setBackground(UIConstants.PRIMARY_GREEN);
+            button.setForeground(Color.WHITE);
+            button.setOpaque(true);
         } else {
-            btn.setContentAreaFilled(false);
-            btn.setForeground(new Color(80, 80, 80));
+            button.setContentAreaFilled(false);
+            button.setForeground(new Color(80, 80, 80));
         }
 
-        btn.addMouseListener(new MouseAdapter() {
-            public void mouseEntered(MouseEvent e) {
-                if (!active) {
-                    btn.setBackground(new Color(245, 245, 245));
-                    btn.setOpaque(true);
-                }
-            }
-
-            public void mouseExited(MouseEvent e) {
-                if (!active) {
-                    btn.setContentAreaFilled(false);
-                }
-            }
-        });
-
-        btn.addActionListener(e -> mainFrame.showPanel(text.toUpperCase()));
-        parent.add(btn);
+        button.addActionListener(e -> mainFrame.showPanel(text.toUpperCase()));
+        panel.add(button);
     }
 
-    private void loadSettings() {
-        removeAll(); // Clear panel to refresh if needed
-
-        JPanel contentPanel = new JPanel();
+    private JPanel createContent() {
+        contentPanel = new JPanel();
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
         contentPanel.setBackground(UIConstants.WHITE_BG);
-        contentPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
+        contentPanel.setBorder(new EmptyBorder(30, 40, 30, 40));
 
-        // 1. Header
-        JLabel headerLabel = new JLabel("Settings");
-        headerLabel.setFont(UIConstants.HEADING_FONT);
-        headerLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        contentPanel.add(headerLabel);
+        JLabel title = new JLabel("Settings");
+        title.setFont(UIConstants.HEADING_FONT);
+        title.setAlignmentX(Component.LEFT_ALIGNMENT);
+        contentPanel.add(title);
+        contentPanel.add(Box.createVerticalStrut(20));
+
+        // 1. Account Section
+        addSectionHeader("Account");
+        contentPanel.add(
+                createNavigationItem("Personal Information", () -> new PersonalInfoDialog(mainFrame).setVisible(true)));
+        contentPanel.add(
+                createNavigationItem("Change Password", () -> new ChangePasswordDialog(mainFrame).setVisible(true)));
+        contentPanel.add(
+                createNavigationItem("Privacy Settings", () -> new PrivacySettingsDialog(mainFrame).setVisible(true)));
         contentPanel.add(Box.createVerticalStrut(20));
 
         // 2. Notifications Section
-        contentPanel.add(createSectionHeader("Notifications"));
-        contentPanel.add(Box.createVerticalStrut(10));
+        addSectionHeader("Notifications");
+        budgetAlertsToggle = new JCheckBox();
+        discountAlertsToggle = new JCheckBox();
+        contentPanel.add(createToggleItem("Budget Alerts", budgetAlertsToggle));
+        contentPanel.add(createToggleItem("Discount Alerts", discountAlertsToggle));
+        contentPanel.add(Box.createVerticalStrut(20));
 
-        // INTEGRATION: Fetch current status from backend
-        // boolean budgetAlerts = SettingsService.getSetting("Budget Alerts");
-        // boolean discountAlerts = SettingsService.getSetting("Discount Alerts");
-
-        // Using 'true' as placeholder until backend service is connected
-        contentPanel.add(createToggleItem("Budget Alerts", true));
-        contentPanel.add(createToggleItem("Discount Alerts", true));
-        contentPanel.add(Box.createVerticalStrut(25));
-
-        // 3. Account Section
-        contentPanel.add(createSectionHeader("Account"));
-        contentPanel.add(Box.createVerticalStrut(10));
-
-        // Navigation items now open the real Dialogs we created
-        contentPanel.add(createNavigationItem("Personal Information", () -> {
-            JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
-            new PersonalInfoDialog(parent).setVisible(true);
-        }));
-
-        contentPanel.add(createNavigationItem("Change Password", () -> {
-            JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
-            new ChangePasswordDialog(parent).setVisible(true);
-        }));
-
-        contentPanel.add(createNavigationItem("Privacy Settings", () -> {
-            JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
-            new PrivacySettingsDialog(parent).setVisible(true);
-        }));
-
-        contentPanel.add(Box.createVerticalStrut(25));
-
-        // 4. Support Section
-        contentPanel.add(createSectionHeader("Support"));
-        contentPanel.add(Box.createVerticalStrut(10));
+        // 3. Support Section
+        addSectionHeader("Support");
         contentPanel.add(createNavigationItem("Help Center",
-                () -> JOptionPane.showMessageDialog(this, "Opening Help Center...")));
+                () -> JOptionPane.showMessageDialog(this, "Help Center Coming Soon!")));
         contentPanel.add(createNavigationItem("Terms of Service",
-                () -> JOptionPane.showMessageDialog(this, "Opening Terms of Service...")));
-        contentPanel.add(createNavigationItem("Privacy Policy",
-                () -> JOptionPane.showMessageDialog(this, "Opening Privacy Policy...")));
-        contentPanel.add(Box.createVerticalStrut(40));
+                () -> JOptionPane.showMessageDialog(this, "Terms of Service...")));
 
-        // 5. Footer (Version & Logout)
-        JLabel versionLabel = new JLabel("SpendWise Version 1.0.0");
-        versionLabel.setFont(new Font("Arial", Font.PLAIN, 12));
-        versionLabel.setForeground(UIConstants.GRAY_TEXT);
-        versionLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        contentPanel.add(versionLabel);
-        contentPanel.add(Box.createVerticalStrut(15));
+        // Delete Account (Red)
+        JButton deleteAccBtn = new JButton("Delete Account");
+        deleteAccBtn.setForeground(Color.RED);
+        deleteAccBtn.setBorderPainted(false);
+        deleteAccBtn.setContentAreaFilled(false);
+        deleteAccBtn.setAlignmentX(Component.LEFT_ALIGNMENT);
+        deleteAccBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        deleteAccBtn.addActionListener(e -> handleDeleteAccount());
 
-        JButton logoutButton = new JButton("Log Out");
-        logoutButton.setFont(UIConstants.BUTTON_FONT);
-        logoutButton.setBackground(new Color(220, 53, 69));
-        logoutButton.setForeground(Color.WHITE);
-        logoutButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 45));
-        logoutButton.setFocusPainted(false);
-        logoutButton.setBorderPainted(false);
-        logoutButton.setAlignmentX(Component.LEFT_ALIGNMENT);
-        logoutButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        contentPanel.add(Box.createVerticalStrut(20));
+        contentPanel.add(deleteAccBtn);
 
-        logoutButton.addActionListener(e -> handleLogout());
-
-        contentPanel.add(logoutButton);
-
-        // Scroll Pane configuration
+        // --- FIXED SCROLL PANE LOGIC ---
         JScrollPane scrollPane = new JScrollPane(contentPanel);
         scrollPane.setBorder(null);
-        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
-        add(scrollPane, BorderLayout.CENTER);
 
-        revalidate();
-        repaint();
+        // Wrap the scroll pane in a panel to force it to fill the center
+        JPanel wrapper = new JPanel(new BorderLayout());
+        wrapper.setBackground(UIConstants.WHITE_BG); // Ensure background matches
+        wrapper.add(scrollPane, BorderLayout.CENTER);
+
+        return wrapper;
     }
 
-    // --- LOGIC METHODS ---
-
-    private void handleToggleChange(String settingName, boolean value) {
-        // INTEGRATION: Update setting in the backend
-        // SettingsService.updateSetting(settingName, value);
-        System.out.println("[Backend Call] Setting Updated: " + settingName + " -> " + value);
-    }
-
-    private void handleLogout() {
-        int choice = JOptionPane.showConfirmDialog(
-                this,
-                "Are you sure you want to log out?",
-                "Logout",
-                JOptionPane.YES_NO_OPTION);
-
-        if (choice == JOptionPane.YES_OPTION) {
-            // INTEGRATION: Terminate session in backend
-            // SettingsService.logout(UserSession.getCurrentUserId());
-
-            // Navigate back to Login Screen
-            if (onLogoutClicked != null) {
-                onLogoutClicked.run();
-            }
-        }
-    }
-
-    public void setOnLogoutClicked(Runnable onLogoutClicked) {
-        this.onLogoutClicked = onLogoutClicked;
-    }
-
-    // --- UI HELPER METHODS ---
-
-    private JLabel createSectionHeader(String text) {
-        JLabel label = new JLabel(text);
+    private void addSectionHeader(String title) {
+        JLabel label = new JLabel(title);
         label.setFont(new Font("Arial", Font.BOLD, 14));
-        label.setForeground(UIConstants.PRIMARY_BLUE);
+        label.setForeground(UIConstants.GRAY_TEXT);
         label.setAlignmentX(Component.LEFT_ALIGNMENT);
-        return label;
+        contentPanel.add(label);
+        contentPanel.add(Box.createVerticalStrut(10));
     }
 
-    private JPanel createToggleItem(String text, boolean initialValue) {
+    private JPanel createToggleItem(String text, JCheckBox toggle) {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(UIConstants.WHITE_BG);
         panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
@@ -275,12 +212,7 @@ public class SettingsPanel extends JPanel {
         JLabel label = new JLabel(text);
         label.setFont(UIConstants.BODY_FONT);
 
-        JCheckBox toggle = new JCheckBox();
-        toggle.setSelected(initialValue);
         toggle.setBackground(UIConstants.WHITE_BG);
-        toggle.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-        // Trigger handleToggleChange when clicked
         toggle.addActionListener(e -> handleToggleChange(text, toggle.isSelected()));
 
         panel.add(label, BorderLayout.WEST);
@@ -295,7 +227,6 @@ public class SettingsPanel extends JPanel {
         panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 45));
         panel.setAlignmentX(Component.LEFT_ALIGNMENT);
         panel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
         panel.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(240, 240, 240)));
 
         JLabel label = new JLabel(text);
@@ -323,5 +254,39 @@ public class SettingsPanel extends JPanel {
         });
 
         return panel;
+    }
+
+    private void loadSettings() {
+        // Fetch from backend
+        int userId = UserSession.getCurrentUserId();
+        Map<String, Boolean> settings = settingsService.getSettings(userId);
+
+        if (settings != null) {
+            budgetAlertsToggle.setSelected(settings.getOrDefault("Budget Alerts", false));
+            discountAlertsToggle.setSelected(settings.getOrDefault("Discount Alerts", false));
+        }
+    }
+
+    private void handleToggleChange(String type, boolean isEnabled) {
+        int userId = UserSession.getCurrentUserId();
+        settingsService.toggleNotification(userId, type, isEnabled);
+        // Optional: Show small feedback toast
+    }
+
+    private void handleDeleteAccount() {
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "Are you sure you want to delete your account? This cannot be undone.",
+                "Delete Account", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            boolean success = settingsService.deleteAccount(UserSession.getCurrentUserId());
+            if (success) {
+                JOptionPane.showMessageDialog(this, "Account deleted.");
+                if (onLogoutClicked != null)
+                    onLogoutClicked.run();
+            } else {
+                JOptionPane.showMessageDialog(this, "Error deleting account.");
+            }
+        }
     }
 }

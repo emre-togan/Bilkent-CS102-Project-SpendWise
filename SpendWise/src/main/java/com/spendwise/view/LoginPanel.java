@@ -4,6 +4,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.net.URL;
 
+import com.spendwise.controllers.AuthController;
+import com.spendwise.models.User;
+
 public class LoginPanel extends JPanel {
 
     private JTextField usernameField;
@@ -13,8 +16,11 @@ public class LoginPanel extends JPanel {
     private Runnable onForgotPasswordClicked;
     private Runnable onSignUpClicked;
     private Runnable onLoginSuccess;
+    
+    private AuthController authController;
 
     public LoginPanel() {
+        this.authController = new AuthController();
         setLayout(new GridBagLayout());
 
         JPanel cardPanel = new JPanel();
@@ -29,18 +35,14 @@ public class LoginPanel extends JPanel {
         URL logoUrl = getClass().getResource("/logo.png");
 
         if (logoUrl != null) {
-
             ImageIcon originalIcon = new ImageIcon(logoUrl);
-
             Image image = originalIcon.getImage();
             Image newimg = image.getScaledInstance(80, 80, java.awt.Image.SCALE_SMOOTH);
-
             logoLabel.setIcon(new ImageIcon(newimg));
         } else {
             logoLabel.setText("W$");
             logoLabel.setFont(new Font("Arial", Font.BOLD, 40));
             logoLabel.setForeground(UIConstants.PRIMARY_GREEN);
-            System.out.println("Logo dosyası bulunamadı, varsayılan metin kullanılıyor.");
         }
 
         JLabel welcomeLabel = new JLabel("Welcome Back");
@@ -93,6 +95,14 @@ public class LoginPanel extends JPanel {
         forgotPassLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         forgotPassLabel.setMaximumSize(new Dimension(Integer.MAX_VALUE, forgotPassLabel.getPreferredSize().height));
         forgotPassLabel.setHorizontalAlignment(SwingConstants.LEFT);
+        
+        forgotPassLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                if (onForgotPasswordClicked != null) {
+                    onForgotPasswordClicked.run();
+                }
+            }
+        });
 
         JButton loginButton = new JButton("LOGIN");
         loginButton.setFont(UIConstants.BUTTON_FONT);
@@ -110,6 +120,14 @@ public class LoginPanel extends JPanel {
         signUpLabel.setForeground(UIConstants.PRIMARY_BLUE);
         signUpLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         signUpLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
+        signUpLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                if (onSignUpClicked != null) {
+                    onSignUpClicked.run();
+                }
+            }
+        });
 
         cardPanel.add(logoLabel);
         cardPanel.add(Box.createVerticalStrut(20));
@@ -159,11 +177,11 @@ public class LoginPanel extends JPanel {
     }
 
     private void handleLogin() {
-        String username = usernameField.getText();
+        String username = usernameField.getText().trim();
         String password = new String(passwordField.getPassword());
 
         // Validation
-        if (username.isEmpty() || username.equals("Enter your username or email")) {
+        if (username.isEmpty()) {
             JOptionPane.showMessageDialog(
                     this,
                     "Please enter username or email",
@@ -181,28 +199,31 @@ public class LoginPanel extends JPanel {
             return;
         }
 
-        // Backend integration here
-        // For now, simulate successful login for testing
-        // TODO: Replace with actual backend call
-        // Example:
-        // RegularUser user = AuthService.login(username, password);
-        // if (user != null) {
-        // if (onLoginSuccess != null) {
-        // onLoginSuccess.run();
-        // }
-        // }
-
-        // TEMPORARY: Auto-login for testing
-        if (onLoginSuccess != null) {
-            onLoginSuccess.run();
+        // Backend login
+        boolean loginSuccess = authController.login(username, password);
+        
+        if (loginSuccess) {
+            User currentUser = authController.getCurrentUser();
+            
+            // Update UserSession
+            if (currentUser != null) {
+                UserSession.setCurrentUserId(currentUser.getId());
+            }
+            
+            // Clear fields
+            usernameField.setText("");
+            passwordField.setText("");
+            
+            // Success callback
+            if (onLoginSuccess != null) {
+                onLoginSuccess.run();
+            }
+        } else {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Invalid username or password",
+                    "Login Failed",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
-
-    /*
-     * private void handleLogin() {
-     * String username = usernameField.getText();
-     * String password = new String(passwordField.getPassword());
-     * // Backend
-     * }
-     */
 }

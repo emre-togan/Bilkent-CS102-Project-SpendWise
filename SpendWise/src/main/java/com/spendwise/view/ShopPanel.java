@@ -3,26 +3,44 @@ package com.spendwise.view;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.spendwise.models.Product;
+import com.spendwise.scrapers.TrendyolScraper;
+import com.spendwise.services.productService;
 
 public class ShopPanel extends JPanel {
 
     private MainFrame mainFrame;
+    private JPanel productsContainer;
     private JTextField searchField;
-    private JButton onlineTab;
-    private JButton secondHandTab;
-    private JPanel productGridPanel;
-    private boolean isSecondHandMode = false;
-    private JPanel filterPanel;
-    private boolean filtersVisible = false;
+    private JComboBox<String> sortByBox;
+    private JToggleButton onlineDealsBtn;
+    private JToggleButton secondHandBtn;
+    
+    private productService productServiceInstance;
+    private TrendyolScraper scraper;
+    private List<Product> currentProducts;
+    private boolean showOnlineDeals = true;
+    private boolean showSecondHand = false;
 
     public ShopPanel(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
+        this.productServiceInstance = new productService();
+        this.scraper = new TrendyolScraper();
+        this.currentProducts = new ArrayList<>();
+        
         setLayout(new BorderLayout());
         setBackground(new Color(250, 250, 250));
 
         add(createSideMenu(), BorderLayout.WEST);
         add(createContent(), BorderLayout.CENTER);
+        
+        // Initial data load
+        refreshData();
     }
 
     private JPanel createSideMenu() {
@@ -46,9 +64,9 @@ public class ShopPanel extends JPanel {
 
         int startY = 120;
         addMenuItem(sideMenu, "🏠", "Dashboard", startY, false);
-        addMenuItem(sideMenu, "💰", "Budget", startY + 60, false);
-        addMenuItem(sideMenu, "📋", "Expenses", startY + 120, false);
-        addMenuItem(sideMenu, "🛒", "Shop", startY + 180, true);
+        addMenuItem(sideMenu, "💳", "Budget", startY + 60, false);
+        addMenuItem(sideMenu, "🧾", "Expenses", startY + 120, false);
+        addMenuItem(sideMenu, "🛍️", "Shop", startY + 180, true);
         addMenuItem(sideMenu, "💬", "Chat", startY + 240, false);
         addMenuItem(sideMenu, "👤", "Profile", startY + 300, false);
         addMenuItem(sideMenu, "⚙️", "Settings", startY + 360, false);
@@ -81,7 +99,7 @@ public class ShopPanel extends JPanel {
 
         sideMenu.add(profileCard);
 
-        JButton logoutBtn = new JButton("🚪 Logout");
+        JButton logoutBtn = new JButton("↩︎ Logout");
         logoutBtn.setBounds(15, 735, 230, 40);
         logoutBtn.setFont(new Font("Arial", Font.BOLD, 14));
         logoutBtn.setForeground(new Color(220, 53, 69));
@@ -137,6 +155,7 @@ public class ShopPanel extends JPanel {
         content.setLayout(null);
         content.setBackground(new Color(250, 250, 250));
 
+        // Header
         JLabel header = new JLabel("Shop Deals");
         header.setBounds(30, 30, 400, 40);
         header.setFont(new Font("Arial", Font.BOLD, 28));
@@ -148,411 +167,305 @@ public class ShopPanel extends JPanel {
         subHeader.setForeground(new Color(120, 120, 120));
         content.add(subHeader);
 
-        createSearchBar(content);
-
-        createFilterPanel(content);
-
-        createProductGrid(content);
-
-        createTabs(content);
-
-        return content;
-    }
-
-    private void createSearchBar(JPanel parent) {
-        JPanel searchPanel = new JPanel();
-        searchPanel.setBounds(30, 130, 1070, 55);
-        searchPanel.setBackground(Color.WHITE);
-        searchPanel.setLayout(null);
-        searchPanel.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
-
-        JLabel searchIcon = new JLabel("🔍");
-        searchIcon.setBounds(20, 15, 30, 25);
-        searchIcon.setFont(new Font("Arial", Font.PLAIN, 20));
-        searchPanel.add(searchIcon);
-
+        // Search Bar
         searchField = new JTextField("Search for products, deals, or brands...");
-        searchField.setBounds(60, 12, 880, 30);
-        searchField.setFont(new Font("Arial", Font.PLAIN, 15));
-        searchField.setForeground(new Color(160, 160, 160));
-        searchField.setBorder(BorderFactory.createEmptyBorder());
+        searchField.setBounds(30, 120, 450, 40);
+        searchField.setFont(new Font("Arial", Font.PLAIN, 14));
+        content.add(searchField);
 
-        searchField.addFocusListener(new FocusAdapter() {
-            public void focusGained(FocusEvent e) {
-                if (searchField.getText().equals("Search for products, deals, or brands...")) {
-                    searchField.setText("");
-                    searchField.setForeground(new Color(50, 50, 50));
-                }
-            }
-
-            public void focusLost(FocusEvent e) {
-                if (searchField.getText().isEmpty()) {
-                    searchField.setText("Search for products, deals, or brands...");
-                    searchField.setForeground(new Color(160, 160, 160));
-                }
-            }
-        });
-
-        searchPanel.add(searchField);
-
-        JButton filterToggle = new JButton("☰");
-        filterToggle.setBounds(950, 12, 40, 30);
-        filterToggle.setFont(new Font("Arial", Font.PLAIN, 20));
-        filterToggle.setFocusPainted(false);
-        filterToggle.setBorderPainted(false);
-        filterToggle.setContentAreaFilled(false);
-        filterToggle.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        filterToggle.addActionListener(e -> toggleFilters());
-        searchPanel.add(filterToggle);
-
-        JButton searchBtn = new JButton("Search");
-        searchBtn.setBounds(1000, 12, 55, 30);
-        searchBtn.setFont(new Font("Arial", Font.BOLD, 13));
+        JButton searchBtn = new JButton("🔍 Search");
+        searchBtn.setBounds(500, 120, 100, 40);
+        searchBtn.setFont(new Font("Arial", Font.BOLD, 14));
         searchBtn.setBackground(UIConstants.PRIMARY_GREEN);
         searchBtn.setForeground(Color.WHITE);
         searchBtn.setFocusPainted(false);
         searchBtn.setBorderPainted(false);
         searchBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        searchBtn.addActionListener(e -> handleSearch());
-        searchPanel.add(searchBtn);
+        searchBtn.addActionListener(e -> performSearch());
+        content.add(searchBtn);
 
-        parent.add(searchPanel);
-    }
+        // Filters
+        JLabel sortLabel = new JLabel("Sort By:");
+        sortLabel.setBounds(750, 125, 60, 30);
+        sortLabel.setFont(new Font("Arial", Font.PLAIN, 13));
+        content.add(sortLabel);
 
-    private void createFilterPanel(JPanel parent) {
-        filterPanel = new JPanel();
-        filterPanel.setBounds(30, 195, 1070, 70);
-        filterPanel.setBackground(Color.WHITE);
-        filterPanel.setLayout(null);
-        filterPanel.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
-        filterPanel.setVisible(false);
+        String[] sortOptions = {"Relevance", "Price: Low to High", "Price: High to Low", "Newest"};
+        sortByBox = new JComboBox<>(sortOptions);
+        sortByBox.setBounds(820, 120, 150, 40);
+        sortByBox.setFont(new Font("Arial", Font.PLAIN, 13));
+        content.add(sortByBox);
 
-        JLabel priceLabel = new JLabel("Price Range");
-        priceLabel.setBounds(20, 10, 100, 20);
-        priceLabel.setFont(new Font("Arial", Font.BOLD, 12));
-        priceLabel.setForeground(new Color(100, 100, 100));
-        filterPanel.add(priceLabel);
+        // Toggle Buttons
+        onlineDealsBtn = new JToggleButton("🌐 Online Deals");
+        onlineDealsBtn.setBounds(30, 180, 140, 35);
+        onlineDealsBtn.setFont(new Font("Arial", Font.BOLD, 12));
+        onlineDealsBtn.setSelected(true);
+        onlineDealsBtn.setBackground(UIConstants.PRIMARY_BLUE);
+        onlineDealsBtn.setForeground(Color.WHITE);
+        onlineDealsBtn.setFocusPainted(false);
+        onlineDealsBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        onlineDealsBtn.addActionListener(e -> {
+            showOnlineDeals = onlineDealsBtn.isSelected();
+            filterProducts();
+        });
+        content.add(onlineDealsBtn);
 
-        JTextField minField = new JTextField("Min");
-        minField.setBounds(20, 32, 80, 28);
-        minField.setFont(new Font("Arial", Font.PLAIN, 13));
-        filterPanel.add(minField);
+        secondHandBtn = new JToggleButton("♻️ Second-hand");
+        secondHandBtn.setBounds(180, 180, 140, 35);
+        secondHandBtn.setFont(new Font("Arial", Font.BOLD, 12));
+        secondHandBtn.setSelected(false);
+        secondHandBtn.setBackground(Color.WHITE);
+        secondHandBtn.setForeground(new Color(80, 80, 80));
+        secondHandBtn.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
+        secondHandBtn.setFocusPainted(false);
+        secondHandBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        secondHandBtn.addActionListener(e -> {
+            showSecondHand = secondHandBtn.isSelected();
+            filterProducts();
+        });
+        content.add(secondHandBtn);
 
-        JTextField maxField = new JTextField("Max");
-        maxField.setBounds(110, 32, 80, 28);
-        maxField.setFont(new Font("Arial", Font.PLAIN, 13));
-        filterPanel.add(maxField);
+        // Products Container (Grid)
+        productsContainer = new JPanel(new GridLayout(0, 3, 20, 20));
+        productsContainer.setBackground(new Color(250, 250, 250));
+        productsContainer.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        JLabel categoryLabel = new JLabel("Category");
-        categoryLabel.setBounds(230, 10, 100, 20);
-        categoryLabel.setFont(new Font("Arial", Font.BOLD, 12));
-        categoryLabel.setForeground(new Color(100, 100, 100));
-        filterPanel.add(categoryLabel);
-
-        String[] categories = { "All Categories", "Electronics", "Fashion", "Home", "Sports" };
-        JComboBox<String> categoryBox = new JComboBox<>(categories);
-        categoryBox.setBounds(230, 32, 200, 28);
-        categoryBox.setFont(new Font("Arial", Font.PLAIN, 13));
-        filterPanel.add(categoryBox);
-
-        JLabel sortLabel = new JLabel("Sort By");
-        sortLabel.setBounds(470, 10, 100, 20);
-        sortLabel.setFont(new Font("Arial", Font.BOLD, 12));
-        sortLabel.setForeground(new Color(100, 100, 100));
-        filterPanel.add(sortLabel);
-
-        String[] sortOptions = { "Relevance", "Price: Low to High", "Price: High to Low", "Rating" };
-        JComboBox<String> sortBox = new JComboBox<>(sortOptions);
-        sortBox.setBounds(470, 32, 200, 28);
-        sortBox.setFont(new Font("Arial", Font.PLAIN, 13));
-        filterPanel.add(sortBox);
-
-        parent.add(filterPanel);
-    }
-
-    private void toggleFilters() {
-        filtersVisible = !filtersVisible;
-        filterPanel.setVisible(filtersVisible);
-
-        if (filtersVisible) {
-            onlineTab.setBounds(30, 285, 520, 50);
-            secondHandTab.setBounds(570, 285, 530, 50);
-            productGridPanel.setBounds(30, 355, 1070, 465);
-        } else {
-            onlineTab.setBounds(30, 215, 520, 50);
-            secondHandTab.setBounds(570, 215, 530, 50);
-            productGridPanel.setBounds(30, 285, 1070, 535);
-        }
-    }
-
-    private void createTabs(JPanel parent) {
-        onlineTab = new JButton("Online Deals");
-        onlineTab.setBounds(30, 215, 520, 50);
-        onlineTab.setFont(new Font("Arial", Font.BOLD, 15));
-        onlineTab.setBackground(Color.WHITE);
-        onlineTab.setForeground(new Color(100, 100, 100));
-        onlineTab.setFocusPainted(false);
-        onlineTab.setBorder(BorderFactory.createMatteBorder(0, 0, 3, 0, Color.WHITE));
-        onlineTab.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        onlineTab.addActionListener(e -> switchTab(false));
-        parent.add(onlineTab);
-
-        secondHandTab = new JButton("Second-hand");
-        secondHandTab.setBounds(570, 215, 530, 50);
-        secondHandTab.setFont(new Font("Arial", Font.BOLD, 15));
-        secondHandTab.setBackground(Color.WHITE);
-        secondHandTab.setForeground(new Color(100, 100, 100));
-        secondHandTab.setFocusPainted(false);
-        secondHandTab.setBorder(BorderFactory.createMatteBorder(0, 0, 3, 0, Color.WHITE));
-        secondHandTab.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        secondHandTab.addActionListener(e -> switchTab(true));
-        parent.add(secondHandTab);
-
-        switchTab(false);
-    }
-
-    private void switchTab(boolean secondHand) {
-        isSecondHandMode = secondHand;
-
-        if (secondHand) {
-            secondHandTab.setBorder(BorderFactory.createMatteBorder(0, 0, 3, 0, UIConstants.PRIMARY_GREEN));
-            secondHandTab.setForeground(UIConstants.PRIMARY_GREEN);
-            onlineTab.setBorder(BorderFactory.createMatteBorder(0, 0, 3, 0, Color.WHITE));
-            onlineTab.setForeground(new Color(100, 100, 100));
-            loadSecondHandProducts();
-        } else {
-            onlineTab.setBorder(BorderFactory.createMatteBorder(0, 0, 3, 0, UIConstants.PRIMARY_GREEN));
-            onlineTab.setForeground(UIConstants.PRIMARY_GREEN);
-            secondHandTab.setBorder(BorderFactory.createMatteBorder(0, 0, 3, 0, Color.WHITE));
-            secondHandTab.setForeground(new Color(100, 100, 100));
-            loadOnlineProducts();
-        }
-    }
-
-    private void createProductGrid(JPanel parent) {
-        productGridPanel = new JPanel();
-        productGridPanel.setBounds(30, 285, 1070, 535);
-        productGridPanel.setBackground(new Color(250, 250, 250));
-        productGridPanel.setLayout(new GridLayout(0, 3, 20, 20));
-
-        JScrollPane scrollPane = new JScrollPane(productGridPanel);
-        scrollPane.setBounds(30, 285, 1070, 535);
+        JScrollPane scrollPane = new JScrollPane(productsContainer);
+        scrollPane.setBounds(30, 235, 1070, 450);
         scrollPane.setBorder(null);
-        scrollPane.setBackground(new Color(250, 250, 250));
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        content.add(scrollPane);
 
-        loadOnlineProducts();
-
-        parent.add(scrollPane);
+        return content;
     }
 
-    private void loadOnlineProducts() {
-        productGridPanel.removeAll();
-
-        String[][] products = {
-                { "Wireless Headphones Pro", "$89.99", "$149.99", "-40%", "⭐ 4.5", "(1234)", "TechStore" },
-                { "Running Shoes Ultra", "$65", "$120", "-46%", "⭐ 4.8", "(856)", "SportMax" },
-                { "Smart Watch Series 5", "$199.99", "$299.99", "-33%", "⭐ 4.6", "(2145)", "GadgetHub" }
-        };
-
-        for (String[] prod : products) {
-            productGridPanel.add(createOnlineProductCard(prod));
-        }
-
-        productGridPanel.revalidate();
-        productGridPanel.repaint();
-    }
-
-    private void loadSecondHandProducts() {
-        productGridPanel.removeAll();
-
-        String[][] products = {
-                { "Vintage Camera", "$145", "Excellent", "⭐ 4.7", "PhotoCollector", "San Francisco, CA" },
-                { "Designer Backpack", "$85", "Like New", "⭐ 4.9", "FashionResale", "New York, NY" }
-        };
-
-        for (String[] prod : products) {
-            productGridPanel.add(createSecondHandProductCard(prod));
-        }
-
-        productGridPanel.revalidate();
-        productGridPanel.repaint();
-    }
-
-    private JPanel createOnlineProductCard(String[] data) {
-        JPanel card = new JPanel();
-        card.setLayout(null);
-        card.setBackground(Color.WHITE);
-        card.setPreferredSize(new Dimension(340, 400));
-        card.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
-        card.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-        JPanel imagePlaceholder = new JPanel();
-        imagePlaceholder.setBounds(0, 0, 340, 240);
-        imagePlaceholder.setBackground(new Color(245, 245, 245));
-        imagePlaceholder.setLayout(null);
-
-        JLabel discountBadge = new JLabel(data[3]);
-        discountBadge.setBounds(15, 15, 60, 28);
-        discountBadge.setHorizontalAlignment(SwingConstants.CENTER);
-        discountBadge.setOpaque(true);
-        discountBadge.setBackground(new Color(255, 152, 0));
-        discountBadge.setForeground(Color.WHITE);
-        discountBadge.setFont(new Font("Arial", Font.BOLD, 13));
-        imagePlaceholder.add(discountBadge);
-
-        card.add(imagePlaceholder);
-
-        JLabel nameLabel = new JLabel("<html>" + data[0] + "</html>");
-        nameLabel.setBounds(15, 255, 310, 40);
-        nameLabel.setFont(new Font("Arial", Font.BOLD, 15));
-        card.add(nameLabel);
-
-        JLabel ratingLabel = new JLabel(data[4] + " " + data[5]);
-        ratingLabel.setBounds(15, 300, 200, 20);
-        ratingLabel.setFont(new Font("Arial", Font.PLAIN, 13));
-        ratingLabel.setForeground(new Color(120, 120, 120));
-        card.add(ratingLabel);
-
-        JLabel priceLabel = new JLabel(data[1]);
-        priceLabel.setBounds(15, 325, 150, 30);
-        priceLabel.setFont(new Font("Arial", Font.BOLD, 22));
-        priceLabel.setForeground(UIConstants.PRIMARY_GREEN);
-        card.add(priceLabel);
-
-        JLabel originalPrice = new JLabel("<html><strike>" + data[2] + "</strike></html>");
-        originalPrice.setBounds(170, 330, 100, 20);
-        originalPrice.setFont(new Font("Arial", Font.PLAIN, 14));
-        originalPrice.setForeground(new Color(150, 150, 150));
-        card.add(originalPrice);
-
-        JLabel sellerLabel = new JLabel(data[6]);
-        sellerLabel.setBounds(15, 360, 250, 20);
-        sellerLabel.setFont(new Font("Arial", Font.PLAIN, 12));
-        sellerLabel.setForeground(new Color(120, 120, 120));
-        card.add(sellerLabel);
-
-        JButton wishlistBtn = new JButton("♡");
-        wishlistBtn.setBounds(290, 360, 35, 25);
-        wishlistBtn.setFont(new Font("Arial", Font.PLAIN, 22));
-        wishlistBtn.setForeground(new Color(150, 150, 150));
-        wishlistBtn.setFocusPainted(false);
-        wishlistBtn.setBorderPainted(false);
-        wishlistBtn.setContentAreaFilled(false);
-        wishlistBtn.addActionListener(e -> {
-            wishlistBtn.setText("♥");
-            wishlistBtn.setForeground(new Color(220, 53, 69));
-        });
-        card.add(wishlistBtn);
-
-        card.addMouseListener(new MouseAdapter() {
-            public void mouseEntered(MouseEvent e) {
-                card.setBackground(new Color(248, 248, 248));
-            }
-
-            public void mouseExited(MouseEvent e) {
-                card.setBackground(Color.WHITE);
-            }
-        });
-
-        return card;
-    }
-
-    private JPanel createSecondHandProductCard(String[] data) {
-        JPanel card = new JPanel();
-        card.setLayout(null);
-        card.setBackground(Color.WHITE);
-        card.setPreferredSize(new Dimension(340, 400));
-        card.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
-        card.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-        JPanel imagePlaceholder = new JPanel();
-        imagePlaceholder.setBounds(0, 0, 340, 240);
-        imagePlaceholder.setBackground(new Color(245, 245, 245));
-        imagePlaceholder.setLayout(null);
-
-        JLabel conditionBadge = new JLabel(data[2]);
-        conditionBadge.setBounds(15, 15, 90, 28);
-        conditionBadge.setHorizontalAlignment(SwingConstants.CENTER);
-        conditionBadge.setOpaque(true);
-        conditionBadge.setBackground(UIConstants.PRIMARY_GREEN);
-        conditionBadge.setForeground(Color.WHITE);
-        conditionBadge.setFont(new Font("Arial", Font.BOLD, 12));
-        imagePlaceholder.add(conditionBadge);
-
-        card.add(imagePlaceholder);
-
-        JLabel nameLabel = new JLabel(data[0]);
-        nameLabel.setBounds(15, 255, 310, 25);
-        nameLabel.setFont(new Font("Arial", Font.BOLD, 16));
-        card.add(nameLabel);
-
-        JLabel ratingLabel = new JLabel(data[3] + " " + data[4]);
-        ratingLabel.setBounds(15, 285, 200, 20);
-        ratingLabel.setFont(new Font("Arial", Font.PLAIN, 13));
-        ratingLabel.setForeground(new Color(120, 120, 120));
-        card.add(ratingLabel);
-
-        JLabel priceLabel = new JLabel(data[1]);
-        priceLabel.setBounds(15, 315, 150, 30);
-        priceLabel.setFont(new Font("Arial", Font.BOLD, 24));
-        priceLabel.setForeground(UIConstants.PRIMARY_GREEN);
-        card.add(priceLabel);
-
-        JLabel locationLabel = new JLabel("📍 " + data[5]);
-        locationLabel.setBounds(15, 350, 310, 20);
-        locationLabel.setFont(new Font("Arial", Font.PLAIN, 12));
-        locationLabel.setForeground(new Color(120, 120, 120));
-        card.add(locationLabel);
-
-        JButton wishlistBtn = new JButton("♡");
-        wishlistBtn.setBounds(290, 350, 35, 25);
-        wishlistBtn.setFont(new Font("Arial", Font.PLAIN, 22));
-        wishlistBtn.setForeground(new Color(150, 150, 150));
-        wishlistBtn.setFocusPainted(false);
-        wishlistBtn.setBorderPainted(false);
-        wishlistBtn.setContentAreaFilled(false);
-        wishlistBtn.addActionListener(e -> {
-            wishlistBtn.setText("♥");
-            wishlistBtn.setForeground(new Color(220, 53, 69));
-        });
-        card.add(wishlistBtn);
-
-        card.addMouseListener(new MouseAdapter() {
-            public void mouseEntered(MouseEvent e) {
-                card.setBackground(new Color(248, 248, 248));
-            }
-
-            public void mouseExited(MouseEvent e) {
-                card.setBackground(Color.WHITE);
-            }
-        });
-
-        return card;
-    }
-
-    private void handleSearch() {
-        String query = searchField.getText();
-        if (query.isEmpty() || query.equals("Search for products, deals, or brands...")) {
-            JOptionPane.showMessageDialog(this, "Please enter a search keyword!");
+    private void performSearch() {
+        String searchTerm = searchField.getText().trim();
+        
+        if (searchTerm.isEmpty() || searchTerm.equals("Search for products, deals, or brands...")) {
+            JOptionPane.showMessageDialog(this, "Please enter a search term", "Search", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        // TODO: Backend integration
-        JOptionPane.showMessageDialog(this, "Searching for: " + query + "\n(Backend integration pending)");
+        // Show loading dialog
+        JDialog loadingDialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Searching...", true);
+        JLabel loadingLabel = new JLabel("Searching for products, please wait...");
+        loadingLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        loadingLabel.setBorder(new EmptyBorder(30, 30, 30, 30));
+        loadingDialog.add(loadingLabel);
+        loadingDialog.setSize(300, 150);
+        loadingDialog.setLocationRelativeTo(this);
+        
+        // Perform search in background thread
+        SwingWorker<List<Product>, Void> worker = new SwingWorker<List<Product>, Void>() {
+            @Override
+            protected List<Product> doInBackground() throws Exception {
+                // Search using scraper
+                return scraper.searchAndSearch(searchTerm);
+            }
+
+            @Override
+            protected void done() {
+                loadingDialog.dispose();
+                try {
+                    List<Product> results = get();
+                    if (results != null && !results.isEmpty()) {
+                        currentProducts = results;
+                        displayProducts(currentProducts);
+                        JOptionPane.showMessageDialog(ShopPanel.this, 
+                            "Found " + results.size() + " products!", 
+                            "Success", 
+                            JOptionPane.INFORMATION_MESSAGE);
+                    } else {
+                        JOptionPane.showMessageDialog(ShopPanel.this, 
+                            "No products found. Try different keywords.", 
+                            "No Results", 
+                            JOptionPane.WARNING_MESSAGE);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    JOptionPane.showMessageDialog(ShopPanel.this, 
+                        "Error searching products: " + e.getMessage(), 
+                        "Error", 
+                        JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        };
+        
+        worker.execute();
+        loadingDialog.setVisible(true);
     }
 
-    public void refreshData() {
-        if (isSecondHandMode) {
-            loadSecondHandProducts();
+    private void filterProducts() {
+        List<Product> filtered = new ArrayList<>();
+        
+        for (Product p : currentProducts) {
+            boolean matchesOnline = !showOnlineDeals || !p.isSecondHand();
+            boolean matchesSecondHand = !showSecondHand || p.isSecondHand();
+            
+            if (matchesOnline && matchesSecondHand) {
+                filtered.add(p);
+            }
+        }
+        
+        displayProducts(filtered);
+    }
+
+    private void displayProducts(List<Product> products) {
+        productsContainer.removeAll();
+
+        if (products == null || products.isEmpty()) {
+            JLabel emptyLabel = new JLabel("No products to display. Try searching for something!");
+            emptyLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+            emptyLabel.setForeground(Color.GRAY);
+            emptyLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            productsContainer.setLayout(new BorderLayout());
+            productsContainer.add(emptyLabel, BorderLayout.CENTER);
         } else {
-            loadOnlineProducts();
+            productsContainer.setLayout(new GridLayout(0, 3, 20, 20));
+            for (Product product : products) {
+                productsContainer.add(createProductCard(product));
+            }
+        }
+
+        productsContainer.revalidate();
+        productsContainer.repaint();
+    }
+
+    private JPanel createProductCard(Product product) {
+        JPanel card = new JPanel();
+        card.setLayout(new BorderLayout());
+        card.setBackground(Color.WHITE);
+        card.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(230, 230, 230)),
+            new EmptyBorder(15, 15, 15, 15)
+        ));
+        card.setPreferredSize(new Dimension(330, 280));
+        card.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        // Image Placeholder
+        JPanel imagePlaceholder = new JPanel();
+        imagePlaceholder.setBackground(new Color(245, 245, 245));
+        imagePlaceholder.setPreferredSize(new Dimension(300, 150));
+        imagePlaceholder.setLayout(new BorderLayout());
+        
+        JLabel imageLabel = new JLabel("🖼️", SwingConstants.CENTER);
+        imageLabel.setFont(new Font("Arial", Font.PLAIN, 48));
+        imagePlaceholder.add(imageLabel, BorderLayout.CENTER);
+
+        // Product Info
+        JPanel infoPanel = new JPanel();
+        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
+        infoPanel.setBackground(Color.WHITE);
+        infoPanel.setBorder(new EmptyBorder(10, 0, 0, 0));
+
+        JLabel nameLabel = new JLabel("<html>" + truncateText(product.getName(), 50) + "</html>");
+        nameLabel.setFont(new Font("Arial", Font.BOLD, 13));
+        nameLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JLabel sellerLabel = new JLabel(product.getSellerName());
+        sellerLabel.setFont(new Font("Arial", Font.PLAIN, 11));
+        sellerLabel.setForeground(Color.GRAY);
+        sellerLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JLabel priceLabel = new JLabel(String.format("$%.2f", product.getPrice()));
+        priceLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        priceLabel.setForeground(UIConstants.SUCCESS_GREEN);
+        priceLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JButton viewBtn = new JButton("View Deal");
+        viewBtn.setFont(new Font("Arial", Font.BOLD, 12));
+        viewBtn.setBackground(UIConstants.PRIMARY_BLUE);
+        viewBtn.setForeground(Color.WHITE);
+        viewBtn.setFocusPainted(false);
+        viewBtn.setBorderPainted(false);
+        viewBtn.setAlignmentX(Component.LEFT_ALIGNMENT);
+        viewBtn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
+
+        infoPanel.add(nameLabel);
+        infoPanel.add(Box.createVerticalStrut(5));
+        infoPanel.add(sellerLabel);
+        infoPanel.add(Box.createVerticalStrut(5));
+        infoPanel.add(priceLabel);
+        infoPanel.add(Box.createVerticalStrut(10));
+        infoPanel.add(viewBtn);
+
+        card.add(imagePlaceholder, BorderLayout.NORTH);
+        card.add(infoPanel, BorderLayout.CENTER);
+
+        // Hover effect
+        card.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                card.setBackground(new Color(248, 248, 248));
+            }
+
+            public void mouseExited(MouseEvent e) {
+                card.setBackground(Color.WHITE);
+            }
+        });
+
+        return card;
+    }
+
+    private String truncateText(String text, int maxLength) {
+        if (text == null) return "";
+        if (text.length() <= maxLength) return text;
+        return text.substring(0, maxLength) + "...";
+    }
+
+    /**
+     * Refresh data from backend - called by MainFrame
+     */
+    public void refreshData() {
+        try {
+            // Load products from database
+            currentProducts = productServiceInstance.getAllProducts();
+            
+            if (currentProducts == null) {
+                currentProducts = new ArrayList<>();
+            }
+            
+            displayProducts(currentProducts);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            currentProducts = new ArrayList<>();
+            displayProducts(currentProducts);
         }
     }
 
+    /**
+     * Clear all data - called on logout
+     */
     public void clearData() {
-        productGridPanel.removeAll();
-        productGridPanel.revalidate();
-        productGridPanel.repaint();
+        currentProducts.clear();
+        productsContainer.removeAll();
+        
+        productsContainer.setLayout(new BorderLayout());
+        JLabel emptyLabel = new JLabel("Please login to view products");
+        emptyLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        emptyLabel.setForeground(Color.GRAY);
+        emptyLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        productsContainer.add(emptyLabel, BorderLayout.CENTER);
+        
+        productsContainer.revalidate();
+        productsContainer.repaint();
+        
+        // Reset search and filters
+        if (searchField != null) {
+            searchField.setText("Search for products, deals, or brands...");
+        }
+        if (sortByBox != null) {
+            sortByBox.setSelectedIndex(0);
+        }
+        if (onlineDealsBtn != null) {
+            onlineDealsBtn.setSelected(true);
+            showOnlineDeals = true;
+        }
+        if (secondHandBtn != null) {
+            secondHandBtn.setSelected(false);
+            showSecondHand = false;
+        }
     }
 }

@@ -42,8 +42,8 @@ public class WishlistDialog extends JDialog {
     private void refreshWishlist() {
         gridPanel.removeAll();
 
-        // Backend
-        List<Product> products = ProfileService.getWishlist();
+        // Backend Call
+        List<Product> products = ProfileService.getSavedProducts(); // Using saved products as wishlist
 
         if (products != null) {
             for (Product p : products) {
@@ -64,6 +64,7 @@ public class WishlistDialog extends JDialog {
         JPanel imagePlaceholder = new JPanel();
         imagePlaceholder.setBackground(new Color(245, 245, 245));
         imagePlaceholder.setPreferredSize(new Dimension(100, 100));
+        imagePlaceholder.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
 
         JLabel nameLabel = new JLabel(product.getName());
         nameLabel.setFont(new Font("Arial", Font.BOLD, 12));
@@ -79,11 +80,11 @@ public class WishlistDialog extends JDialog {
         removeBtn.setBorderPainted(false);
         removeBtn.setContentAreaFilled(false);
         removeBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+        removeBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
         removeBtn.addActionListener(e -> {
             // Backend
             ProfileService.removeFromWishlist(product);
-
             refreshWishlist();
         });
 
