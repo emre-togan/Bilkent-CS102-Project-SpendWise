@@ -20,9 +20,13 @@ public class ProfilePanel extends JPanel {
     private User currentUser;
 
     // UI Components
-    private JLabel userNameLabel;
-    private JLabel userEmailLabel;
-    private JLabel avatarLabel;
+    // UI Components
+    private JLabel sidebarNameLabel;
+    private JLabel sidebarEmailLabel;
+    private JLabel sidebarAvatarLabel; // Sidebar Avatar
+    private JLabel avatarLabel; // Main Content Avatar
+    private JLabel mainNameLabel; // Main Content Name
+    private JLabel mainEmailLabel; // Main Content Email
     private JLabel purchaseCountLabel;
     private JLabel savedAmountLabel;
     private JLabel dealsFoundLabel;
@@ -111,25 +115,25 @@ public class ProfilePanel extends JPanel {
         profileCard.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
 
         String initials = getInitials(currentUser.getUserName());
-        JLabel avatar = new JLabel(initials);
-        avatar.setBounds(15, 15, 40, 40);
-        avatar.setHorizontalAlignment(SwingConstants.CENTER);
-        avatar.setOpaque(true);
-        avatar.setBackground(UIConstants.PRIMARY_GREEN);
-        avatar.setForeground(Color.WHITE);
-        avatar.setFont(new Font("Arial", Font.BOLD, 16));
-        profileCard.add(avatar);
+        sidebarAvatarLabel = new JLabel(initials);
+        sidebarAvatarLabel.setBounds(15, 15, 40, 40);
+        sidebarAvatarLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        sidebarAvatarLabel.setOpaque(true);
+        sidebarAvatarLabel.setBackground(UIConstants.PRIMARY_GREEN);
+        sidebarAvatarLabel.setForeground(Color.WHITE);
+        sidebarAvatarLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        profileCard.add(sidebarAvatarLabel);
 
-        userNameLabel = new JLabel(currentUser.getUserName());
-        userNameLabel.setBounds(65, 18, 150, 18);
-        userNameLabel.setFont(new Font("Arial", Font.BOLD, 13));
-        profileCard.add(userNameLabel);
+        sidebarNameLabel = new JLabel(currentUser.getUserName());
+        sidebarNameLabel.setBounds(65, 18, 150, 18);
+        sidebarNameLabel.setFont(new Font("Arial", Font.BOLD, 13));
+        profileCard.add(sidebarNameLabel);
 
-        userEmailLabel = new JLabel(currentUser.geteMail());
-        userEmailLabel.setBounds(65, 37, 150, 15);
-        userEmailLabel.setFont(new Font("Arial", Font.PLAIN, 11));
-        userEmailLabel.setForeground(new Color(120, 120, 120));
-        profileCard.add(userEmailLabel);
+        sidebarEmailLabel = new JLabel(currentUser.geteMail());
+        sidebarEmailLabel.setBounds(65, 37, 150, 15);
+        sidebarEmailLabel.setFont(new Font("Arial", Font.PLAIN, 11));
+        sidebarEmailLabel.setForeground(new Color(120, 120, 120));
+        profileCard.add(sidebarEmailLabel);
 
         return profileCard;
     }
@@ -247,16 +251,16 @@ public class ProfilePanel extends JPanel {
         card.add(avatarLabel);
 
         // User info
-        JLabel nameLabel = new JLabel(currentUser.getUserName());
-        nameLabel.setBounds(110, 25, 300, 25);
-        nameLabel.setFont(new Font("Arial", Font.BOLD, 20));
-        card.add(nameLabel);
+        mainNameLabel = new JLabel(currentUser.getUserName());
+        mainNameLabel.setBounds(110, 25, 300, 25);
+        mainNameLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        card.add(mainNameLabel);
 
-        JLabel emailLabel = new JLabel(currentUser.geteMail());
-        emailLabel.setBounds(110, 55, 300, 20);
-        emailLabel.setFont(new Font("Arial", Font.PLAIN, 14));
-        emailLabel.setForeground(new Color(120, 120, 120));
-        card.add(emailLabel);
+        mainEmailLabel = new JLabel(currentUser.geteMail());
+        mainEmailLabel.setBounds(110, 55, 300, 20);
+        mainEmailLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        mainEmailLabel.setForeground(new Color(120, 120, 120));
+        card.add(mainEmailLabel);
 
         parent.add(card);
     }
@@ -592,7 +596,22 @@ public class ProfilePanel extends JPanel {
      */
     public void refreshData() {
         try {
-            int userId = UserSession.getCurrentUserId();
+            currentUser = UserSession.getCurrentUser();
+            int userId = currentUser.getId();
+
+            // Update Sidebar Profile
+            if (sidebarNameLabel != null) {
+                sidebarNameLabel.setText(currentUser.getUserName());
+                sidebarEmailLabel.setText(currentUser.geteMail());
+                sidebarAvatarLabel.setText(getInitials(currentUser.getUserName()));
+            }
+
+            // Update Main Content Profile
+            if (mainNameLabel != null) {
+                mainNameLabel.setText(currentUser.getUserName());
+                mainEmailLabel.setText(currentUser.geteMail());
+                avatarLabel.setText(getInitials(currentUser.getUserName()));
+            }
 
             // Load friends
             friends = profileService.getFriends();

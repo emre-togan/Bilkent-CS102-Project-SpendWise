@@ -36,6 +36,11 @@ public class ShopPanel extends JPanel {
     private boolean showOnlineDeals = true;
     private boolean showSecondHand = false;
 
+    // Sidebar Profile Labels
+    private JLabel sidebarAvatarLabel;
+    private JLabel sidebarNameLabel;
+    private JLabel sidebarEmailLabel;
+
     public ShopPanel(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
         this.productServiceInstance = new productService();
@@ -83,32 +88,8 @@ public class ShopPanel extends JPanel {
         addMenuItem(sideMenu, "👤", "Profile", "PROFILE", startY + 300, false);
         addMenuItem(sideMenu, "⚙️", "Settings", "SETTINGS", startY + 360, false);
 
-        JPanel profileCard = new JPanel();
-        profileCard.setBounds(15, 650, 230, 70);
-        profileCard.setBackground(new Color(248, 249, 250));
-        profileCard.setLayout(null);
-        profileCard.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
-
-        JLabel avatar = new JLabel("SJ");
-        avatar.setBounds(15, 15, 40, 40);
-        avatar.setHorizontalAlignment(SwingConstants.CENTER);
-        avatar.setOpaque(true);
-        avatar.setBackground(UIConstants.PRIMARY_GREEN);
-        avatar.setForeground(Color.WHITE);
-        avatar.setFont(new Font("Arial", Font.BOLD, 16));
-        profileCard.add(avatar);
-
-        JLabel userName = new JLabel("Sarah Johnson");
-        userName.setBounds(65, 18, 150, 18);
-        userName.setFont(new Font("Arial", Font.BOLD, 13));
-        profileCard.add(userName);
-
-        JLabel userEmail = new JLabel("sarah@email.com");
-        userEmail.setBounds(65, 37, 150, 15);
-        userEmail.setFont(new Font("Arial", Font.PLAIN, 11));
-        userEmail.setForeground(new Color(120, 120, 120));
-        profileCard.add(userEmail);
-
+        // Profile Card
+        JPanel profileCard = createProfileCard();
         sideMenu.add(profileCard);
 
         JButton logoutBtn = new JButton("↩︎ Logout");
@@ -160,6 +141,46 @@ public class ShopPanel extends JPanel {
 
         btn.addActionListener(e -> mainFrame.showPanel(targetPanelName));
         parent.add(btn);
+    }
+
+    private JPanel createProfileCard() {
+        JPanel profileCard = new JPanel();
+        profileCard.setBounds(15, 650, 230, 70);
+        profileCard.setBackground(new Color(248, 249, 250));
+        profileCard.setLayout(null);
+        profileCard.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
+
+        sidebarAvatarLabel = new JLabel("??");
+        sidebarAvatarLabel.setBounds(15, 15, 40, 40);
+        sidebarAvatarLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        sidebarAvatarLabel.setOpaque(true);
+        sidebarAvatarLabel.setBackground(UIConstants.PRIMARY_GREEN);
+        sidebarAvatarLabel.setForeground(Color.WHITE);
+        sidebarAvatarLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        profileCard.add(sidebarAvatarLabel);
+
+        sidebarNameLabel = new JLabel("Guest");
+        sidebarNameLabel.setBounds(65, 18, 150, 18);
+        sidebarNameLabel.setFont(new Font("Arial", Font.BOLD, 13));
+        profileCard.add(sidebarNameLabel);
+
+        sidebarEmailLabel = new JLabel("guest@email.com");
+        sidebarEmailLabel.setBounds(65, 37, 150, 15);
+        sidebarEmailLabel.setFont(new Font("Arial", Font.PLAIN, 11));
+        sidebarEmailLabel.setForeground(new Color(120, 120, 120));
+        profileCard.add(sidebarEmailLabel);
+
+        return profileCard;
+    }
+
+    private String getInitials(String name) {
+        if (name == null || name.isEmpty())
+            return "??";
+        String[] parts = name.trim().split("\\s+");
+        if (parts.length == 1) {
+            return parts[0].substring(0, Math.min(2, parts[0].length())).toUpperCase();
+        }
+        return (parts[0].charAt(0) + "" + parts[parts.length - 1].charAt(0)).toUpperCase();
     }
 
     private JPanel createContent() {
@@ -510,6 +531,14 @@ public class ShopPanel extends JPanel {
      */
     public void refreshData() {
         try {
+            // Update Sidebar Profile
+            com.spendwise.models.User currentUser = UserSession.getCurrentUser();
+            if (sidebarNameLabel != null && currentUser != null) {
+                sidebarNameLabel.setText(currentUser.getUserName());
+                sidebarEmailLabel.setText(currentUser.geteMail());
+                sidebarAvatarLabel.setText(getInitials(currentUser.getUserName()));
+            }
+
             // Load products from database
             currentProducts = productServiceInstance.getAllProducts();
 

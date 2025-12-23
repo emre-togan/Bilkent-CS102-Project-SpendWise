@@ -20,6 +20,11 @@ public class SettingsPanel extends JPanel {
     private JCheckBox budgetAlertsToggle;
     private JCheckBox discountAlertsToggle;
 
+    // Sidebar Profile Labels
+    private JLabel sidebarAvatarLabel;
+    private JLabel sidebarNameLabel;
+    private JLabel sidebarEmailLabel;
+
     public SettingsPanel(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
         this.settingsService = new SettingsService();
@@ -72,25 +77,25 @@ public class SettingsPanel extends JPanel {
         profileCard.setLayout(null);
         profileCard.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
 
-        JLabel avatar = new JLabel("SJ");
-        avatar.setBounds(15, 15, 40, 40);
-        avatar.setHorizontalAlignment(SwingConstants.CENTER);
-        avatar.setOpaque(true);
-        avatar.setBackground(UIConstants.PRIMARY_GREEN);
-        avatar.setForeground(Color.WHITE);
-        avatar.setFont(new Font("Arial", Font.BOLD, 16));
-        profileCard.add(avatar);
+        sidebarAvatarLabel = new JLabel("??");
+        sidebarAvatarLabel.setBounds(15, 15, 40, 40);
+        sidebarAvatarLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        sidebarAvatarLabel.setOpaque(true);
+        sidebarAvatarLabel.setBackground(UIConstants.PRIMARY_GREEN);
+        sidebarAvatarLabel.setForeground(Color.WHITE);
+        sidebarAvatarLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        profileCard.add(sidebarAvatarLabel);
 
-        JLabel userName = new JLabel("Sarah Johnson");
-        userName.setBounds(65, 18, 150, 18);
-        userName.setFont(new Font("Arial", Font.BOLD, 13));
-        profileCard.add(userName);
+        sidebarNameLabel = new JLabel("Guest");
+        sidebarNameLabel.setBounds(65, 18, 150, 18);
+        sidebarNameLabel.setFont(new Font("Arial", Font.BOLD, 13));
+        profileCard.add(sidebarNameLabel);
 
-        JLabel userEmail = new JLabel("sarah@email.com");
-        userEmail.setBounds(65, 37, 150, 15);
-        userEmail.setFont(new Font("Arial", Font.PLAIN, 11));
-        userEmail.setForeground(new Color(120, 120, 120));
-        profileCard.add(userEmail);
+        sidebarEmailLabel = new JLabel("guest@email.com");
+        sidebarEmailLabel.setBounds(65, 37, 150, 15);
+        sidebarEmailLabel.setFont(new Font("Arial", Font.PLAIN, 11));
+        sidebarEmailLabel.setForeground(new Color(120, 120, 120));
+        profileCard.add(sidebarEmailLabel);
 
         sideMenu.add(profileCard);
 
@@ -289,5 +294,26 @@ public class SettingsPanel extends JPanel {
                 JOptionPane.showMessageDialog(this, "Error deleting account.");
             }
         }
+    }
+
+    public void refreshData() {
+        loadSettings();
+        // Update Sidebar Profile
+        com.spendwise.models.User currentUser = UserSession.getCurrentUser();
+        if (sidebarNameLabel != null && currentUser != null) {
+            sidebarNameLabel.setText(currentUser.getUserName());
+            sidebarEmailLabel.setText(currentUser.geteMail());
+            sidebarAvatarLabel.setText(getInitials(currentUser.getUserName()));
+        }
+    }
+
+    private String getInitials(String name) {
+        if (name == null || name.isEmpty())
+            return "??";
+        String[] parts = name.trim().split("\\s+");
+        if (parts.length == 1) {
+            return parts[0].substring(0, Math.min(2, parts[0].length())).toUpperCase();
+        }
+        return (parts[0].charAt(0) + "" + parts[parts.length - 1].charAt(0)).toUpperCase();
     }
 }

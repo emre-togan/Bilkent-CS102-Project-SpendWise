@@ -128,6 +128,11 @@ public class DashBoardPanel extends JPanel {
         return sideMenu;
     }
 
+    // Sidebar Profile Labels
+    private JLabel sidebarAvatarLabel;
+    private JLabel sidebarNameLabel;
+    private JLabel sidebarEmailLabel;
+
     private JPanel createProfileCard() {
         JPanel profileCard = new JPanel();
         profileCard.setBounds(15, 650, 230, 70);
@@ -135,30 +140,25 @@ public class DashBoardPanel extends JPanel {
         profileCard.setLayout(null);
         profileCard.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
 
-        // Get current user
-        currentUser = UserSession.getCurrentUser();
+        sidebarAvatarLabel = new JLabel("??");
+        sidebarAvatarLabel.setBounds(15, 15, 40, 40);
+        sidebarAvatarLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        sidebarAvatarLabel.setOpaque(true);
+        sidebarAvatarLabel.setBackground(UIConstants.PRIMARY_GREEN);
+        sidebarAvatarLabel.setForeground(Color.WHITE);
+        sidebarAvatarLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        profileCard.add(sidebarAvatarLabel);
 
-        // Avatar with initials
-        String initials = getInitials(currentUser.getUserName());
-        JLabel avatar = new JLabel(initials);
-        avatar.setBounds(15, 15, 40, 40);
-        avatar.setHorizontalAlignment(SwingConstants.CENTER);
-        avatar.setOpaque(true);
-        avatar.setBackground(UIConstants.PRIMARY_GREEN);
-        avatar.setForeground(Color.WHITE);
-        avatar.setFont(new Font("Arial", Font.BOLD, 16));
-        profileCard.add(avatar);
+        sidebarNameLabel = new JLabel("Guest");
+        sidebarNameLabel.setBounds(65, 18, 150, 18);
+        sidebarNameLabel.setFont(new Font("Arial", Font.BOLD, 13));
+        profileCard.add(sidebarNameLabel);
 
-        JLabel userName = new JLabel(currentUser.getUserName());
-        userName.setBounds(65, 18, 150, 18);
-        userName.setFont(new Font("Arial", Font.BOLD, 13));
-        profileCard.add(userName);
-
-        JLabel userEmail = new JLabel(currentUser.geteMail());
-        userEmail.setBounds(65, 37, 150, 15);
-        userEmail.setFont(new Font("Arial", Font.PLAIN, 11));
-        userEmail.setForeground(new Color(120, 120, 120));
-        profileCard.add(userEmail);
+        sidebarEmailLabel = new JLabel("guest@email.com");
+        sidebarEmailLabel.setBounds(65, 37, 150, 15);
+        sidebarEmailLabel.setFont(new Font("Arial", Font.PLAIN, 11));
+        sidebarEmailLabel.setForeground(new Color(120, 120, 120));
+        profileCard.add(sidebarEmailLabel);
 
         return profileCard;
     }
@@ -549,6 +549,13 @@ public class DashBoardPanel extends JPanel {
             // Update greeting
             String greeting = getGreeting();
             greetingLabel.setText(greeting + ", " + currentUser.getUserName());
+
+            // Update Sidebar Profile
+            if (sidebarNameLabel != null) {
+                sidebarNameLabel.setText(currentUser.getUserName());
+                sidebarEmailLabel.setText(currentUser.geteMail());
+                sidebarAvatarLabel.setText(getInitials(currentUser.getUserName()));
+            }
 
             // Load budget data
             currentBudget = budgetService.getSpesificUserBudget(userId);
