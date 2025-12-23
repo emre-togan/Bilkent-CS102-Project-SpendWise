@@ -123,7 +123,7 @@ public class ChatService {
                 null);
     }
 
-    public static void sendProductRecommend(int senderId, String receiverName, Product product) {
+    public static void sendProductRecommendation(int senderId, String receiverName, Product product) {
 
         int receiverId = getUserIdByName(receiverName);
 

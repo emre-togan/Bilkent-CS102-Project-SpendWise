@@ -3,13 +3,11 @@ package com.spendwise.view;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
-import com.mysql.cj.x.protobuf.MysqlxCrud.Order;
+import com.spendwise.models.Purchase;
+import com.spendwise.services.ProfileService;
 
 import java.awt.*;
 import java.util.List;
-
-// import Models.Order;
-// import Services.ProfileService;
 
 public class PurchaseHistoryDialog extends JDialog {
 
@@ -48,10 +46,10 @@ public class PurchaseHistoryDialog extends JDialog {
         listPanel.setBorder(new EmptyBorder(10, 15, 10, 15));
 
         // backend
-        List<Order> orders = ProfileService.getOrders(filterType);
+        List<Purchase> orders = ProfileService.getOrders(filterType);
 
         if (orders != null) {
-            for (Order order : orders) {
+            for (Purchase order : orders) {
                 listPanel.add(createOrderItem(order));
                 listPanel.add(Box.createVerticalStrut(15));
             }
@@ -63,7 +61,7 @@ public class PurchaseHistoryDialog extends JDialog {
         return scrollPane;
     }
 
-    private JPanel createOrderItem(Order order) {
+    private JPanel createOrderItem(Purchase order) {
         JPanel card = new JPanel(new BorderLayout());
         card.setBackground(Color.WHITE);
         card.setBorder(BorderFactory.createCompoundBorder(
@@ -82,7 +80,7 @@ public class PurchaseHistoryDialog extends JDialog {
 
         JPanel centerPanel = new JPanel(new GridLayout(3, 1));
         centerPanel.setOpaque(false);
-        centerPanel.add(new JLabel("Date: " + order.getDate()));
+        centerPanel.add(new JLabel("Date: " + order.getOrderDate()));
         centerPanel.add(new JLabel("Items: " + order.getProductSummary()));
         centerPanel.add(new JLabel("Total: " + order.getTotalAmount()));
 

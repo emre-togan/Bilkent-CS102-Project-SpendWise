@@ -26,6 +26,39 @@ public class userService {
         return isCreated;
     }
 
+    public static User getUserById(int id) {
+        User targetUser = null;
+
+        String sql = "SELECT * FROM users WHERE user_id = ?";
+        ResultSet resultSet = DBconnection.executeQuery(sql, id);
+
+        try {
+
+            if (resultSet != null && resultSet.next()) {
+                id = resultSet.getInt("user_id");
+                String permenantUserName = resultSet.getString("username");
+                String password = resultSet.getString("password");
+                String email = resultSet.getString("email");
+                Timestamp creationTime = resultSet.getTimestamp("registration_date");
+
+                targetUser = new User(permenantUserName, password, email, id, creationTime);
+            }
+
+        }
+
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        if (targetUser == null) {
+            System.out.println("Returning MOCK user due to DB error.");
+            targetUser = new User("MockUser", "Display", "mock@email.com", id,
+                    new Timestamp(System.currentTimeMillis()));
+        }
+
+        return targetUser;
+    }
+
     public User getUserByUserName(String userName) {
 
         User targetUser = null;

@@ -21,7 +21,7 @@ public class ChatController {
     }
 
     public void sendProductRecommendation(int senderId, String receiverName, Product product) {
-        ChatService.sendProductRecommend(senderId, receiverName, product);
+        ChatService.sendProductRecommendation(senderId, receiverName, product);
     }
 
     public boolean isUserOnline(String username) {

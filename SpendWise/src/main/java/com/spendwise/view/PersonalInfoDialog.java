@@ -49,9 +49,6 @@ public class PersonalInfoDialog extends JDialog {
         saveBtn.setForeground(Color.WHITE);
 
         saveBtn.addActionListener(e -> {
-            String newName = nameField.getText();
-            String newEmail = emailField.getText();
-            String newPhone = phoneField.getText();
 
             // INTEGRATION: Send update request to Backend
             // SettingsService.updatePersonalInfo(newName, newEmail, newPhone);

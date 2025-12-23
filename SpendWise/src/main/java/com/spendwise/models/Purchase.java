@@ -109,4 +109,22 @@ public class Purchase {
     public String getStatus() {
         return status;
     }
+
+    public String getProductSummary() {
+        if (items == null || items.isEmpty()) {
+            return "No items";
+        }
+        StringBuilder summary = new StringBuilder();
+        for (int i = 0; i < items.size(); i++) {
+            // We need to fetch product name, but OrderItem only has productId.
+            // For now return generic item description or use productId.
+            // Ideal solution: OrderItem should have productName or we fetch it.
+            // Given constraint, I will just say "Product #" + productId
+            summary.append("Product #").append(items.get(i).getProductId());
+            if (i < items.size() - 1) {
+                summary.append(", ");
+            }
+        }
+        return summary.toString();
+    }
 }

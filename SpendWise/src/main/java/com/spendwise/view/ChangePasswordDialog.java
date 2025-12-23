@@ -40,7 +40,6 @@ public class ChangePasswordDialog extends JDialog {
         updateBtn.setForeground(Color.WHITE);
 
         updateBtn.addActionListener(e -> {
-            String curr = new String(currentPass.getPassword());
             String p1 = new String(newPass.getPassword());
             String p2 = new String(confirmPass.getPassword());
 

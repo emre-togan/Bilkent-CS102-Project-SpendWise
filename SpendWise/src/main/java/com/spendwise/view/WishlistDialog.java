@@ -69,7 +69,7 @@ public class WishlistDialog extends JDialog {
         nameLabel.setFont(new Font("Arial", Font.BOLD, 12));
         nameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel priceLabel = new JLabel(product.getPrice());
+        JLabel priceLabel = new JLabel("$" + product.getPrice());
         priceLabel.setForeground(UIConstants.PRIMARY_GREEN);
         priceLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 

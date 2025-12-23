@@ -29,6 +29,24 @@ public class Product {
         this.reviewCount = 0;
     }
 
+    // UI Convenience Constructor (String prices)
+    public Product(String name, String priceStr, String originalPriceStr) {
+        this.name = name;
+        this.priceAfterDiscount = parsePrice(priceStr);
+        this.originalPrice = parsePrice(originalPriceStr);
+        this.category = "General"; // Default
+        this.imageUrl = "";
+        this.sellerName = "System";
+    }
+
+    private double parsePrice(String priceStr) {
+        try {
+            return Double.parseDouble(priceStr.replace("$", "").replace(",", "").trim());
+        } catch (NumberFormatException e) {
+            return 0.0;
+        }
+    }
+
     // this constructor for get the data from database
     public Product(int productId, String name, String description, double priceAfterDiscount, double originalPrice,
             String category, String imageUrl, double rating, int reviewCount,
@@ -59,6 +77,10 @@ public class Product {
     }
 
     public double getPriceAfterDiscount() {
+        return priceAfterDiscount;
+    }
+
+    public double getPrice() {
         return priceAfterDiscount;
     }
 

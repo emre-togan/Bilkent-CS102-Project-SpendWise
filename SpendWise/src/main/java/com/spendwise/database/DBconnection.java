@@ -37,6 +37,11 @@ public class DBconnection {
     public static int executeUpdate(String sql, Object... params) {
         getConnection();
 
+        if (connection == null) {
+            System.out.println("No database connection!");
+            return 0;
+        }
+
         try (PreparedStatement currentStatement = connection.prepareStatement(sql)) {
 
             for (int i = 0; i < params.length; i++) {
@@ -54,6 +59,11 @@ public class DBconnection {
 
     public static ResultSet executeQuery(String sql, Object... params) {
         getConnection();
+
+        if (connection == null) {
+            System.out.println("No database connection!");
+            return null;
+        }
 
         try {
             PreparedStatement currentStatement = connection.prepareStatement(sql);

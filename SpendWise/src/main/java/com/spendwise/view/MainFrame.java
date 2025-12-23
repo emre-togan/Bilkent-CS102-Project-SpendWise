@@ -60,9 +60,9 @@ public class MainFrame extends JFrame {
         budgetPanel = new BudgetPanel(this);
         expensesPanel = new ExpensesPanel(this);
         shopPanel = new ShopPanel(this);
-        chatPanel = new ChatPanel();
-        profilePanel = new ProfilePanel();
-        settingsPanel = new SettingsPanel();
+        chatPanel = new ChatPanel(this);
+        profilePanel = new ProfilePanel(this);
+        settingsPanel = new SettingsPanel(this);
 
         settingsPanel.setOnLogoutClicked(() -> logout());
 

@@ -11,15 +11,126 @@ import java.awt.event.MouseEvent;
 
 public class SettingsPanel extends JPanel {
 
+    private MainFrame mainFrame;
     // Callback to notify MainFrame when logout occurs
     private Runnable onLogoutClicked;
 
-    public SettingsPanel() {
+    public SettingsPanel(MainFrame mainFrame) {
+        this.mainFrame = mainFrame;
         setLayout(new BorderLayout());
         setBackground(UIConstants.WHITE_BG);
 
+        add(createSideMenu(), BorderLayout.WEST);
+
         // Load UI and Settings
         loadSettings();
+    }
+
+    private JPanel createSideMenu() {
+        JPanel sideMenu = new JPanel();
+        sideMenu.setPreferredSize(new Dimension(260, 800));
+        sideMenu.setBackground(Color.WHITE);
+        sideMenu.setLayout(null);
+        sideMenu.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, new Color(240, 240, 240)));
+
+        JLabel logo = new JLabel("W$");
+        logo.setBounds(20, 25, 50, 50);
+        logo.setFont(new Font("Arial", Font.BOLD, 40));
+        logo.setForeground(UIConstants.PRIMARY_GREEN);
+        sideMenu.add(logo);
+
+        JLabel appName = new JLabel("Finance Assistant");
+        appName.setBounds(80, 35, 150, 30);
+        appName.setFont(new Font("Arial", Font.PLAIN, 15));
+        appName.setForeground(new Color(100, 100, 100));
+        sideMenu.add(appName);
+
+        int startY = 120;
+        addMenuItem(sideMenu, "🏠", "Dashboard", startY, false);
+        addMenuItem(sideMenu, "💳", "Budget", startY + 60, false);
+        addMenuItem(sideMenu, "🧾", "Expenses", startY + 120, false);
+        addMenuItem(sideMenu, "🛍️", "Shop", startY + 180, false);
+        addMenuItem(sideMenu, "💬", "Chat", startY + 240, false);
+        addMenuItem(sideMenu, "👤", "Profile", startY + 300, false);
+        addMenuItem(sideMenu, "⚙️", "Settings", startY + 360, true);
+
+        JPanel profileCard = new JPanel();
+        profileCard.setBounds(15, 650, 230, 70);
+        profileCard.setBackground(new Color(248, 249, 250));
+        profileCard.setLayout(null);
+        profileCard.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
+
+        JLabel avatar = new JLabel("SJ");
+        avatar.setBounds(15, 15, 40, 40);
+        avatar.setHorizontalAlignment(SwingConstants.CENTER);
+        avatar.setOpaque(true);
+        avatar.setBackground(UIConstants.PRIMARY_GREEN);
+        avatar.setForeground(Color.WHITE);
+        avatar.setFont(new Font("Arial", Font.BOLD, 16));
+        profileCard.add(avatar);
+
+        JLabel userName = new JLabel("Sarah Johnson");
+        userName.setBounds(65, 18, 150, 18);
+        userName.setFont(new Font("Arial", Font.BOLD, 13));
+        profileCard.add(userName);
+
+        JLabel userEmail = new JLabel("sarah@email.com");
+        userEmail.setBounds(65, 37, 150, 15);
+        userEmail.setFont(new Font("Arial", Font.PLAIN, 11));
+        userEmail.setForeground(new Color(120, 120, 120));
+        profileCard.add(userEmail);
+
+        sideMenu.add(profileCard);
+
+        JButton logoutBtn = new JButton("↩︎ Logout");
+        logoutBtn.setBounds(15, 735, 230, 40);
+        logoutBtn.setFont(new Font("Arial", Font.BOLD, 14));
+        logoutBtn.setForeground(new Color(220, 53, 69));
+        logoutBtn.setBackground(Color.WHITE);
+        logoutBtn.setFocusPainted(false);
+        logoutBtn.setBorder(BorderFactory.createLineBorder(new Color(220, 53, 69)));
+        logoutBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        logoutBtn.addActionListener(e -> mainFrame.logout());
+        sideMenu.add(logoutBtn);
+
+        return sideMenu;
+    }
+
+    private void addMenuItem(JPanel parent, String emoji, String text, int y, boolean active) {
+        JButton btn = new JButton(emoji + "  " + text);
+        btn.setBounds(10, y, 240, 50);
+        btn.setFont(new Font("Arial", Font.PLAIN, 14));
+        btn.setHorizontalAlignment(SwingConstants.LEFT);
+        btn.setBorder(new EmptyBorder(0, 15, 0, 0));
+        btn.setFocusPainted(false);
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        if (active) {
+            btn.setBackground(UIConstants.PRIMARY_GREEN);
+            btn.setForeground(Color.WHITE);
+            btn.setOpaque(true);
+        } else {
+            btn.setContentAreaFilled(false);
+            btn.setForeground(new Color(80, 80, 80));
+        }
+
+        btn.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                if (!active) {
+                    btn.setBackground(new Color(245, 245, 245));
+                    btn.setOpaque(true);
+                }
+            }
+
+            public void mouseExited(MouseEvent e) {
+                if (!active) {
+                    btn.setContentAreaFilled(false);
+                }
+            }
+        });
+
+        btn.addActionListener(e -> mainFrame.showPanel(text.toUpperCase()));
+        parent.add(btn);
     }
 
     private void loadSettings() {

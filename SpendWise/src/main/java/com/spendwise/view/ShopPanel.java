@@ -152,9 +152,9 @@ public class ShopPanel extends JPanel {
 
         createFilterPanel(content);
 
-        createTabs(content);
-
         createProductGrid(content);
+
+        createTabs(content);
 
         return content;
     }

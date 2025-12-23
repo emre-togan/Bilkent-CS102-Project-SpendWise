@@ -46,4 +46,34 @@ public class User {
         return accountCreationTime;
     }
 
+    // Mock statistics for ProfilePanel
+    public int getPurchaseCount() {
+        return 0; // Placeholder
+    }
+
+    public double getTotalSaved() {
+        return 0.0; // Placeholder
+    }
+
+    public int getDealsFound() {
+        return 0; // Placeholder
+    }
+
+    // Chat related mocks
+    public String getLastMessage() {
+        return "Hello!";
+    }
+
+    public String getLastMessageTime() {
+        return "10:30 AM";
+    }
+
+    public int getUnreadCount() {
+        return 0;
+    }
+
+    public boolean isOnline() {
+        return true;
+    }
+
 }

@@ -28,36 +28,18 @@ public class DashBoardPanel extends JPanel {
     private MainFrame mainFrame;
     private User currentUser;
 
-    private JPanel sideMenuPanel;
-    private JPanel menuPanel;
-    private JPanel headerPanel;
-    private JPanel footerPanel;
     private JPanel contentPanel;
-
-    private JButton dashBoardButton;
-    private JButton budgetButton;
-    private JButton expensesButton;
-    private JButton shopButton;
-    private JButton chatButton;
-    private JButton profileButton;
-    private JButton settingsButton;
-    private JButton logoutButton;
 
     private JLabel greetingLabel;
     private JLabel balanceLabel;
-    private JLabel totalBudgetLabel;
-    private JLabel totalSpentLabel;
     private JProgressBar budgetProgressBar;
-    private JLabel remainingLabel;
     private JLabel percentageLabel;
     private JButton addExpenseButton;
     private JButton viewDiscountsButton;
-    private JPanel weeklyChartPanel;
-    private JPanel recentTransactionsPanel;
-    private JPanel userProfileCard;
 
     public DashBoardPanel(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
+        this.currentUser = UserSession.getCurrentUser();
         this.setLayout(new BorderLayout());
         this.setBackground(Color.WHITE);
         this.add(createSideMenu(), BorderLayout.WEST);
@@ -163,23 +145,17 @@ public class DashBoardPanel extends JPanel {
                     button.setOpaque(true);
                 }
             }
-
-            public void mouseExisted(MouseEvent e) {
-                if (!selected) {
-                    button.setContentAreaFilled(false);
-                }
-            }
         });
 
         button.addActionListener(e -> {
-            String panelName = text.replace("with Friends", "").toUpperCase();
+            String panelName = text.replace("with Friends", "").trim().toUpperCase();
             mainFrame.showPanel(panelName);
         });
         panel.add(button);
     }
 
     private JPanel createContentPanel() {
-        JPanel content = new JPanel();
+        contentPanel = new JPanel();
         contentPanel.setLayout(null);
         contentPanel.setBackground(new Color(250, 250, 250));
 
@@ -295,10 +271,6 @@ public class DashBoardPanel extends JPanel {
             public void mouseEntered(MouseEvent e) {
                 button.setBackground(bgColor.darker());
             }
-
-            public void mouseExisted(MouseEvent e) {
-                button.setBackground(bgColor);
-            }
         }));
 
         return button;
@@ -313,7 +285,7 @@ public class DashBoardPanel extends JPanel {
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
                 String[] days = { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
-                int[] values = { 1, 2, 23, 4, 545, 54 }; // values yazılavcak
+                int[] values = { 1, 2, 23, 4, 545, 54, 100 }; // values yazılavcak
 
                 int maxValue = 800;
                 int chartHeight = 200;
