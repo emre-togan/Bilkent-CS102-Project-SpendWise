@@ -1,8 +1,31 @@
 package com.spendwise.view;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridBagLayout;
+import java.awt.Image;
+import java.awt.Insets;
+import java.awt.RenderingHints;
 import java.net.URL;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+import javax.swing.JToggleButton;
+import javax.swing.SwingConstants;
 
 import com.spendwise.controllers.AuthController;
 import com.spendwise.models.User;
@@ -104,14 +127,13 @@ public class LoginPanel extends JPanel {
             }
         });
 
-        JButton loginButton = new JButton("LOGIN");
+        RoundedButton loginButton = new RoundedButton("LOGIN", 15);
         loginButton.setFont(UIConstants.BUTTON_FONT);
         loginButton.setBackground(UIConstants.PRIMARY_GREEN);
         loginButton.setForeground(Color.WHITE);
         loginButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
-        loginButton.setFocusPainted(false);
-        loginButton.setBorderPainted(false);
         loginButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        loginButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
         loginButton.addActionListener(e -> handleLogin());
 

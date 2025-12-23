@@ -1,11 +1,25 @@
 package com.spendwise.view;
 
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Map;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
 
 import com.spendwise.services.SettingsService;
 
@@ -94,12 +108,11 @@ public class SettingsPanel extends JPanel {
 
         sideMenu.add(profileCard);
 
-        JButton logoutBtn = new JButton("🚪 Logout");
+        RoundedButton logoutBtn = new RoundedButton("🚪 Logout", 15);
         logoutBtn.setBounds(15, 735, 230, 40);
         logoutBtn.setFont(new Font("Arial", Font.BOLD, 14));
         logoutBtn.setForeground(new Color(220, 53, 69));
         logoutBtn.setBackground(Color.WHITE);
-        logoutBtn.setFocusPainted(false);
         logoutBtn.setBorder(BorderFactory.createLineBorder(new Color(220, 53, 69)));
         logoutBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         logoutBtn.addActionListener(e -> {
@@ -112,12 +125,11 @@ public class SettingsPanel extends JPanel {
     }
 
     private void addMenuButton(JPanel panel, String icon, String text, int y, boolean selected) {
-        JButton button = new JButton(icon + "  " + text);
+        RoundedButton button = new RoundedButton(icon + "  " + text, 15);
         button.setBounds(10, y, 240, 50);
         button.setFont(new Font("Arial", Font.PLAIN, 14));
         button.setHorizontalAlignment(SwingConstants.LEFT);
         button.setBorder(new EmptyBorder(0, 15, 0, 0));
-        button.setFocusPainted(false);
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         if (selected) {
@@ -125,7 +137,7 @@ public class SettingsPanel extends JPanel {
             button.setForeground(Color.WHITE);
             button.setOpaque(true);
         } else {
-            button.setContentAreaFilled(false);
+            button.setBackground(Color.WHITE);
             button.setForeground(new Color(80, 80, 80));
         }
 
@@ -171,10 +183,10 @@ public class SettingsPanel extends JPanel {
                 () -> JOptionPane.showMessageDialog(this, "Terms of Service...")));
 
         // Delete Account (Red)
-        JButton deleteAccBtn = new JButton("Delete Account");
+        RoundedButton deleteAccBtn = new RoundedButton("Delete Account", 15);
         deleteAccBtn.setForeground(Color.RED);
-        deleteAccBtn.setBorderPainted(false);
-        deleteAccBtn.setContentAreaFilled(false);
+        deleteAccBtn.setBackground(Color.WHITE);
+        deleteAccBtn.setBorder(BorderFactory.createLineBorder(Color.RED));
         deleteAccBtn.setAlignmentX(Component.LEFT_ALIGNMENT);
         deleteAccBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         deleteAccBtn.addActionListener(e -> handleDeleteAccount());

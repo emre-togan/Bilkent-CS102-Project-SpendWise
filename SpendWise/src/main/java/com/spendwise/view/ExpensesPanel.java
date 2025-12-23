@@ -1,12 +1,32 @@
 package com.spendwise.view;
 
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Frame;
+import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
 
 import com.spendwise.models.Expense;
 import com.spendwise.services.expenseService;
@@ -92,12 +112,11 @@ public class ExpensesPanel extends JPanel {
 
         sideMenu.add(profileCard);
 
-        JButton logoutBtn = new JButton("↩︎ Logout");
+        RoundedButton logoutBtn = new RoundedButton("↩︎ Logout", 15);
         logoutBtn.setBounds(15, 735, 230, 40);
         logoutBtn.setFont(new Font("Arial", Font.BOLD, 14));
         logoutBtn.setForeground(new Color(220, 53, 69));
         logoutBtn.setBackground(Color.WHITE);
-        logoutBtn.setFocusPainted(false);
         logoutBtn.setBorder(BorderFactory.createLineBorder(new Color(220, 53, 69)));
         logoutBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         logoutBtn.addActionListener(e -> mainFrame.logout());
@@ -107,12 +126,11 @@ public class ExpensesPanel extends JPanel {
     }
 
     private void addMenuItem(JPanel parent, String emoji, String text, int y, boolean active) {
-        JButton btn = new JButton(emoji + "  " + text);
+        RoundedButton btn = new RoundedButton(emoji + "  " + text, 15);
         btn.setBounds(10, y, 240, 50);
         btn.setFont(new Font("Arial", Font.PLAIN, 14));
         btn.setHorizontalAlignment(SwingConstants.LEFT);
         btn.setBorder(new EmptyBorder(0, 15, 0, 0));
-        btn.setFocusPainted(false);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         if (active) {
@@ -120,7 +138,7 @@ public class ExpensesPanel extends JPanel {
             btn.setForeground(Color.WHITE);
             btn.setOpaque(true);
         } else {
-            btn.setContentAreaFilled(false);
+            btn.setBackground(Color.WHITE);
             btn.setForeground(new Color(80, 80, 80));
         }
 
@@ -134,7 +152,7 @@ public class ExpensesPanel extends JPanel {
 
             public void mouseExited(MouseEvent e) {
                 if (!active) {
-                    btn.setContentAreaFilled(false);
+                    btn.setBackground(Color.WHITE);
                 }
             }
         });
@@ -174,13 +192,11 @@ public class ExpensesPanel extends JPanel {
         content.add(categoryFilter);
 
         // Add Expense Button
-        JButton addBtn = new JButton("➕ Add Expense");
+        RoundedButton addBtn = new RoundedButton("➕ Add Expense", 15);
         addBtn.setBounds(970, 120, 130, 40);
         addBtn.setFont(new Font("Arial", Font.BOLD, 14));
         addBtn.setBackground(UIConstants.PRIMARY_GREEN);
         addBtn.setForeground(Color.WHITE);
-        addBtn.setFocusPainted(false);
-        addBtn.setBorderPainted(false);
         addBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         addBtn.addActionListener(e -> showAddExpenseDialog());
         content.add(addBtn);
@@ -222,7 +238,7 @@ public class ExpensesPanel extends JPanel {
         JTextField descField = new JTextField();
         formPanel.add(descField);
 
-        JButton saveBtn = new JButton("Add Expense");
+        RoundedButton saveBtn = new RoundedButton("Add Expense", 15);
         saveBtn.setBackground(UIConstants.PRIMARY_GREEN);
         saveBtn.setForeground(Color.WHITE);
         saveBtn.addActionListener(e -> {

@@ -1,9 +1,30 @@
 package com.spendwise.view;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridBagLayout;
+import java.awt.Image;
+import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 
 import com.spendwise.controllers.AuthController;
 
@@ -65,14 +86,13 @@ public class SignUpPanel extends JPanel {
         JPanel confirmPassPanel = createFieldPanel("Confirm Password", confirmPasswordField);
 
         // 4. Button and link
-        JButton signUpButton = new JButton("SIGN UP");
+        RoundedButton signUpButton = new RoundedButton("SIGN UP", 15);
         signUpButton.setFont(UIConstants.BUTTON_FONT);
         signUpButton.setBackground(UIConstants.PRIMARY_GREEN);
         signUpButton.setForeground(Color.WHITE);
         signUpButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
-        signUpButton.setFocusPainted(false);
-        signUpButton.setBorderPainted(false);
         signUpButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        signUpButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
         signUpButton.addActionListener(e -> handleSignUp());
 

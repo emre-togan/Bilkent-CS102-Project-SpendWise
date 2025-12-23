@@ -34,7 +34,9 @@ public class PrivacySettingsDialog extends JDialog {
 
         add(content, BorderLayout.CENTER);
 
-        JButton closeBtn = new JButton("Close");
+        RoundedButton closeBtn = new RoundedButton("Close", 15);
+        closeBtn.setBackground(UIConstants.PRIMARY_BLUE);
+        closeBtn.setForeground(Color.WHITE);
         closeBtn.addActionListener(e -> dispose());
 
         JPanel btnPanel = new JPanel();

@@ -1,9 +1,22 @@
 package com.spendwise.view;
 
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.util.List;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.border.EmptyBorder;
 
 import com.spendwise.models.Purchase;
 import com.spendwise.services.ProfileService;
@@ -22,7 +35,10 @@ public class PurchaseHistoryDialog extends JDialog {
         headerPanel.setBackground(UIConstants.WHITE_BG);
         headerPanel.setBorder(new EmptyBorder(15, 20, 10, 20));
         headerPanel.add(new JLabel("My Orders"), BorderLayout.WEST);
-        headerPanel.add(new JButton("Export Data"), BorderLayout.EAST);
+        RoundedButton exportBtn = new RoundedButton("Export Data", 15);
+        exportBtn.setBackground(UIConstants.PRIMARY_GREEN);
+        exportBtn.setForeground(Color.WHITE);
+        headerPanel.add(exportBtn, BorderLayout.EAST);
         add(headerPanel, BorderLayout.NORTH);
 
         // Tabs
@@ -96,11 +112,12 @@ public class PurchaseHistoryDialog extends JDialog {
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         bottomPanel.setOpaque(false);
 
-        JButton trackBtn = new JButton("Track Order");
+        RoundedButton trackBtn = new RoundedButton("Track Order", 12);
         trackBtn.setBackground(Color.WHITE);
+        trackBtn.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
         trackBtn.addActionListener(e -> ProfileService.trackOrder(order.getOrderId()));
 
-        JButton buyAgainBtn = new JButton("Buy Again");
+        RoundedButton buyAgainBtn = new RoundedButton("Buy Again", 12);
         buyAgainBtn.setBackground(UIConstants.PRIMARY_BLUE);
         buyAgainBtn.setForeground(Color.WHITE);
         buyAgainBtn.addActionListener(e -> ProfileService.buyAgain(order.getOrderId()));

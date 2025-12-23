@@ -102,12 +102,11 @@ public class DashBoardPanel extends JPanel {
 
         sideMenu.add(profileCard);
 
-        JButton logoutBtn = new JButton("↩︎ Logout");
+        RoundedButton logoutBtn = new RoundedButton("↩︎ Logout", 15);
         logoutBtn.setBounds(15, 735, 230, 40);
         logoutBtn.setFont(new Font("Arial", Font.BOLD, 14));
         logoutBtn.setForeground(new Color(220, 53, 69));
         logoutBtn.setBackground(Color.WHITE);
-        logoutBtn.setFocusPainted(false);
         logoutBtn.setBorder(BorderFactory.createLineBorder(new Color(220, 53, 69)));
         logoutBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         logoutBtn.addActionListener(e -> mainFrame.logout());
@@ -118,12 +117,11 @@ public class DashBoardPanel extends JPanel {
     }
 
     private void addMenuButton(JPanel panel, String icon, String text, int y, boolean selected) {
-        JButton button = new JButton(icon + " " + text);
+        RoundedButton button = new RoundedButton(icon + " " + text, 15);
         button.setBounds(10, y, 240, 50);
         button.setFont(new Font("Arial", Font.PLAIN, 14));
         button.setHorizontalAlignment(SwingConstants.LEFT);
         button.setBorder(new EmptyBorder(0, 15, 0, 0));
-        button.setFocusPainted(false);
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         if (selected) {
@@ -132,7 +130,7 @@ public class DashBoardPanel extends JPanel {
             button.setOpaque(true);
 
         } else {
-            button.setContentAreaFilled(false);
+            button.setBackground(Color.WHITE);
             button.setForeground(new Color(80, 80, 80));
         }
 
@@ -141,6 +139,11 @@ public class DashBoardPanel extends JPanel {
                 if (!selected) {
                     button.setBackground(new Color(245, 245, 245));
                     button.setOpaque(true);
+                }
+            }
+            public void mouseExited(MouseEvent e) {
+                if (!selected) {
+                    button.setBackground(Color.WHITE);
                 }
             }
         });
@@ -256,18 +259,19 @@ public class DashBoardPanel extends JPanel {
         panel.add(budgetCard);
     }
 
-    private JButton createActionButton(String text, Color bgColor) {
-        JButton button = new JButton(text);
+    private RoundedButton createActionButton(String text, Color bgColor) {
+        RoundedButton button = new RoundedButton(text, 15);
         button.setFont(new Font("Arial", Font.BOLD, 16));
         button.setBackground(bgColor);
         button.setForeground(Color.WHITE);
-        button.setFocusPainted(false);
-        button.setBorderPainted(false);
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         button.addMouseListener((new MouseAdapter() {
             public void mouseEntered(MouseEvent e) {
                 button.setBackground(bgColor.darker());
+            }
+            public void mouseExited(MouseEvent e) {
+                button.setBackground(bgColor);
             }
         }));
 

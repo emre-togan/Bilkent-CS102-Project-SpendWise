@@ -1,8 +1,18 @@
 package com.spendwise.view;
 
-import javax.swing.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
+
+import javax.swing.BorderFactory;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
-import java.awt.*;
 
 // import Services.SettingsService; 
 // import Models.User;              
@@ -44,7 +54,7 @@ public class PersonalInfoDialog extends JDialog {
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         btnPanel.setBackground(UIConstants.WHITE_BG);
 
-        JButton saveBtn = new JButton("Save Changes");
+        RoundedButton saveBtn = new RoundedButton("Save Changes", 15);
         saveBtn.setBackground(UIConstants.PRIMARY_BLUE);
         saveBtn.setForeground(Color.WHITE);
 

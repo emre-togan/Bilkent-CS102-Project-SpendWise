@@ -1,13 +1,28 @@
 package com.spendwise.view;
 
-import javax.swing.*;
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.util.List;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 import com.spendwise.models.Address;
 import com.spendwise.services.ProfileService;
-
-import java.awt.*;
-import java.util.List;
 
 // import Models.Address;
 // import Services.ProfileService;
@@ -60,7 +75,7 @@ public class AddressesDialog extends JDialog {
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         topPanel.setBackground(UIConstants.WHITE_BG);
 
-        JButton addNewBtn = new JButton("+ Add New Address");
+        RoundedButton addNewBtn = new RoundedButton("+ Add New Address", 15);
         addNewBtn.setBackground(UIConstants.PRIMARY_BLUE);
         addNewBtn.setForeground(Color.WHITE);
         addNewBtn.addActionListener(e -> {
@@ -109,10 +124,11 @@ public class AddressesDialog extends JDialog {
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         btnPanel.setBackground(UIConstants.WHITE_BG);
 
-        JButton cancelBtn = new JButton("Cancel");
+        RoundedButton cancelBtn = new RoundedButton("Cancel", 15);
+        cancelBtn.setBackground(Color.WHITE);
         cancelBtn.addActionListener(e -> cardLayout.show(mainContainer, "LIST"));
 
-        JButton saveBtn = new JButton("Save Address");
+        RoundedButton saveBtn = new RoundedButton("Save Address", 15);
         saveBtn.setBackground(UIConstants.PRIMARY_GREEN);
         saveBtn.setForeground(Color.WHITE);
 
@@ -179,8 +195,9 @@ public class AddressesDialog extends JDialog {
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT));
         actions.setOpaque(false);
 
-        JButton delete = new JButton("Delete");
+        RoundedButton delete = new RoundedButton("Delete", 12);
         delete.setForeground(Color.RED);
+        delete.setBackground(Color.WHITE);
         delete.addActionListener(e -> {
             int confirm = JOptionPane.showConfirmDialog(this, "Delete this address?", "Confirm",
                     JOptionPane.YES_NO_OPTION);
@@ -194,7 +211,9 @@ public class AddressesDialog extends JDialog {
         actions.add(delete);
 
         if (!addr.isDefault()) {
-            JButton setDef = new JButton("Set as Default");
+            RoundedButton setDef = new RoundedButton("Set as Default", 12);
+            setDef.setBackground(UIConstants.PRIMARY_BLUE);
+            setDef.setForeground(Color.WHITE);
             setDef.addActionListener(e -> {
                 // Backend
                 ProfileService.setDefaultAddress(addr.getId());

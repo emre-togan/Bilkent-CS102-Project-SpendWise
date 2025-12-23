@@ -108,12 +108,11 @@ public class ShopPanel extends JPanel {
 
         sideMenu.add(profileCard);
 
-        JButton logoutBtn = new JButton("↩︎ Logout");
+        RoundedButton logoutBtn = new RoundedButton("↩︎ Logout", 15);
         logoutBtn.setBounds(15, 735, 230, 40);
         logoutBtn.setFont(new Font("Arial", Font.BOLD, 14));
         logoutBtn.setForeground(new Color(220, 53, 69));
         logoutBtn.setBackground(Color.WHITE);
-        logoutBtn.setFocusPainted(false);
         logoutBtn.setBorder(BorderFactory.createLineBorder(new Color(220, 53, 69)));
         logoutBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         logoutBtn.addActionListener(e -> mainFrame.logout());
@@ -123,12 +122,11 @@ public class ShopPanel extends JPanel {
     }
 
     private void addMenuItem(JPanel parent, String emoji, String text, int y, boolean active) {
-        JButton btn = new JButton(emoji + "  " + text);
+        RoundedButton btn = new RoundedButton(emoji + "  " + text, 15);
         btn.setBounds(10, y, 240, 50);
         btn.setFont(new Font("Arial", Font.PLAIN, 14));
         btn.setHorizontalAlignment(SwingConstants.LEFT);
         btn.setBorder(new EmptyBorder(0, 15, 0, 0));
-        btn.setFocusPainted(false);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         if (active) {
@@ -136,7 +134,7 @@ public class ShopPanel extends JPanel {
             btn.setForeground(Color.WHITE);
             btn.setOpaque(true);
         } else {
-            btn.setContentAreaFilled(false);
+            btn.setBackground(Color.WHITE);
             btn.setForeground(new Color(80, 80, 80));
         }
 
@@ -150,7 +148,7 @@ public class ShopPanel extends JPanel {
 
             public void mouseExited(MouseEvent e) {
                 if (!active) {
-                    btn.setContentAreaFilled(false);
+                    btn.setBackground(Color.WHITE);
                 }
             }
         });
@@ -182,13 +180,11 @@ public class ShopPanel extends JPanel {
         searchField.setFont(new Font("Arial", Font.PLAIN, 14));
         content.add(searchField);
 
-        JButton searchBtn = new JButton("🔍 Search");
+        RoundedButton searchBtn = new RoundedButton("🔍 Search", 15);
         searchBtn.setBounds(500, 120, 100, 40);
         searchBtn.setFont(new Font("Arial", Font.BOLD, 14));
         searchBtn.setBackground(UIConstants.PRIMARY_GREEN);
         searchBtn.setForeground(Color.WHITE);
-        searchBtn.setFocusPainted(false);
-        searchBtn.setBorderPainted(false);
         searchBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         searchBtn.addActionListener(e -> performSearch());
         content.add(searchBtn);
@@ -410,12 +406,10 @@ public class ShopPanel extends JPanel {
         priceLabel.setForeground(UIConstants.SUCCESS_GREEN);
         priceLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JButton viewBtn = new JButton("View Deal");
+        RoundedButton viewBtn = new RoundedButton("View Deal", 12);
         viewBtn.setFont(new Font("Arial", Font.BOLD, 12));
         viewBtn.setBackground(UIConstants.PRIMARY_BLUE);
         viewBtn.setForeground(Color.WHITE);
-        viewBtn.setFocusPainted(false);
-        viewBtn.setBorderPainted(false);
         viewBtn.setAlignmentX(Component.LEFT_ALIGNMENT);
         viewBtn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
 

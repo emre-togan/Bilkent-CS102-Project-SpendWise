@@ -1,9 +1,24 @@
 package com.spendwise.view;
 
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridLayout;
 import java.util.List;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.border.EmptyBorder;
 
 import com.spendwise.models.Product;
 import com.spendwise.services.ProfileService;
@@ -74,11 +89,10 @@ public class WishlistDialog extends JDialog {
         priceLabel.setForeground(UIConstants.PRIMARY_GREEN);
         priceLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JButton removeBtn = new JButton("Remove");
+        RoundedButton removeBtn = new RoundedButton("Remove", 12);
         removeBtn.setFont(new Font("Arial", Font.PLAIN, 10));
         removeBtn.setForeground(Color.RED);
-        removeBtn.setBorderPainted(false);
-        removeBtn.setContentAreaFilled(false);
+        removeBtn.setBackground(Color.WHITE);
         removeBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
         removeBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 

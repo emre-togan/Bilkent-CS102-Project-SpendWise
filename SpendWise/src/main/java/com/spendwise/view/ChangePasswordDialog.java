@@ -1,8 +1,18 @@
 package com.spendwise.view;
 
-import javax.swing.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
+
+import javax.swing.BorderFactory;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.border.EmptyBorder;
-import java.awt.*;
 
 // import Services.SettingsService; // Waiting for Backend
 
@@ -35,7 +45,7 @@ public class ChangePasswordDialog extends JDialog {
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         btnPanel.setBackground(UIConstants.WHITE_BG);
 
-        JButton updateBtn = new JButton("Update Password");
+        RoundedButton updateBtn = new RoundedButton("Update Password", 15);
         updateBtn.setBackground(UIConstants.PRIMARY_GREEN);
         updateBtn.setForeground(Color.WHITE);
 

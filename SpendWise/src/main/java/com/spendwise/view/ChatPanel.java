@@ -1,17 +1,39 @@
 package com.spendwise.view;
 
-import javax.swing.*;
+import java.awt.BasicStroke;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridLayout;
+import java.awt.RenderingHints;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.List;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTextField;
+import javax.swing.JViewport;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 import com.spendwise.models.Message;
 import com.spendwise.models.Product;
 import com.spendwise.models.User;
 import com.spendwise.services.ChatService;
-
-import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.List;
 
 // import Models.Message;
 // import Models.User;
@@ -102,12 +124,11 @@ public class ChatPanel extends JPanel {
 
         sideMenu.add(profileCard);
 
-        JButton logoutBtn = new JButton("↩︎ Logout");
+        RoundedButton logoutBtn = new RoundedButton("↩︎ Logout", 15);
         logoutBtn.setBounds(15, 735, 230, 40);
         logoutBtn.setFont(new Font("Arial", Font.BOLD, 14));
         logoutBtn.setForeground(new Color(220, 53, 69));
         logoutBtn.setBackground(Color.WHITE);
-        logoutBtn.setFocusPainted(false);
         logoutBtn.setBorder(BorderFactory.createLineBorder(new Color(220, 53, 69)));
         logoutBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         logoutBtn.addActionListener(e -> mainFrame.logout());
@@ -117,12 +138,11 @@ public class ChatPanel extends JPanel {
     }
 
     private void addMenuItem(JPanel parent, String emoji, String text, int y, boolean active) {
-        JButton btn = new JButton(emoji + "  " + text);
+        RoundedButton btn = new RoundedButton(emoji + "  " + text, 15);
         btn.setBounds(10, y, 240, 50);
         btn.setFont(new Font("Arial", Font.PLAIN, 14));
         btn.setHorizontalAlignment(SwingConstants.LEFT);
         btn.setBorder(new EmptyBorder(0, 15, 0, 0));
-        btn.setFocusPainted(false);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         if (active) {
@@ -130,7 +150,7 @@ public class ChatPanel extends JPanel {
             btn.setForeground(Color.WHITE);
             btn.setOpaque(true);
         } else {
-            btn.setContentAreaFilled(false);
+            btn.setBackground(Color.WHITE);
             btn.setForeground(new Color(80, 80, 80));
         }
 
@@ -144,7 +164,7 @@ public class ChatPanel extends JPanel {
 
             public void mouseExited(MouseEvent e) {
                 if (!active) {
-                    btn.setContentAreaFilled(false);
+                    btn.setBackground(Color.WHITE);
                 }
             }
         });
@@ -222,11 +242,11 @@ public class ChatPanel extends JPanel {
         messageField = new JTextField();
         messageField.setPreferredSize(new Dimension(100, 40));
 
-        JButton sendButton = new JButton("Send");
+        RoundedButton sendButton = new RoundedButton("Send", 15);
         sendButton.setBackground(UIConstants.PRIMARY_BLUE);
         sendButton.setForeground(Color.WHITE);
 
-        JButton recommendBtn = new JButton("+");
+        RoundedButton recommendBtn = new RoundedButton("+", 15);
         recommendBtn.setToolTipText("Recommend a Product");
         recommendBtn.setBackground(UIConstants.PRIMARY_GREEN);
         recommendBtn.setForeground(Color.WHITE);
@@ -485,7 +505,7 @@ public class ChatPanel extends JPanel {
         priceLabel.setForeground(Color.RED);
         priceLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JButton viewBtn = new JButton("View Deal");
+        RoundedButton viewBtn = new RoundedButton("View Deal", 12);
         viewBtn.setBackground(UIConstants.PRIMARY_BLUE);
         viewBtn.setForeground(Color.WHITE);
         viewBtn.setFont(new Font("Arial", Font.PLAIN, 10));

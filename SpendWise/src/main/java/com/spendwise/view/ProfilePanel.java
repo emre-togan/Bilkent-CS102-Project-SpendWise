@@ -1,11 +1,27 @@
 package com.spendwise.view;
 
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
 
 import com.spendwise.models.User;
 import com.spendwise.services.ProfileService;
@@ -88,12 +104,11 @@ public class ProfilePanel extends JPanel {
 
         sideMenu.add(profileCard);
 
-        JButton logoutBtn = new JButton("↩︎ Logout");
+        RoundedButton logoutBtn = new RoundedButton("↩︎ Logout", 15);
         logoutBtn.setBounds(15, 735, 230, 40);
         logoutBtn.setFont(new Font("Arial", Font.BOLD, 14));
         logoutBtn.setForeground(new Color(220, 53, 69));
         logoutBtn.setBackground(Color.WHITE);
-        logoutBtn.setFocusPainted(false);
         logoutBtn.setBorder(BorderFactory.createLineBorder(new Color(220, 53, 69)));
         logoutBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         logoutBtn.addActionListener(e -> mainFrame.logout());
@@ -103,12 +118,11 @@ public class ProfilePanel extends JPanel {
     }
 
     private void addMenuItem(JPanel parent, String emoji, String text, int y, boolean active) {
-        JButton btn = new JButton(emoji + "  " + text);
+        RoundedButton btn = new RoundedButton(emoji + "  " + text, 15);
         btn.setBounds(10, y, 240, 50);
         btn.setFont(new Font("Arial", Font.PLAIN, 14));
         btn.setHorizontalAlignment(SwingConstants.LEFT);
         btn.setBorder(new EmptyBorder(0, 15, 0, 0));
-        btn.setFocusPainted(false);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         if (active) {
@@ -116,7 +130,7 @@ public class ProfilePanel extends JPanel {
             btn.setForeground(Color.WHITE);
             btn.setOpaque(true);
         } else {
-            btn.setContentAreaFilled(false);
+            btn.setBackground(Color.WHITE);
             btn.setForeground(new Color(80, 80, 80));
         }
 
@@ -130,7 +144,7 @@ public class ProfilePanel extends JPanel {
 
             public void mouseExited(MouseEvent e) {
                 if (!active) {
-                    btn.setContentAreaFilled(false);
+                    btn.setBackground(Color.WHITE);
                 }
             }
         });
@@ -174,13 +188,11 @@ public class ProfilePanel extends JPanel {
         headerCard.add(emailLabel);
 
         // Edit Profile Button
-        JButton editBtn = new JButton("✏️ Edit Profile");
+        RoundedButton editBtn = new RoundedButton("✏️ Edit Profile", 15);
         editBtn.setBounds(920, 40, 130, 40);
         editBtn.setFont(new Font("Arial", Font.BOLD, 13));
         editBtn.setBackground(UIConstants.PRIMARY_BLUE);
         editBtn.setForeground(Color.WHITE);
-        editBtn.setFocusPainted(false);
-        editBtn.setBorderPainted(false);
         editBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         editBtn.addActionListener(e -> {
             JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
@@ -201,13 +213,11 @@ public class ProfilePanel extends JPanel {
         friendsTitle.setFont(new Font("Arial", Font.BOLD, 18));
         content.add(friendsTitle);
 
-        JButton addFriendBtn = new JButton("➕ Add Friend");
+        RoundedButton addFriendBtn = new RoundedButton("➕ Add Friend", 15);
         addFriendBtn.setBounds(950, 290, 150, 35);
         addFriendBtn.setFont(new Font("Arial", Font.BOLD, 13));
         addFriendBtn.setBackground(UIConstants.PRIMARY_GREEN);
         addFriendBtn.setForeground(Color.WHITE);
-        addFriendBtn.setFocusPainted(false);
-        addFriendBtn.setBorderPainted(false);
         addFriendBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         content.add(addFriendBtn);
 
@@ -273,7 +283,7 @@ public class ProfilePanel extends JPanel {
     }
 
     private void createActionButton(JPanel parent, String text, int x, int y, java.awt.event.ActionListener action) {
-        JButton btn = new JButton(text);
+        RoundedButton btn = new RoundedButton(text, 15);
         btn.setBounds(x, y, 330, 60);
         btn.setFont(new Font("Arial", Font.BOLD, 15));
         btn.setBackground(Color.WHITE);
@@ -283,7 +293,6 @@ public class ProfilePanel extends JPanel {
             BorderFactory.createLineBorder(new Color(230, 230, 230)),
             new EmptyBorder(0, 20, 0, 0)
         ));
-        btn.setFocusPainted(false);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btn.addActionListener(action);
         

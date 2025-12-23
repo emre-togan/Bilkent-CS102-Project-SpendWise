@@ -1,8 +1,17 @@
 package com.spendwise.view;
 
-import javax.swing.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Font;
+
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
-import java.awt.*;
 
 public class BudgetPanel extends JPanel {
 
@@ -50,12 +59,11 @@ public class BudgetPanel extends JPanel {
     }
 
     private void addMenuItem(JPanel parent, String emoji, String text, int y, boolean active) {
-        JButton btn = new JButton(emoji + "  " + text);
+        RoundedButton btn = new RoundedButton(emoji + "  " + text, 15);
         btn.setBounds(10, y, 240, 50);
         btn.setFont(new Font("Arial", Font.PLAIN, 14));
         btn.setHorizontalAlignment(SwingConstants.LEFT);
         btn.setBorder(new EmptyBorder(0, 15, 0, 0));
-        btn.setFocusPainted(false);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         if (active) {
@@ -63,7 +71,7 @@ public class BudgetPanel extends JPanel {
             btn.setForeground(Color.WHITE);
             btn.setOpaque(true);
         } else {
-            btn.setContentAreaFilled(false);
+            btn.setBackground(Color.WHITE);
             btn.setForeground(new Color(80, 80, 80));
         }
 
@@ -113,12 +121,10 @@ public class BudgetPanel extends JPanel {
         limitAmount.setFont(new Font("Arial", Font.BOLD, 24));
         card.add(limitAmount);
 
-        JButton editBtn = new JButton("✏");
+        RoundedButton editBtn = new RoundedButton("✏", 10);
         editBtn.setBounds(1010, 30, 40, 40);
         editBtn.setFont(new Font("Arial", Font.PLAIN, 20));
-        editBtn.setFocusPainted(false);
-        editBtn.setBorderPainted(false);
-        editBtn.setContentAreaFilled(false);
+        editBtn.setBackground(new Color(245, 245, 245));
         editBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         card.add(editBtn);
 
@@ -185,13 +191,11 @@ public class BudgetPanel extends JPanel {
         sectionTitle.setFont(new Font("Arial", Font.BOLD, 18));
         parent.add(sectionTitle);
 
-        JButton addCategoryBtn = new JButton("➕ Add Category");
+        RoundedButton addCategoryBtn = new RoundedButton("➕ Add Category", 15);
         addCategoryBtn.setBounds(920, 340, 180, 35);
         addCategoryBtn.setFont(new Font("Arial", Font.BOLD, 14));
         addCategoryBtn.setBackground(UIConstants.PRIMARY_GREEN);
         addCategoryBtn.setForeground(Color.WHITE);
-        addCategoryBtn.setFocusPainted(false);
-        addCategoryBtn.setBorderPainted(false);
         addCategoryBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         parent.add(addCategoryBtn);
 
@@ -259,21 +263,17 @@ public class BudgetPanel extends JPanel {
         percentage.setFont(new Font("Arial", Font.BOLD, 15));
         card.add(percentage);
 
-        JButton editBtn = new JButton("✏");
+        RoundedButton editBtn = new RoundedButton("✏", 10);
         editBtn.setBounds(990, 25, 35, 35);
         editBtn.setFont(new Font("Arial", Font.PLAIN, 18));
-        editBtn.setFocusPainted(false);
-        editBtn.setBorderPainted(false);
-        editBtn.setContentAreaFilled(false);
+        editBtn.setBackground(new Color(245, 245, 245));
         card.add(editBtn);
 
-        JButton deleteBtn = new JButton("🗑");
+        RoundedButton deleteBtn = new RoundedButton("🗑", 10);
         deleteBtn.setBounds(1030, 25, 35, 35);
         deleteBtn.setFont(new Font("Arial", Font.PLAIN, 18));
         deleteBtn.setForeground(new Color(220, 53, 69));
-        deleteBtn.setFocusPainted(false);
-        deleteBtn.setBorderPainted(false);
-        deleteBtn.setContentAreaFilled(false);
+        deleteBtn.setBackground(Color.WHITE);
         card.add(deleteBtn);
 
         return card;

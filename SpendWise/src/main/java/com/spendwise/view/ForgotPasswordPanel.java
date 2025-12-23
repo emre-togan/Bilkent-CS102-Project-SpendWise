@@ -1,9 +1,28 @@
 package com.spendwise.view;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridBagLayout;
+import java.awt.Image;
+import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 
 public class ForgotPasswordPanel extends JPanel {
 
@@ -59,14 +78,13 @@ public class ForgotPasswordPanel extends JPanel {
         emailField.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         // 4. Buton ve Link
-        JButton sendButton = new JButton("SEND RESET LINK");
+        RoundedButton sendButton = new RoundedButton("SEND RESET LINK", 15);
         sendButton.setFont(UIConstants.BUTTON_FONT);
         sendButton.setBackground(UIConstants.PRIMARY_GREEN);
         sendButton.setForeground(Color.WHITE);
         sendButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
-        sendButton.setFocusPainted(false);
-        sendButton.setBorderPainted(false);
         sendButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        sendButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
         sendButton.addActionListener(e -> handleSendReset());
 
