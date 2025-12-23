@@ -57,13 +57,13 @@ public class SettingsPanel extends JPanel {
         sideMenu.add(appName);
 
         int startY = 120;
-        addMenuButton(sideMenu, "🏠", "Dashboard", startY, false);
-        addMenuButton(sideMenu, "💳", "Budget", startY + 60, false);
-        addMenuButton(sideMenu, "🧾", "Expenses", startY + 120, false);
-        addMenuButton(sideMenu, "🛍️", "Shop", startY + 180, false);
-        addMenuButton(sideMenu, "💬", "Chat", startY + 240, false);
-        addMenuButton(sideMenu, "👤", "Profile", startY + 300, false);
-        addMenuButton(sideMenu, "⚙️", "Settings", startY + 360, true);
+        addMenuButton(sideMenu, "🏠", "Dashboard", "DASHBOARD", startY, false);
+        addMenuButton(sideMenu, "💳", "Budget", "BUDGET", startY + 60, false);
+        addMenuButton(sideMenu, "🧾", "Expenses", "EXPENSES", startY + 120, false);
+        addMenuButton(sideMenu, "🛍️", "Shop", "SHOP", startY + 180, false);
+        addMenuButton(sideMenu, "💬", "Chat", "CHAT", startY + 240, false);
+        addMenuButton(sideMenu, "👤", "Profile", "PROFILE", startY + 300, false);
+        addMenuButton(sideMenu, "⚙️", "Settings", "SETTINGS", startY + 360, true);
 
         // Profile Card at bottom
         JPanel profileCard = new JPanel();
@@ -111,7 +111,8 @@ public class SettingsPanel extends JPanel {
         return sideMenu;
     }
 
-    private void addMenuButton(JPanel panel, String icon, String text, int y, boolean selected) {
+    private void addMenuButton(JPanel panel, String icon, String text, String targetPanelName, int y,
+            boolean selected) {
         JButton button = new JButton(icon + "  " + text);
         button.setBounds(10, y, 240, 50);
         button.setFont(new Font("Arial", Font.PLAIN, 14));
@@ -129,7 +130,7 @@ public class SettingsPanel extends JPanel {
             button.setForeground(new Color(80, 80, 80));
         }
 
-        button.addActionListener(e -> mainFrame.showPanel(text.toUpperCase()));
+        button.addActionListener(e -> mainFrame.showPanel(targetPanelName));
         panel.add(button);
     }
 

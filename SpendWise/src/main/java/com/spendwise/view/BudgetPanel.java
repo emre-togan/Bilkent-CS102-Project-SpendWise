@@ -91,18 +91,18 @@ public class BudgetPanel extends JPanel {
         sideMenu.add(appName);
 
         int startY = 120;
-        addMenuItem(sideMenu, "🏠", "Dashboard", startY, false);
-        addMenuItem(sideMenu, "💰", "Budget", startY + 60, true);
-        addMenuItem(sideMenu, "📋", "Expenses", startY + 120, false);
-        addMenuItem(sideMenu, "🛒", "Shop", startY + 180, false);
-        addMenuItem(sideMenu, "💬", "Chat", startY + 240, false);
-        addMenuItem(sideMenu, "👤", "Profile", startY + 300, false);
-        addMenuItem(sideMenu, "⚙️", "Settings", startY + 360, false);
+        addMenuItem(sideMenu, "🏠", "Dashboard", "DASHBOARD", startY, false);
+        addMenuItem(sideMenu, "💰", "Budget", "BUDGET", startY + 60, true);
+        addMenuItem(sideMenu, "📋", "Expenses", "EXPENSES", startY + 120, false);
+        addMenuItem(sideMenu, "🛒", "Shop", "SHOP", startY + 180, false);
+        addMenuItem(sideMenu, "💬", "Chat", "CHAT", startY + 240, false);
+        addMenuItem(sideMenu, "👤", "Profile", "PROFILE", startY + 300, false);
+        addMenuItem(sideMenu, "⚙️", "Settings", "SETTINGS", startY + 360, false);
 
         return sideMenu;
     }
 
-    private void addMenuItem(JPanel parent, String emoji, String text, int y, boolean active) {
+    private void addMenuItem(JPanel parent, String emoji, String text, String targetPanelName, int y, boolean active) {
         JButton btn = new JButton(emoji + "  " + text);
         btn.setBounds(10, y, 240, 50);
         btn.setFont(new Font("Arial", Font.PLAIN, 14));
@@ -135,7 +135,7 @@ public class BudgetPanel extends JPanel {
             }
         });
 
-        btn.addActionListener(e -> mainFrame.showPanel(text.toUpperCase()));
+        btn.addActionListener(e -> mainFrame.showPanel(targetPanelName));
         parent.add(btn);
     }
 

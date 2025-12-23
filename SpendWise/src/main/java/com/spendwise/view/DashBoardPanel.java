@@ -102,13 +102,13 @@ public class DashBoardPanel extends JPanel {
         sideMenu.add(appName);
 
         int startY = 120;
-        addMenuButton(sideMenu, "🏠", "Dashboard", startY, true);
-        addMenuButton(sideMenu, "💳", "Budget", startY + 60, false);
-        addMenuButton(sideMenu, "🧾", "Expenses", startY + 120, false);
-        addMenuButton(sideMenu, "🛍️", "Shop", startY + 180, false);
-        addMenuButton(sideMenu, "💬", "Chat with Friends", startY + 240, false);
-        addMenuButton(sideMenu, "👤", "Profile", startY + 300, false);
-        addMenuButton(sideMenu, "⚙️", "Settings", startY + 360, false);
+        addMenuButton(sideMenu, "🏠", "Dashboard", "DASHBOARD", startY, true);
+        addMenuButton(sideMenu, "💳", "Budget", "BUDGET", startY + 60, false);
+        addMenuButton(sideMenu, "🧾", "Expenses", "EXPENSES", startY + 120, false);
+        addMenuButton(sideMenu, "🛍️", "Shop", "SHOP", startY + 180, false);
+        addMenuButton(sideMenu, "💬", "Chat with Friends", "CHAT", startY + 240, false);
+        addMenuButton(sideMenu, "👤", "Profile", "PROFILE", startY + 300, false);
+        addMenuButton(sideMenu, "⚙️", "Settings", "SETTINGS", startY + 360, false);
 
         // Profile Card - will be updated with real user data
         JPanel profileCard = createProfileCard();
@@ -173,7 +173,8 @@ public class DashBoardPanel extends JPanel {
         return (parts[0].charAt(0) + "" + parts[parts.length - 1].charAt(0)).toUpperCase();
     }
 
-    private void addMenuButton(JPanel panel, String icon, String text, int y, boolean selected) {
+    private void addMenuButton(JPanel panel, String icon, String text, String targetPanelName, int y,
+            boolean selected) {
         JButton button = new JButton(icon + " " + text);
         button.setBounds(10, y, 240, 50);
         button.setFont(new Font("Arial", Font.PLAIN, 14));
@@ -206,10 +207,7 @@ public class DashBoardPanel extends JPanel {
             }
         });
 
-        button.addActionListener(e -> {
-            String panelName = text.replace("with Friends", "").trim().toUpperCase();
-            mainFrame.showPanel(panelName);
-        });
+        button.addActionListener(e -> mainFrame.showPanel(targetPanelName));
         panel.add(button);
     }
 
