@@ -117,19 +117,17 @@ public class AddressesDialog extends JDialog {
         saveBtn.setForeground(Color.WHITE);
 
         saveBtn.addActionListener(e -> {
-            // This part will be rewrited
             Address newAddr = new Address(
-                    labelField.getText(), // label
-                    nameField.getText(), // fullName
-                    addressField.getText(), // street
-                    cityField.getText(), // city
-                    "", // state (Empty because UI doesn't have it)
-                    "", // zip (Empty because UI doesn't have it)
-                    phoneField.getText(), // phone
-                    false // isDefault
+                    labelField.getText(),
+                    nameField.getText(), 
+                    addressField.getText(), 
+                    cityField.getText(), 
+                    "", 
+                    "", 
+                    phoneField.getText(), 
+                    false 
             );
 
-            // Backend
             ProfileService.addAddress(newAddr);
 
             refreshAddressList();

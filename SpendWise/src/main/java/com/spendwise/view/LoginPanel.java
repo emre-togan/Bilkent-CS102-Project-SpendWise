@@ -92,30 +92,13 @@ public class LoginPanel extends JPanel {
         passLabel.setMaximumSize(new Dimension(Integer.MAX_VALUE, passLabel.getPreferredSize().height));
         passLabel.setHorizontalAlignment(SwingConstants.LEFT);
 
-        // Password Container for toggle button relative positioning
-        // NOTE: RoundedPasswordField handles the field, but we want the eye icon INSIDE
-        // it.
-        // Usually, we use a LayeredPane or simply add the button to the panel and
-        // negative margin it.
-        // Simpler approach: Use a JPanel with OverlayLayout? Or just keep it separate
-        // for now
-        // to simplify "Rounded" drawing logic.
-        // Actually, let's put the eye icon on the right side if possible.
-        // For now, I will use a wrapper panel to hold the button on top of the field
-        // using simpler layout or
-        // just putting it next to it?
-        // Let's stick to the design which usually has the eye INSIDE.
-        // A JLayeredPane is good for this.
-
         JLayeredPane passLayer = new JLayeredPane();
         passLayer.setPreferredSize(new Dimension(300, 40)); // Fixed height for input
         passLayer.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
         passLayer.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         passwordField = new RoundedPasswordField(UIConstants.ROUNDED_RADIUS, "Enter your password");
-        passwordField.setBounds(0, 0, 300, 40); // Initial bounds, will resize with component?
-        // BoxLayout doesn't play nice with loose bounds in LayeredPane.
-        // Let's use a JPanel with OverlayLayout instead for responsive width.
+        passwordField.setBounds(0, 0, 300, 40); 
 
         JPanel passWrapper = new JPanel();
         passWrapper.setLayout(new OverlayLayout(passWrapper));
@@ -124,10 +107,7 @@ public class LoginPanel extends JPanel {
         passWrapper.setOpaque(false);
 
         passwordField = new RoundedPasswordField(UIConstants.ROUNDED_RADIUS, "Enter your password");
-        // We need to ensure password text doesn't go under the eye icon.
-        // We can add right padding to the border in RoundedPasswordField but it's
-        // shared.
-        // Let's add a border to THIS instance.
+
         passwordField.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 40)); // Right padding for eye
 
         showPasswordToggle = new JToggleButton("👁");
@@ -199,14 +179,11 @@ public class LoginPanel extends JPanel {
             }
         });
 
-        // --- Assemble ---
         cardPanel.add(Box.createVerticalStrut(10));
         cardPanel.add(logoLabel);
         cardPanel.add(Box.createVerticalStrut(15));
 
-        // Only add brand/slogan if logo is not null (since default logo is text "W$")
-        // But design shows logo + text.
-        // cardPanel.add(brandLabel);
+
         cardPanel.add(sloganLabel);
 
         cardPanel.add(Box.createVerticalStrut(30));

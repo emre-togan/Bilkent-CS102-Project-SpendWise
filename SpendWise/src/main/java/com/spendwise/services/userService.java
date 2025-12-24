@@ -9,11 +9,6 @@ import com.spendwise.models.User;
 
 public class userService {
 
-    /**
-     * Check if a username already exists in the database
-     * @param username Username to check
-     * @return true if username exists, false otherwise
-     */
     public boolean usernameExists(String username) {
         String sql = "SELECT COUNT(*) as count FROM users WHERE username = ?";
         
@@ -29,12 +24,7 @@ public class userService {
         
         return false;
     }
-    
-    /**
-     * Check if an email already exists in the database
-     * @param email Email to check
-     * @return true if email exists, false otherwise
-     */
+
     public boolean emailExists(String email) {
         String sql = "SELECT COUNT(*) as count FROM users WHERE email = ?";
         
@@ -51,12 +41,8 @@ public class userService {
         return false;
     }
 
-    /**
-     * Create a new user in the database
-     * @param user User object to create
-     * @return true if user created successfully, false otherwise
-     */
     public boolean createUser(User user) {
+
         // Check if username already exists
         if (usernameExists(user.getUserName())) {
             System.out.println("Username already exists: " + user.getUserName());
@@ -93,11 +79,6 @@ public class userService {
         return isCreated;
     }
 
-    /**
-     * Get user by user ID
-     * @param id User ID
-     * @return User object or mock user if not found
-     */
     public static User getUserById(int id) {
         User targetUser = null;
 
@@ -129,11 +110,6 @@ public class userService {
         return targetUser;
     }
 
-    /**
-     * Get user by username
-     * @param userName Username to search for
-     * @return User object or null if not found
-     */
     public User getUserByUserName(String userName) {
 
         User targetUser = null;
@@ -159,12 +135,7 @@ public class userService {
 
         return targetUser;
     }
-    
-    /**
-     * Get user by email
-     * @param email Email to search for
-     * @return User object or null if not found
-     */
+
     public User getUserByEmail(String email) {
         User targetUser = null;
 
@@ -189,7 +160,7 @@ public class userService {
     }
 
     public com.spendwise.models.User getUser(int userId) {
-        
+
     String query = "SELECT * FROM users WHERE user_id = ?";
     
     try (java.sql.Connection conn = DBconnection.getConnection();
@@ -199,11 +170,7 @@ public class userService {
         java.sql.ResultSet rs = stmt.executeQuery();
         
         if (rs.next()) {
-            // ERROR FIX: Check your User.java to see what arguments it needs.
-            // If you have a constructor like User(int id, String name, String email)...
-            // Adjust the line below to match YOUR User class fields exactly.
-            
-            // OPTION A (Try this first):
+
             return new com.spendwise.models.User(
                 rs.getString("username"),
                 rs.getString("password"),

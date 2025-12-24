@@ -4,8 +4,6 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
-// import Services.SettingsService; // Waiting for Backend
-
 public class ChangePasswordDialog extends JDialog {
 
     private JPasswordField currentPass, newPass, confirmPass;
@@ -48,10 +46,6 @@ public class ChangePasswordDialog extends JDialog {
                 return;
             }
 
-            // INTEGRATION: Call backend to change password
-            // boolean success = SettingsService.changePassword(curr, p1);
-
-            // Simulation logic (Delete this when backend is ready)
             boolean success = true;
 
             if (success) {

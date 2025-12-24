@@ -20,12 +20,6 @@ public class PrivacySettingsDialog extends JDialog {
         content.setBackground(UIConstants.WHITE_BG);
         content.setBorder(new EmptyBorder(20, 20, 20, 20));
 
-        // INTEGRATION: Get current settings from Backend
-        // boolean showProfile = SettingsService.getPrivacySetting("show_profile");
-        // boolean findByEmail = SettingsService.getPrivacySetting("find_by_email");
-        // boolean dataUsage = SettingsService.getPrivacySetting("data_usage");
-
-        // Using placeholders 'true/false' for now
         content.add(createToggle("Show my profile to friends", "show_profile", true));
         content.add(Box.createVerticalStrut(15));
         content.add(createToggle("Allow others to find me by email", "find_by_email", false));

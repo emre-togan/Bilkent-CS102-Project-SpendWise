@@ -37,7 +37,7 @@ public class ChatPanel extends JPanel {
     private productService productServiceInstance;
 
     private String currentFriendName = "";
-    private List<User> allFriends; // Store full list for filtering
+    private List<User> allFriends; 
     private List<Message> currentMessages;
 
     public ChatPanel(MainFrame mainFrame) {
@@ -274,9 +274,6 @@ public class ChatPanel extends JPanel {
         sendButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         sendButton.setEnabled(false);
 
-        // Make send button rounded? JButton default is square-ish.
-        // It's fine for now, or we use a custom RoundedButton.
-
         sendButton.addActionListener(e -> sendMessage());
 
         // Layout Input
@@ -374,16 +371,14 @@ public class ChatPanel extends JPanel {
         avatar.setMaximumSize(new Dimension(45, 45));
         avatar.setHorizontalAlignment(SwingConstants.CENTER);
         avatar.setOpaque(true);
-        avatar.setBackground(UIConstants.PRIMARY_GREEN); // Always green as per design, or random
+        avatar.setBackground(UIConstants.PRIMARY_GREEN); 
         avatar.setForeground(Color.WHITE);
         avatar.setFont(new Font("Arial", Font.BOLD, 16));
-        // Make avatar circular? We can simulate with RoundedPanel logic if we wrap it,
-        // but JLabel opaque is square.
-        // For now keep square or simple.
+  
 
         JPanel infoPanel = new JPanel();
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
-        infoPanel.setOpaque(false); // Transparent to show RoundedPanel bg
+        infoPanel.setOpaque(false); 
 
         JLabel nameLabel = new JLabel(friend.getUserName());
         nameLabel.setFont(new Font("Arial", Font.BOLD, 15));
@@ -403,17 +398,10 @@ public class ChatPanel extends JPanel {
         item.add(avatar, BorderLayout.WEST);
         item.add(infoPanel, BorderLayout.CENTER);
 
-        // Notify/Unread Badge (Optional Placeholder)
-        // item.add(badge, BorderLayout.EAST);
-
         item.addMouseListener(new MouseAdapter() {
             public void mouseEntered(MouseEvent e) {
                 if (!isSelected) {
-                    // Hover effect (requires repaint or changing bg color directly)
-                    // Since RoundedPanel takes bg in constructor, we might need a setter or repaint
-                    // logic.
-                    // Simplified: just ignore hover color change for now to handle complexity,
-                    // or ideally we update logic.
+                    
                 }
             }
 
@@ -422,8 +410,6 @@ public class ChatPanel extends JPanel {
             }
         });
 
-        // Pass clicks from wrapper to item logic if needed, or just add listener to
-        // item.
 
         itemWrapper.add(item, BorderLayout.CENTER);
         return itemWrapper;
@@ -438,7 +424,7 @@ public class ChatPanel extends JPanel {
         currentChatUserLabel.setText(friend.getUserName());
         String initials = getInitials(friend.getUserName());
         currentChatAvatarLabel.setText(initials);
-        currentChatAvatarLabel.setBackground(UIConstants.PRIMARY_GREEN); // Ensure it's green or logic based
+        currentChatAvatarLabel.setBackground(UIConstants.PRIMARY_GREEN); 
 
         boolean isOnline = ChatService.isUserOnline(friend.getUserName());
         currentChatStatusLabel.setText(isOnline ? "Online" : "Offline");
@@ -467,7 +453,6 @@ public class ChatPanel extends JPanel {
                     }
                     messagesPanel.add(Box.createVerticalStrut(15));
                 }
-                // Push messages to top
                 messagesPanel.add(Box.createVerticalGlue());
 
                 SwingUtilities.invokeLater(() -> {
@@ -502,8 +487,6 @@ public class ChatPanel extends JPanel {
     }
 
     private void showEmptyChatState() {
-        // No glue here except at ends to center it, or top if preferred.
-        // Usually empty state is centered.
         messagesPanel.removeAll();
         JLabel emptyLabel = new JLabel("No messages yet. Say hi! 👋");
         emptyLabel.setFont(new Font("Arial", Font.PLAIN, 14));
@@ -520,12 +503,8 @@ public class ChatPanel extends JPanel {
         messagePanel.setBackground(Color.WHITE); // Panel background matches chat area
         messagePanel.setAlignmentX(isSentByMe ? Component.RIGHT_ALIGNMENT : Component.LEFT_ALIGNMENT);
         // Prevent vertical stretching
-        messagePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1000)); // Height will be determined by content but
-                                                                             // constrained
-        // Actually better to not set fixed max height for text as it can be long,
-        // but BoxLayout respects preferred height if we don't mess it up.
-        // A safer bet for single line alignment is allowing height but ensuring wrapper
-        // doesn't force it.
+        messagePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1000)); 
+
 
         // Check alignment
         if (!isSentByMe) {
@@ -538,7 +517,6 @@ public class ChatPanel extends JPanel {
             avatar.setBackground(UIConstants.PRIMARY_GREEN);
             avatar.setForeground(Color.WHITE);
             avatar.setFont(new Font("Arial", Font.BOLD, 10));
-            // Ideally circular
 
             messagePanel.add(avatar);
             messagePanel.add(Box.createHorizontalStrut(10));
@@ -606,7 +584,6 @@ public class ChatPanel extends JPanel {
                 new EmptyBorder(15, 15, 15, 15)));
         productCard.setMaximumSize(new Dimension(250, 220));
 
-        // Use a placeholder image or icon
         JLabel productIcon = new JLabel("🛍️", SwingConstants.CENTER);
         productIcon.setFont(new Font("Arial", Font.PLAIN, 48));
         productIcon.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -624,10 +601,6 @@ public class ChatPanel extends JPanel {
         viewButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         viewButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // If we had product details in message, we'd show them.
-        // Currently message logic relies on ID, assuming controller handles fetching or
-        // it's embedded.
-        // The original code passed `message.getSharedProductId()`.
 
         productCard.add(productIcon);
         productCard.add(Box.createVerticalStrut(15));

@@ -22,16 +22,9 @@ public class PersonalInfoDialog extends JDialog {
         content.setBackground(UIConstants.WHITE_BG);
         content.setBorder(new EmptyBorder(30, 30, 30, 30));
 
-        // INTEGRATION: Fetch current user data from Backend
-        // User currentUser = SettingsService.getCurrentUser();
-        // String currentName = currentUser.getName();
-        // String currentEmail = currentUser.getEmail();
-        // String currentPhone = currentUser.getPhone();
-
-        // Using placeholders until backend is connected
-        nameField = createInput("Full Name", ""); // Should be currentName
-        emailField = createInput("Email Address", ""); // Should be currentEmail
-        phoneField = createInput("Phone Number", ""); // Should be currentPhone
+        nameField = createInput("Full Name", ""); 
+        emailField = createInput("Email Address", ""); 
+        phoneField = createInput("Phone Number", ""); 
 
         content.add(new JLabel("Update your personal details:"));
         content.add(nameField);
@@ -50,8 +43,6 @@ public class PersonalInfoDialog extends JDialog {
 
         saveBtn.addActionListener(e -> {
 
-            // INTEGRATION: Send update request to Backend
-            // SettingsService.updatePersonalInfo(newName, newEmail, newPhone);
 
             JOptionPane.showMessageDialog(this, "Profile Updated Successfully!");
             dispose();

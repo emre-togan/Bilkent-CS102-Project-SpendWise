@@ -13,12 +13,10 @@ import com.spendwise.models.User;
 
 public class ChatService {
 
-    /**
-     * Get ONLY added friends for the user.
-     */
+
     public static List<User> getFriends(int currentUserId) {
         List<User> friends = new ArrayList<>();
-        // Query joins users and friends table to find matches
+
         String sql = "SELECT u.* FROM users u " +
                      "JOIN friends f ON u.user_id = f.friend_id " +
                      "WHERE f.user_id = ?";

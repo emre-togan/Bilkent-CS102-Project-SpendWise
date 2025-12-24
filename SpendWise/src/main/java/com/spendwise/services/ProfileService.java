@@ -78,27 +78,23 @@ public class ProfileService {
     }
 
     public static boolean updateProfile(String name, String email) {
-        // Implement database update logic here
-        // For now, return true
         return true;
     }
 
     public static List<Product> getWishlist() {
-        // Retrieve wishlist from database for current user
+
         return new ArrayList<>();
     }
 
     public static void removeFromWishlist(Product product) {
-        // Remove from DB
+
     }
 
     public static void trackOrder(int orderId) {
-        // Mock tracking logic
         System.out.println("Tracking order: " + orderId);
     }
 
     public static void buyAgain(int orderId) {
-        // Add items from older to cart
         System.out.println("Buy again order: " + orderId);
     }
 }

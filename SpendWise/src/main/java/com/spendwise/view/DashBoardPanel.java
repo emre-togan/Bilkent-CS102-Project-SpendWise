@@ -139,26 +139,22 @@ public class DashBoardPanel extends JPanel {
         contentPanel.add(addExpenseButton);
 
         RoundedButton viewDiscountsButton = new RoundedButton("🏷 View Discounts", 20, new Color(255, 193, 7),
-                new Color(255, 160, 0)); // Warning/Orange color
-        viewDiscountsButton.setBounds(450, btnY, 400, btnHeight); // Next to it
+                new Color(255, 160, 0));
+        viewDiscountsButton.setBounds(450, btnY, 400, btnHeight); 
         viewDiscountsButton.setForeground(Color.WHITE);
         viewDiscountsButton.setFont(new Font("Arial", Font.BOLD, 14));
         viewDiscountsButton.addActionListener(e -> mainFrame.showPanel("SHOP"));
         contentPanel.add(viewDiscountsButton);
 
-        // 3. Weekly Chart (Middle)
+
         createWeeklyChart(contentPanel);
 
-        // 4. Recent Transactions (Bottom/Right)
-        // Design shows chart is full width or large, transactions below or side.
-        // Image shows: Weekly Spending (Full width graph) AND Recent Transactions (List
-        // below).
-        // Let's place Chart full width below buttons.
+
         createRecentTransactions(contentPanel);
     }
 
     private void createBudgetCard(JPanel panel) {
-        // Design: White, rounded, width spanning most of the screen.
+
         RoundedPanel budgetCard = new RoundedPanel(20, Color.WHITE);
         budgetCard.setBounds(30, 80, 1150, 130); // Wider
         budgetCard.setLayout(null);
@@ -194,10 +190,7 @@ public class DashBoardPanel extends JPanel {
         budgetProgressBar.setBounds(30, 90, 1070, 10); // Thin and wide
         budgetProgressBar.setValue(67);
         budgetProgressBar.setForeground(new Color(67, 160, 71)); // Darker green part
-        // Per image, progress bar is multi-colored (Gradient maybe?). JProgressBar is
-        // single color usually.
-        // The image shows a gradient green-blue bar with a grey background.
-        // For simplicity, we use Green.
+
         budgetProgressBar.setBackground(new Color(240, 240, 240));
         budgetProgressBar.setBorderPainted(false);
         budgetCard.add(budgetProgressBar);
@@ -330,9 +323,6 @@ public class DashBoardPanel extends JPanel {
         JPanel item = new JPanel();
         item.setLayout(null);
         item.setOpaque(false);
-        // item.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new
-        // Color(240,240,240)));
-        // Design doesn't show borders, just clean spacing.
 
         String emo = getCategoryEmoji(exp.getCategory());
         JLabel icon = new JLabel(emo);

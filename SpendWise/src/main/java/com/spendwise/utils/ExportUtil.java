@@ -9,7 +9,6 @@ import java.util.List;
 
 public class ExportUtil {
 
-    // Dış dependency olmadan CSV export
     public static void exportExpensesToCSV(List<Expense> expenses, String filepath) throws IOException {
         try (PrintWriter out = new PrintWriter(new FileWriter(filepath))) {
             out.println("expense_id,user_id,category,description,amount,date");
@@ -30,8 +29,6 @@ public class ExportUtil {
         }
     }
 
-    // PDF için dış kütüphane lazım. Şimdilik derlensin diye bilinçli olarak
-    // exception fırlatıyor.
     public static void exportExpensesToPDF(List<Expense> expenses, String filepath) {
         throw new UnsupportedOperationException("PDF export not implemented. Add iText and implement.");
     }

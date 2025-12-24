@@ -82,16 +82,15 @@ public class productService {
                 resultSet.getString("location"),
                 resultSet.getInt("discount_percentage"));
 
-        // 2. THIS IS THE MISSING PART: Read the request status!
         try {
             int requesterId = resultSet.getInt("requested_by_user_id");
-            // If the database value is not null, set it on the object
             if (!resultSet.wasNull()) {
                 p.setRequestByUserId(requesterId);
             }
-        } catch (SQLException e) {
-            // This catch block prevents a crash if you haven't added the column to the DB yet
-            // System.out.println("Column requested_by_user_id not found in DB");
+        } 
+        
+        catch (SQLException e) {
+
         }
 
         return p;

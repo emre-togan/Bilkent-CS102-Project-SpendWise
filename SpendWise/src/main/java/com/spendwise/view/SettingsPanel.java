@@ -18,7 +18,6 @@ public class SettingsPanel extends JPanel {
     private SettingsService settingsService;
     private SidebarPanel sidebarPanel;
 
-    // Toggle Buttons References (to update them)
     private JCheckBox budgetAlertsToggle;
     private JCheckBox discountAlertsToggle;
 

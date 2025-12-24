@@ -43,7 +43,7 @@ public class WishlistDialog extends JDialog {
         gridPanel.removeAll();
 
         // Backend Call
-        List<Product> products = ProfileService.getSavedProducts(); // Using saved products as wishlist
+        List<Product> products = ProfileService.getSavedProducts(); 
 
         if (products != null) {
             for (Product p : products) {

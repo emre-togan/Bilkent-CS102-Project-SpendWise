@@ -416,10 +416,7 @@ public class ProfilePanel extends JPanel {
         separator.setBackground(new Color(240, 240, 240));
 
         dividerContainer.add(separator, BorderLayout.CENTER);
-        // Add left/right padding to divider so it doesn't touch edges if desired,
-        // or keep full width. Design shows full width or indented.
-        // Let's indent slightly to match text alignment ideally, but full width is
-        // cleaner for simple lists.
+
         dividerContainer.setBorder(new EmptyBorder(0, 20, 0, 20));
 
         return dividerContainer;
@@ -441,9 +438,7 @@ public class ProfilePanel extends JPanel {
     }
 
     private JPanel createSmallProductCard(Product product) {
-        // Matches the "Saved Products" cards in design
-        // Image on top (or left?), usually image top for cards.
-        // Design had 3 cards in a row.
+
         RoundedPanel card = new RoundedPanel(15, Color.WHITE);
         card.setLayout(new BorderLayout());
         card.setPreferredSize(new Dimension(300, 200)); // Fixed size

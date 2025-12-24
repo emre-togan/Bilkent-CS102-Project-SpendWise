@@ -83,7 +83,6 @@ public class StatisticsCalculator {
         return Math.max(0.0, savings);
     }
 
-    // Basit tahmin: son 3 ay ortalaması (yoksa genel ortalama)
     public double predictFutureSpending(List<Expense> expenses, int monthsAhead) {
         if (monthsAhead <= 0)
             monthsAhead = 1;

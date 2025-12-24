@@ -11,15 +11,12 @@ public class Message {
     private Timestamp timestamp;
     private boolean isRead;
 
-    // optional: shared product id (nullable)
     private Integer sharedProductId;
-
-    // UI-specific fields (not persisted directly like this)
     private Product productObject;
     private boolean isSentByMe;
     private String timeStr;
 
-    // create new message (DB style)
+    // create new message 
     public Message(int senderId, int receiverId, String content, Timestamp timestamp) {
         this.senderId = senderId;
         this.receiverId = receiverId;
@@ -29,7 +26,7 @@ public class Message {
         this.sharedProductId = null;
     }
 
-    // create new message with shared product (DB style)
+    // create new message with shared product 
     public Message(int senderId, int receiverId, String content, Timestamp timestamp, Integer sharedProductId) {
         this.senderId = senderId;
         this.receiverId = receiverId;
@@ -51,18 +48,17 @@ public class Message {
         this.sharedProductId = sharedProductId;
     }
 
-    // Constructor for ChatPanel UI (Text message)
+    // Constructor for Chatpanel UI 
     public Message(String content, boolean isSentByMe, String timeStr) {
         this.content = content;
         this.isSentByMe = isSentByMe;
         this.timeStr = timeStr;
-        // Defaults
         this.senderId = isSentByMe ? 1 : 2;
         this.timestamp = new Timestamp(System.currentTimeMillis());
         this.isRead = true;
     }
 
-    // Constructor for ChatPanel UI (Product recommendation)
+    // Constructor for ChatPanel UI 
     public Message(Product product, boolean isSentByMe, String timeStr) {
         this.productObject = product;
         this.sharedProductId = product.getProductId();
@@ -106,7 +102,6 @@ public class Message {
         return sharedProductId;
     }
 
-    // Helper methods for View
     public boolean isSentByMe() {
         return isSentByMe || (senderId == 1);
     }
@@ -119,7 +114,6 @@ public class Message {
         return productObject;
     }
 
-    // Alias for getSharedProductId if needed, but view might want object
     public Integer getSharedProduct() {
         return sharedProductId;
     }

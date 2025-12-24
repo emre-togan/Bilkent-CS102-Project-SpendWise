@@ -10,9 +10,8 @@ public class Purchase {
     private ArrayList<OrderItem> items;
     private double totalAmount;
     private Timestamp orderDate;
-    private String status; // Delivered, Shipped, Processing vs.
+    private String status; 
 
-    // Create new purchase (before DB assigns orderId)
     public Purchase(int userId, Timestamp orderDate, String status) {
         this.userId = userId;
         this.orderDate = orderDate;
@@ -21,7 +20,6 @@ public class Purchase {
         this.totalAmount = 0.0;
     }
 
-    // Load from DB
     public Purchase(int orderId, int userId, double totalAmount, Timestamp orderDate, String status) {
         this.orderId = orderId;
         this.userId = userId;
@@ -35,16 +33,14 @@ public class Purchase {
         private int itemId;
         private int productId;
         private int quantity;
-        private double price; // unit price
+        private double price; 
 
-        // create new item (before DB assigns itemId)
         public OrderItem(int productId, int quantity, double price) {
             this.productId = productId;
             this.quantity = quantity;
             this.price = price;
         }
 
-        // load from DB
         public OrderItem(int itemId, int productId, int quantity, double price) {
             this.itemId = itemId;
             this.productId = productId;
@@ -116,10 +112,7 @@ public class Purchase {
         }
         StringBuilder summary = new StringBuilder();
         for (int i = 0; i < items.size(); i++) {
-            // We need to fetch product name, but OrderItem only has productId.
-            // For now return generic item description or use productId.
-            // Ideal solution: OrderItem should have productName or we fetch it.
-            // Given constraint, I will just say "Product #" + productId
+
             summary.append("Product #").append(items.get(i).getProductId());
             if (i < items.size() - 1) {
                 summary.append(", ");

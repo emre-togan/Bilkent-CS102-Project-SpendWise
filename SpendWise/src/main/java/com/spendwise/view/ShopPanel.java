@@ -576,11 +576,11 @@ public class ShopPanel extends JPanel {
         card.add(Box.createVerticalGlue());
 
         if (p.isSecondHand()) {
-            // --- NEW LOGIC START ---
+
             int currentUserId = UserSession.getCurrentUserId();
             User currentUser = userServiceInstance.getUser(currentUserId);
 
-            // --- ADD THESE DEBUG LINES ---
+            // debug check attim
             System.out.println("DEBUG CHECK:");
             System.out.println("  -> Current User ID: " + currentUserId);
             if (currentUser == null) {
@@ -589,15 +589,12 @@ public class ShopPanel extends JPanel {
                 System.out.println("  -> Current User Name: '" + currentUser.getUserName() + "'");
             }
             System.out.println("  -> Product Seller Name: '" + p.getSellerName() + "'");
-            // -----------------------------
-            
+
+
             boolean isCurrentUserSeller = currentUser != null && currentUser.getUserName().equalsIgnoreCase(p.getSellerName());
 
             if (isCurrentUserSeller) {
-                // I AM THE SELLER - Show "Sell" Button
-                
-                // Assuming Product has a method to check if requested. 
-                // Using p.getRequestByUserId() > 0 as a flag for "Requested".
+
                 boolean isRequested = p.getRequestByUserId() > 0; 
                 
                 Color btnColor = isRequested ? UIConstants.SELECTION_GREEN : Color.GRAY;

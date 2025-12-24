@@ -9,9 +9,9 @@ public class Friend {
     private String name;
     private String initials;
     private Date friendSince;
-    private String avatarColor; // hex color like "#A1B2C3"
+    private String avatarColor; 
 
-    public Friend(int userId, String name, Date friendSince) {
+    public Friend(int userId, String name, Date friendSince){
         this.userId = userId;
         this.name = name;
         this.friendSince = friendSince;

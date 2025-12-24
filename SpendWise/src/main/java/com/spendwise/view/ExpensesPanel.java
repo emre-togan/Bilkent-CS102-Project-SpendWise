@@ -106,7 +106,6 @@ public class ExpensesPanel extends JPanel {
         mainContent.setBounds(0, 0, 1200, 900); // Initial size, will be handled by layout manager typically but
                                                 // JLayedPane needs bounds
 
-        // We need the mainContent to fill the layeredPane
         layeredPane.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
@@ -199,7 +198,6 @@ public class ExpensesPanel extends JPanel {
         }
     }
 
-    // --- Add Expense Dialog ---
     private void showAddExpenseDialog() {
         JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Add Expense", true);
         dialog.setSize(450, 420);
@@ -211,12 +209,6 @@ public class ExpensesPanel extends JPanel {
         content.setBackground(Color.WHITE);
         content.setBorder(new EmptyBorder(20, 30, 20, 30));
 
-        // Close button (X) top right - usually handled by Window decorations but image
-        // shows it inside.
-        // We'll trust native window decoration for Close for now to keep it standard
-        // swing.
-
-        // Amount
         JLabel amountLbl = new JLabel("Amount");
         amountLbl.setAlignmentX(Component.LEFT_ALIGNMENT);
         amountLbl.setFont(new Font("Arial", Font.BOLD, 14));
@@ -393,14 +385,8 @@ public class ExpensesPanel extends JPanel {
         amount.setForeground(UIConstants.DANGER_RED);
         amount.setHorizontalAlignment(SwingConstants.RIGHT);
 
-        // We can't use simple setBounds for right aligned unless we know parent width.
-        // But JPanel in BoxLayout has width. Let's assume ~1100 minus padding.
-        // Better to use LayoutManager, but setBounds simple for now.
-        // Dynamically find right edge? No, standard placement.
         amount.setBounds(980, 25, 100, 20);
-        // Wait, width is variable.
-        // Let's use BorderLayout for the card internal structure to play nice with
-        // resizing.
+
         card.setLayout(new BorderLayout());
 
         JPanel left = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 10));

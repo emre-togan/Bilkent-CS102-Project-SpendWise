@@ -19,7 +19,6 @@ public class AddFriendDialog extends JDialog {
         setLayout(new BorderLayout());
         getContentPane().setBackground(UIConstants.WHITE_BG);
 
-        // Header
         JPanel header = new JPanel(new BorderLayout(10, 10));
         header.setBackground(UIConstants.WHITE_BG);
         header.setBorder(new EmptyBorder(20, 20, 10, 20));
@@ -38,7 +37,6 @@ public class AddFriendDialog extends JDialog {
 
         add(header, BorderLayout.NORTH);
 
-        // Results List
         resultsPanel = new JPanel();
         resultsPanel.setLayout(new BoxLayout(resultsPanel, BoxLayout.Y_AXIS));
         resultsPanel.setBackground(UIConstants.WHITE_BG);
@@ -53,8 +51,7 @@ public class AddFriendDialog extends JDialog {
         if (query.isEmpty()) return;
 
         resultsPanel.removeAll();
-        // Uses ChatService to search. Ensure ChatService has searchUsers method!
-        // If not, simply replace ChatService.searchUsers(query) with a dummy list for now.
+
         List<User> users = ChatService.searchUsers(query);
         int currentUserId = UserSession.getCurrentUserId();
 

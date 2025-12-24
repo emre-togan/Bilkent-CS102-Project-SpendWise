@@ -19,12 +19,11 @@ public class User {
 
     public User(int id, String userName, String password, String eMail) {
     this.id = id;
-    this.userName = userName; // or whatever your field is named
+    this.userName = userName; 
     this.password = password;
     this.eMail = eMail;
 }
 
-    // this constructor for get the data from database
     public User(String userName, String password, String eMail, int id, Timestamp accountCreationTime) {
         this.userName = userName;
         this.password = password;
@@ -53,20 +52,18 @@ public class User {
         return accountCreationTime;
     }
 
-    // Mock statistics for ProfilePanel
     public int getPurchaseCount() {
-        return 0; // Placeholder
+        return 0; 
     }
 
     public double getTotalSaved() {
-        return 0.0; // Placeholder
+        return 0.0; 
     }
 
     public int getDealsFound() {
-        return 0; // Placeholder
+        return 0; 
     }
 
-    // Chat related mocks
     public String getLastMessage() {
         return "Hello!";
     }

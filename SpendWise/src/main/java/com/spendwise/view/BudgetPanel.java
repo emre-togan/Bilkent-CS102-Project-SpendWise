@@ -70,12 +70,12 @@ public class BudgetPanel extends JPanel {
 
     // Category colors
     private static final Color[] CATEGORY_COLORS = {
-            new Color(139, 195, 74), // Green (matching theme preferably)
-            new Color(33, 150, 243), // Blue
-            new Color(255, 152, 0), // Orange
-            new Color(156, 39, 176), // Purple
-            new Color(233, 30, 99), // Pink
-            new Color(0, 150, 136) // Teal
+            new Color(139, 195, 74),
+            new Color(33, 150, 243), 
+            new Color(255, 152, 0), 
+            new Color(156, 39, 176), 
+            new Color(233, 30, 99), 
+            new Color(0, 150, 136) 
     };
 
     public BudgetPanel(MainFrame mainFrame) {
@@ -140,8 +140,7 @@ public class BudgetPanel extends JPanel {
         monthlyLimitLabel.setFont(new Font("Arial", Font.BOLD, 28));
         card.add(monthlyLimitLabel);
 
-        JButton editBtn = new JButton("✏"); // Simple text icon for now, or use image
-        // To style it better
+        JButton editBtn = new JButton("✏"); 
         editBtn.setBounds(1100, 20, 30, 30);
         editBtn.setFont(new Font("SansSerif", Font.PLAIN, 18));
         editBtn.setForeground(UIConstants.PRIMARY_GREEN);
@@ -152,20 +151,8 @@ public class BudgetPanel extends JPanel {
         editBtn.addActionListener(e -> showEditBudgetDialog());
         card.add(editBtn);
 
-        // Right side: Progress + Spent + Remaining
-        // Design: "Total Spent" text above bar? Or just bar.
-        // Image shows: "Total Spent" label left of bar? No, image has "Total Spent"
-        // title above bar on right side maybe.
-        // Let's follow image: "Total Spent ------------------- $2,010"
-
         JLabel totalSpentTitle = new JLabel("Total Spent");
-        totalSpentTitle.setBounds(30, 85, 100, 20); // Actually looking at image, it's laid out differently.
-        // Image: Left side: Monthly Limit $3000.
-        // Right side (or below): Total Spent bar.
-
-        // Let's do:
-        // Top Left: Monthly Limit $3.000
-        // Below that: Total Spent title ... Bar ... Amount
+        totalSpentTitle.setBounds(30, 85, 100, 20); 
 
         JLabel spentTitle = new JLabel("Total Spent");
         spentTitle.setBounds(270, 20, 100, 20);
@@ -181,7 +168,7 @@ public class BudgetPanel extends JPanel {
         totalSpentProgressBar = new JProgressBar(0, 100);
         totalSpentProgressBar.setBounds(270, 50, 770, 10);
         totalSpentProgressBar.setValue(0);
-        totalSpentProgressBar.setForeground(new Color(50, 50, 50)); // Black/Dark Grey in image
+        totalSpentProgressBar.setForeground(new Color(50, 50, 50)); 
         totalSpentProgressBar.setBackground(new Color(240, 240, 240));
         totalSpentProgressBar.setBorderPainted(false);
         card.add(totalSpentProgressBar);
@@ -237,7 +224,6 @@ public class BudgetPanel extends JPanel {
         addCategoryBtn.addActionListener(e -> showAddCategoryDialog());
         parent.add(addCategoryBtn);
 
-        // Categories container with scroll
         categoriesContainer = new JPanel();
         categoriesContainer.setLayout(new BoxLayout(categoriesContainer, BoxLayout.Y_AXIS));
         categoriesContainer.setBackground(UIConstants.BACKGROUND_LIGHT);
@@ -250,7 +236,6 @@ public class BudgetPanel extends JPanel {
         parent.add(scrollPane);
     }
 
-    // ... Dialogs and logic mostly unchanged but ensured using correct styling ...
 
     private void showEditBudgetDialog() {
         JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Edit Monthly Budget", true);
@@ -419,8 +404,6 @@ public class BudgetPanel extends JPanel {
         percentageLabel.setForeground(Color.GRAY);
         card.add(percentageLabel);
 
-        // Edit/Delete
-        // Using simple small buttons
         JButton editBtn = new JButton("✎");
         editBtn.setBounds(1080, 25, 30, 30);
         editBtn.setBorderPainted(false);
@@ -434,7 +417,7 @@ public class BudgetPanel extends JPanel {
     }
 
     private void showEditCategoryDialog(CategoryData data) {
-        // ... Similar to showAddCategoryDialog logic but editing ...
+
         JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Edit " + data.category, true);
         dialog.setSize(400, 200);
         dialog.setLocationRelativeTo(this);
@@ -507,7 +490,7 @@ public class BudgetPanel extends JPanel {
                 int percentage = (int) budgetService.calculateTheSpendingPercentage(currentBudget);
                 totalSpentProgressBar.setValue(Math.min(100, percentage));
                 if (percentage >= 100)
-                    totalSpentProgressBar.setForeground(new Color(50, 50, 50)); // Keep it dark grey/black
+                    totalSpentProgressBar.setForeground(new Color(50, 50, 50));
                 else
                     totalSpentProgressBar.setForeground(new Color(50, 50, 50));
             } else {
@@ -517,7 +500,6 @@ public class BudgetPanel extends JPanel {
                 totalSpentProgressBar.setValue(0);
             }
 
-            // Categories
             currentExpenses = expenseServiceInstance.getExpensesOfTheUser(userId);
             if (currentExpenses == null)
                 currentExpenses = new ArrayList<>();
