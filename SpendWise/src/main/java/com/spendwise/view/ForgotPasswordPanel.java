@@ -5,22 +5,25 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import com.spendwise.view.components.RoundedButton;
+import com.spendwise.view.components.RoundedPanel;
+import com.spendwise.view.components.RoundedTextField;
+
 public class ForgotPasswordPanel extends JPanel {
 
-    private JTextField emailField;
-    private Runnable onBackToLoginClicked; // Geri dönüş için sinyalci
+    private RoundedTextField emailField;
+    private Runnable onBackToLoginClicked;
 
     public ForgotPasswordPanel() {
-        setLayout(new GridBagLayout()); // Kartı ekranda ortalamak için
+        setLayout(new GridBagLayout());
 
-        // 1. Beyaz Kart Paneli
-        JPanel cardPanel = new JPanel();
-        cardPanel.setPreferredSize(new Dimension(350, 400)); // Biraz daha kısa bir kart yeterli
-        cardPanel.setBackground(UIConstants.WHITE_BG);
+        // 1. White Card Panel
+        RoundedPanel cardPanel = new RoundedPanel(30, UIConstants.WHITE_BG);
+        cardPanel.setPreferredSize(new Dimension(380, 480));
         cardPanel.setLayout(new BoxLayout(cardPanel, BoxLayout.Y_AXIS));
         cardPanel.setBorder(BorderFactory.createEmptyBorder(40, 40, 40, 40));
 
-        // 2. Logo (Diğer panellerle aynı mantık)
+        // 2. Logo
         JLabel logoLabel;
         java.net.URL imgURL = getClass().getResource("/Resim1.png");
         if (imgURL != null) {
@@ -34,38 +37,37 @@ public class ForgotPasswordPanel extends JPanel {
         }
         logoLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Başlıklar
+        // Titles
         JLabel titleLabel = new JLabel("Forgot Password?");
         titleLabel.setFont(UIConstants.HEADING_FONT);
         titleLabel.setForeground(UIConstants.TEXT_COLOR);
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel descLabel = new JLabel("<html><center>Enter your email to receive a reset link</center></html>");
+        JLabel descLabel = new JLabel(
+                "<html><center>Enter your email below to receive<br>password reset instructions.</center></html>");
         descLabel.setFont(UIConstants.BODY_FONT);
         descLabel.setForeground(UIConstants.GRAY_TEXT);
         descLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        descLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-        // 3. Email Alanı (Senin sevdiğin sola yaslı düzen)
+        // 3. Email Field
         JLabel emailLabel = new JLabel("Email Address");
         emailLabel.setFont(new Font("Arial", Font.BOLD, 12));
-        emailLabel.setForeground(UIConstants.GRAY_TEXT);
-        // Sola yaslama ayarları
+        emailLabel.setForeground(UIConstants.TEXT_COLOR);
         emailLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         emailLabel.setMaximumSize(new Dimension(Integer.MAX_VALUE, emailLabel.getPreferredSize().height));
         emailLabel.setHorizontalAlignment(SwingConstants.LEFT);
 
-        emailField = new JTextField();
-        emailField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 35));
+        emailField = new RoundedTextField(UIConstants.ROUNDED_RADIUS, "Enter your email");
+        emailField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
         emailField.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // 4. Buton ve Link
-        JButton sendButton = new JButton("SEND RESET LINK");
+        // 4. Button and Link
+        RoundedButton sendButton = new RoundedButton("Send Reset Link", UIConstants.ROUNDED_RADIUS,
+                UIConstants.PRIMARY_GREEN, UIConstants.darker(UIConstants.PRIMARY_GREEN));
         sendButton.setFont(UIConstants.BUTTON_FONT);
-        sendButton.setBackground(UIConstants.PRIMARY_GREEN);
         sendButton.setForeground(Color.WHITE);
-        sendButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
-        sendButton.setFocusPainted(false);
-        sendButton.setBorderPainted(false);
+        sendButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 45));
         sendButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         sendButton.addActionListener(e -> handleSendReset());
@@ -76,7 +78,6 @@ public class ForgotPasswordPanel extends JPanel {
         backLink.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         backLink.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Geri Dönüş Tıklama Olayı
         backLink.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -86,7 +87,7 @@ public class ForgotPasswordPanel extends JPanel {
             }
         });
 
-        // Elemanları Ekleme
+        // Add Components
         cardPanel.add(logoLabel);
         cardPanel.add(Box.createVerticalStrut(20));
         cardPanel.add(titleLabel);
@@ -95,7 +96,7 @@ public class ForgotPasswordPanel extends JPanel {
         cardPanel.add(Box.createVerticalStrut(30));
 
         cardPanel.add(emailLabel);
-        cardPanel.add(Box.createVerticalStrut(5));
+        cardPanel.add(Box.createVerticalStrut(8));
         cardPanel.add(emailField);
 
         cardPanel.add(Box.createVerticalStrut(25));
@@ -106,7 +107,6 @@ public class ForgotPasswordPanel extends JPanel {
         add(cardPanel);
     }
 
-    // MainFrame'den bu metoda "Login'e dön" emri bağlanacak
     public void setOnBackToLoginClicked(Runnable onBackToLoginClicked) {
         this.onBackToLoginClicked = onBackToLoginClicked;
     }
@@ -126,15 +126,12 @@ public class ForgotPasswordPanel extends JPanel {
         String email = emailField.getText();
 
         if (email.isEmpty()) {
-            // "Lütfen e-posta girin" yerine İngilizcesi
             JOptionPane.showMessageDialog(this, "Please enter an email address.", "Error", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        // Backend entegrasyonu (Mock)
         System.out.println("Reset Link Sent: " + email);
 
-        // "Bağlantı gönderildi" yerine İngilizcesi
         JOptionPane.showMessageDialog(this, "Password reset link sent to your email!", "Success",
                 JOptionPane.INFORMATION_MESSAGE);
     }

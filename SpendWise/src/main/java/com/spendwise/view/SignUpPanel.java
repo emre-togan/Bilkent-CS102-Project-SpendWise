@@ -6,14 +6,18 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import com.spendwise.controllers.AuthController;
+import com.spendwise.view.components.RoundedButton;
+import com.spendwise.view.components.RoundedPanel;
+import com.spendwise.view.components.RoundedPasswordField;
+import com.spendwise.view.components.RoundedTextField;
 
 public class SignUpPanel extends JPanel {
 
-    private JTextField fullNameField;
-    private JTextField usernameField;
-    private JTextField emailField;
-    private JPasswordField passwordField;
-    private JPasswordField confirmPasswordField;
+    private RoundedTextField fullNameField;
+    private RoundedTextField usernameField;
+    private RoundedTextField emailField;
+    private RoundedPasswordField passwordField;
+    private RoundedPasswordField confirmPasswordField;
 
     private Runnable onSignInClicked;
     private AuthController authController;
@@ -22,9 +26,9 @@ public class SignUpPanel extends JPanel {
         this.authController = new AuthController();
         setLayout(new GridBagLayout());
 
-        // 1. White Card Panel
-        JPanel cardPanel = new JPanel();
-        cardPanel.setPreferredSize(new Dimension(400, 650));
+        // 1. White Card Panel - Taller for signup
+        RoundedPanel cardPanel = new RoundedPanel(30, UIConstants.WHITE_BG);
+        cardPanel.setPreferredSize(new Dimension(420, 700)); // Taller for more fields
         cardPanel.setBackground(UIConstants.WHITE_BG);
         cardPanel.setLayout(new BoxLayout(cardPanel, BoxLayout.Y_AXIS));
         cardPanel.setBorder(BorderFactory.createEmptyBorder(30, 40, 30, 40));
@@ -48,30 +52,33 @@ public class SignUpPanel extends JPanel {
         titleLabel.setForeground(UIConstants.TEXT_COLOR);
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
+        JLabel subLabel = new JLabel("Sign up to get started");
+        subLabel.setFont(UIConstants.BODY_FONT);
+        subLabel.setForeground(UIConstants.GRAY_TEXT);
+        subLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
         // 3. Form parts
-        fullNameField = new JTextField();
+        fullNameField = new RoundedTextField(UIConstants.ROUNDED_RADIUS, "Enter your full name");
         JPanel fullNamePanel = createFieldPanel("Full Name", fullNameField);
 
-        usernameField = new JTextField();
+        usernameField = new RoundedTextField(UIConstants.ROUNDED_RADIUS, "Enter your username");
         JPanel usernamePanel = createFieldPanel("Username", usernameField);
 
-        emailField = new JTextField();
+        emailField = new RoundedTextField(UIConstants.ROUNDED_RADIUS, "Enter your email");
         JPanel emailPanel = createFieldPanel("Email Address", emailField);
 
-        passwordField = new JPasswordField();
+        passwordField = new RoundedPasswordField(UIConstants.ROUNDED_RADIUS, "Enter your password");
         JPanel passwordPanel = createFieldPanel("Password", passwordField);
 
-        confirmPasswordField = new JPasswordField();
+        confirmPasswordField = new RoundedPasswordField(UIConstants.ROUNDED_RADIUS, "Confirm your password");
         JPanel confirmPassPanel = createFieldPanel("Confirm Password", confirmPasswordField);
 
         // 4. Button and link
-        JButton signUpButton = new JButton("SIGN UP");
+        RoundedButton signUpButton = new RoundedButton("Sign Up", UIConstants.ROUNDED_RADIUS, UIConstants.PRIMARY_GREEN,
+                UIConstants.darker(UIConstants.PRIMARY_GREEN));
         signUpButton.setFont(UIConstants.BUTTON_FONT);
-        signUpButton.setBackground(UIConstants.PRIMARY_GREEN);
         signUpButton.setForeground(Color.WHITE);
-        signUpButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
-        signUpButton.setFocusPainted(false);
-        signUpButton.setBorderPainted(false);
+        signUpButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 45));
         signUpButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         signUpButton.addActionListener(e -> handleSignUp());
@@ -91,9 +98,12 @@ public class SignUpPanel extends JPanel {
             }
         });
 
+        // Add components
         cardPanel.add(logoLabel);
         cardPanel.add(Box.createVerticalStrut(10));
         cardPanel.add(titleLabel);
+        cardPanel.add(Box.createVerticalStrut(5));
+        cardPanel.add(subLabel);
         cardPanel.add(Box.createVerticalStrut(20));
 
         cardPanel.add(fullNamePanel);
@@ -117,18 +127,18 @@ public class SignUpPanel extends JPanel {
     private JPanel createFieldPanel(String labelText, JComponent field) {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setBackground(Color.WHITE);
+        panel.setBackground(Color.WHITE); // Panel inside card needs to match card bg
+        panel.setOpaque(false); // Or transparent
         panel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel label = new JLabel(labelText);
         label.setFont(new Font("Arial", Font.BOLD, 12));
-        label.setForeground(UIConstants.GRAY_TEXT);
-
+        label.setForeground(UIConstants.TEXT_COLOR);
         label.setAlignmentX(Component.CENTER_ALIGNMENT);
         label.setMaximumSize(new Dimension(Integer.MAX_VALUE, label.getPreferredSize().height));
         label.setHorizontalAlignment(SwingConstants.LEFT);
 
-        field.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
+        field.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
         field.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         panel.add(label);
@@ -159,7 +169,6 @@ public class SignUpPanel extends JPanel {
         String pass = new String(passwordField.getPassword());
         String confirm = new String(confirmPasswordField.getPassword());
 
-        // Validation
         if (fullName.isEmpty() || username.isEmpty() || email.isEmpty() || pass.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please fill in all fields!", "Error", JOptionPane.ERROR_MESSAGE);
             return;
@@ -176,7 +185,6 @@ public class SignUpPanel extends JPanel {
             return;
         }
 
-        // Backend registration
         boolean registrationSuccess = authController.register(username, pass, email);
 
         if (registrationSuccess) {
@@ -184,20 +192,15 @@ public class SignUpPanel extends JPanel {
                     "Account created successfully!\nYou can now login with your credentials.",
                     "Registration Successful",
                     JOptionPane.INFORMATION_MESSAGE);
-
-            // Clear fields
             fullNameField.setText("");
             usernameField.setText("");
             emailField.setText("");
             passwordField.setText("");
             confirmPasswordField.setText("");
-
-            // Go back to login
             if (onSignInClicked != null) {
                 onSignInClicked.run();
             }
         } else {
-            // More specific error message
             JOptionPane.showMessageDialog(this,
                     "<html><body style='width: 250px'>" +
                             "<b>Registration Failed!</b><br><br>" +
