@@ -91,7 +91,7 @@ public class PurchaseHistoryDialog extends JDialog {
         centerPanel.setBorder(new EmptyBorder(5, 0, 5, 0));
         centerPanel.add(new JLabel("Date: " + order.getOrderDate()));
         centerPanel.add(new JLabel("Items: " + order.getProductSummary()));
-        centerPanel.add(new JLabel("Total: $" + order.getTotalAmount()));
+        centerPanel.add(new JLabel("Total: ₺" + order.getTotalAmount()));
 
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         bottomPanel.setOpaque(false);

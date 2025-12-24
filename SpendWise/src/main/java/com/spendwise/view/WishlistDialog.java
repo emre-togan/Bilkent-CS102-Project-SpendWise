@@ -31,7 +31,7 @@ public class WishlistDialog extends JDialog {
 
         JLabel title = new JLabel("Your Wishlist");
         title.setFont(new Font("Arial", Font.BOLD, 20));
-        
+
         headerPanel.add(title, BorderLayout.CENTER);
         add(headerPanel, BorderLayout.NORTH);
 
@@ -72,7 +72,7 @@ public class WishlistDialog extends JDialog {
             empty.setFont(new Font("Arial", Font.PLAIN, 14));
             empty.setForeground(Color.GRAY);
             empty.setAlignmentX(Component.CENTER_ALIGNMENT);
-            
+
             productsContainer.add(Box.createVerticalStrut(50));
             productsContainer.add(empty);
         } else {
@@ -97,11 +97,11 @@ public class WishlistDialog extends JDialog {
         // Left: Info
         JPanel infoPanel = new JPanel(new GridLayout(2, 1));
         infoPanel.setOpaque(false);
-        
+
         JLabel nameLabel = new JLabel(p.getName());
         nameLabel.setFont(new Font("Arial", Font.BOLD, 14));
-        
-        JLabel priceLabel = new JLabel("$" + p.getPriceAfterDiscount());
+
+        JLabel priceLabel = new JLabel("₺" + p.getPriceAfterDiscount());
         priceLabel.setFont(new Font("Arial", Font.PLAIN, 12));
         priceLabel.setForeground(new Color(39, 174, 96));
 

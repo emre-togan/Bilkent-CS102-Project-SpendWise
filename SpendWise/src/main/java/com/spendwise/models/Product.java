@@ -43,7 +43,7 @@ public class Product {
 
     private double parsePrice(String priceStr) {
         try {
-            return Double.parseDouble(priceStr.replace("$", "").replace(",", "").trim());
+            return Double.parseDouble(priceStr.replace("$", "").replace("₺", "").replace(",", "").trim());
         } catch (NumberFormatException e) {
             return 0.0;
         }

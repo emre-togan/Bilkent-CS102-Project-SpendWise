@@ -40,6 +40,7 @@ import com.spendwise.services.expenseService;
 import com.spendwise.view.components.RoundedButton;
 import com.spendwise.view.components.RoundedPanel;
 import com.spendwise.view.components.SidebarPanel;
+import com.spendwise.view.components.Icons;
 
 public class BudgetPanel extends JPanel {
 
@@ -71,11 +72,11 @@ public class BudgetPanel extends JPanel {
     // Category colors
     private static final Color[] CATEGORY_COLORS = {
             new Color(139, 195, 74),
-            new Color(33, 150, 243), 
-            new Color(255, 152, 0), 
-            new Color(156, 39, 176), 
-            new Color(233, 30, 99), 
-            new Color(0, 150, 136) 
+            new Color(33, 150, 243),
+            new Color(255, 152, 0),
+            new Color(156, 39, 176),
+            new Color(233, 30, 99),
+            new Color(0, 150, 136)
     };
 
     public BudgetPanel(MainFrame mainFrame) {
@@ -140,10 +141,9 @@ public class BudgetPanel extends JPanel {
         monthlyLimitLabel.setFont(new Font("Arial", Font.BOLD, 28));
         card.add(monthlyLimitLabel);
 
-        JButton editBtn = new JButton("✏"); 
+        JButton editBtn = new JButton();
+        editBtn.setIcon(Icons.getEditIcon(24, UIConstants.PRIMARY_GREEN));
         editBtn.setBounds(1100, 20, 30, 30);
-        editBtn.setFont(new Font("SansSerif", Font.PLAIN, 18));
-        editBtn.setForeground(UIConstants.PRIMARY_GREEN);
         editBtn.setBorderPainted(false);
         editBtn.setContentAreaFilled(false);
         editBtn.setFocusPainted(false);
@@ -152,14 +152,14 @@ public class BudgetPanel extends JPanel {
         card.add(editBtn);
 
         JLabel totalSpentTitle = new JLabel("Total Spent");
-        totalSpentTitle.setBounds(30, 85, 100, 20); 
+        totalSpentTitle.setBounds(30, 85, 100, 20);
 
         JLabel spentTitle = new JLabel("Total Spent");
         spentTitle.setBounds(270, 20, 100, 20);
         spentTitle.setForeground(Color.GRAY);
         card.add(spentTitle);
 
-        totalSpentLabel = new JLabel("$2.010");
+        totalSpentLabel = new JLabel("₺2.010");
         totalSpentLabel.setBounds(1050, 45, 80, 20);
         totalSpentLabel.setFont(new Font("Arial", Font.BOLD, 16));
         totalSpentLabel.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -168,12 +168,13 @@ public class BudgetPanel extends JPanel {
         totalSpentProgressBar = new JProgressBar(0, 100);
         totalSpentProgressBar.setBounds(270, 50, 770, 10);
         totalSpentProgressBar.setValue(0);
-        totalSpentProgressBar.setForeground(new Color(50, 50, 50)); 
+        totalSpentProgressBar.setForeground(new Color(50, 50, 50));
         totalSpentProgressBar.setBackground(new Color(240, 240, 240));
         totalSpentProgressBar.setBorderPainted(false);
         card.add(totalSpentProgressBar);
 
-        remainingLabel = new JLabel("💸 Remaining: ₺0");
+        remainingLabel = new JLabel(" Remaining: ₺0");
+        remainingLabel.setIcon(Icons.getBudgetIcon(16, UIConstants.SELECTION_GREEN));
         remainingLabel.setBounds(270, 70, 200, 20);
         remainingLabel.setFont(new Font("Arial", Font.BOLD, 13));
         remainingLabel.setForeground(UIConstants.SELECTION_GREEN);
@@ -189,10 +190,8 @@ public class BudgetPanel extends JPanel {
         alertPanel.setLayout(null);
         alertPanel.setVisible(false);
 
-        JLabel icon = new JLabel("ⓘ"); // Simple info icon
+        JLabel icon = new JLabel(Icons.getInfoIcon(24, new Color(255, 143, 0))); // Warning Orange
         icon.setBounds(25, 25, 30, 30);
-        icon.setFont(new Font("SansSerif", Font.BOLD, 24));
-        icon.setForeground(new Color(255, 143, 0));
         alertPanel.add(icon);
 
         JLabel title = new JLabel("Budget Alert");
@@ -235,7 +234,6 @@ public class BudgetPanel extends JPanel {
         scrollPane.getViewport().setBackground(UIConstants.BACKGROUND_LIGHT);
         parent.add(scrollPane);
     }
-
 
     private void showEditBudgetDialog() {
         JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Edit Monthly Budget", true);
@@ -372,10 +370,8 @@ public class BudgetPanel extends JPanel {
         card.setLayout(null);
         card.setPreferredSize(new Dimension(1120, 90));
 
-        String emoji = getCategoryEmoji(data.category);
-        JLabel emojiLabel = new JLabel(emoji);
+        JLabel emojiLabel = new JLabel(Icons.getCategoryIcon(data.category, 32, barColor));
         emojiLabel.setBounds(25, 25, 40, 40);
-        emojiLabel.setFont(new Font("Arial", Font.PLAIN, 32));
         card.add(emojiLabel);
 
         JLabel name = new JLabel(data.category);
@@ -404,11 +400,12 @@ public class BudgetPanel extends JPanel {
         percentageLabel.setForeground(Color.GRAY);
         card.add(percentageLabel);
 
-        JButton editBtn = new JButton("✎");
+        JButton editBtn = new JButton();
+        editBtn.setIcon(Icons.getEditIcon(18, Color.GRAY));
         editBtn.setBounds(1080, 25, 30, 30);
         editBtn.setBorderPainted(false);
         editBtn.setContentAreaFilled(false);
-        editBtn.setForeground(Color.GRAY);
+        editBtn.setFocusPainted(false);
         editBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         editBtn.addActionListener(e -> showEditCategoryDialog(data));
         card.add(editBtn);
@@ -451,24 +448,7 @@ public class BudgetPanel extends JPanel {
         dialog.setVisible(true);
     }
 
-    private String getCategoryEmoji(String category) {
-        if (category == null)
-            return "📋";
-        switch (category) {
-            case "Food":
-                return "🍔";
-            case "Transport":
-                return "🚗";
-            case "Shopping":
-                return "🛍";
-            case "Health":
-                return "🏥";
-            case "Entertainment":
-                return "🎬";
-            default:
-                return "📋";
-        }
-    }
+    // Category emoji helper removed
 
     public void refreshData() {
         try {
@@ -483,9 +463,9 @@ public class BudgetPanel extends JPanel {
                 totalSpent = currentBudget.getTotalSpending();
                 remaining = monthlyLimit - totalSpent;
 
-                monthlyLimitLabel.setText(String.format("$%.0f", monthlyLimit));
-                totalSpentLabel.setText(String.format("$%.0f", totalSpent));
-                remainingLabel.setText(String.format("Remaining: $%.0f", remaining));
+                monthlyLimitLabel.setText(String.format("₺%.0f", monthlyLimit));
+                totalSpentLabel.setText(String.format("₺%.0f", totalSpent));
+                remainingLabel.setText(String.format("Remaining: ₺%.0f", remaining));
 
                 int percentage = (int) budgetService.calculateTheSpendingPercentage(currentBudget);
                 totalSpentProgressBar.setValue(Math.min(100, percentage));
@@ -495,8 +475,8 @@ public class BudgetPanel extends JPanel {
                     totalSpentProgressBar.setForeground(new Color(50, 50, 50));
             } else {
                 monthlyLimitLabel.setText("No budget set");
-                totalSpentLabel.setText("$0");
-                remainingLabel.setText("Remaining: $0");
+                totalSpentLabel.setText("₺0");
+                remainingLabel.setText("Remaining: ₺0");
                 totalSpentProgressBar.setValue(0);
             }
 
@@ -552,8 +532,8 @@ public class BudgetPanel extends JPanel {
     }
 
     public void clearData() {
-        monthlyLimitLabel.setText("$0");
-        totalSpentLabel.setText("$0");
+        monthlyLimitLabel.setText("₺0");
+        totalSpentLabel.setText("₺0");
         categorySpending.clear();
         currentExpenses.clear();
         alertPanel.setVisible(false);

@@ -35,10 +35,10 @@ public class SellProductDialog extends JDialog {
         formPanel.setBorder(new EmptyBorder(10, 20, 10, 20));
 
         nameField = createInput(formPanel, "Product Name");
-        priceField = createInput(formPanel, "Price ($)");
+        priceField = createInput(formPanel, "Price (₺)");
 
         formPanel.add(new JLabel("Category"));
-        String[] categories = {"Electronics", "Clothing", "Home", "Books", "Sports", "Other"};
+        String[] categories = { "Electronics", "Clothing", "Home", "Books", "Sports", "Other" };
         categoryBox = new JComboBox<>(categories);
         categoryBox.setBackground(Color.WHITE);
         categoryBox.setMaximumSize(new Dimension(Integer.MAX_VALUE, 35));
@@ -46,7 +46,7 @@ public class SellProductDialog extends JDialog {
         formPanel.add(Box.createVerticalStrut(15));
 
         formPanel.add(new JLabel("Condition"));
-        String[] conditions = {"New", "Used - Like New", "Used - Good", "Used - Fair"};
+        String[] conditions = { "New", "Used - Like New", "Used - Good", "Used - Fair" };
         conditionBox = new JComboBox<>(conditions);
         conditionBox.setBackground(Color.WHITE);
         conditionBox.setMaximumSize(new Dimension(Integer.MAX_VALUE, 35));
@@ -113,15 +113,15 @@ public class SellProductDialog extends JDialog {
             String cond = (String) conditionBox.getSelectedItem();
             String desc = descriptionArea.getText().trim();
             String img = imageUrlField.getText().trim();
-            
-            if (img.isEmpty()) img = "default_product.png"; 
+
+            if (img.isEmpty())
+                img = "default_product.png";
 
             String sellerName = UserSession.getCurrentUser().getUserName();
 
             Product p = new Product(
-                0, name, desc, price, price, cat, img, 0.0, 0, 
-                sellerName, true, cond, "User Listing", 0
-            );
+                    0, name, desc, price, price, cat, img, 0.0, 0,
+                    sellerName, true, cond, "User Listing", 0);
 
             boolean success = new productService().saveProduct(p);
             if (success) {

@@ -48,7 +48,7 @@ public class SidebarPanel extends JPanel {
             Image newimg = image.getScaledInstance(45, 45, java.awt.Image.SCALE_SMOOTH);
             logo.setIcon(new ImageIcon(newimg));
         } catch (Exception e) {
-            logo.setText("W$");
+            logo.setText("W₺");
         }
         logo.setBounds(25, 25, 45, 45);
         logo.setFont(new Font("Arial", Font.BOLD, 40));
@@ -65,13 +65,13 @@ public class SidebarPanel extends JPanel {
         int startY = 110;
         int gap = 55;
 
-        addMenuButton("🏠", "Dashboard", "DASHBOARD", startY);
-        addMenuButton("💳", "Budget", "BUDGET", startY + gap);
-        addMenuButton("🧾", "Expenses", "EXPENSES", startY + gap * 2);
-        addMenuButton("🛍️", "Shop", "SHOP", startY + gap * 3);
-        addMenuButton("💬", "Chat with Friends", "CHAT", startY + gap * 4);
-        addMenuButton("👤", "Profile", "PROFILE", startY + gap * 5);
-        addMenuButton("⚙️", "Settings", "SETTINGS", startY + gap * 6);
+        addMenuButton(Icons.getDashboardIcon(20, Color.GRAY), "Dashboard", "DASHBOARD", startY);
+        addMenuButton(Icons.getBudgetIcon(20, Color.GRAY), "Budget", "BUDGET", startY + gap);
+        addMenuButton(Icons.getExpensesIcon(20, Color.GRAY), "Expenses", "EXPENSES", startY + gap * 2);
+        addMenuButton(Icons.getShopIcon(20, Color.GRAY), "Shop", "SHOP", startY + gap * 3);
+        addMenuButton(Icons.getChatIcon(20, Color.GRAY), "Chat with Friends", "CHAT", startY + gap * 4);
+        addMenuButton(Icons.getProfileIcon(20, Color.GRAY), "Profile", "PROFILE", startY + gap * 5);
+        addMenuButton(Icons.getSettingsIcon(20, Color.GRAY), "Settings", "SETTINGS", startY + gap * 6);
 
         // --- Profile Card (Bottom) ---
         // Design in image shows simple clean profile at bottom
@@ -111,12 +111,13 @@ public class SidebarPanel extends JPanel {
         add(logoutBtn);
     }
 
-    private void addMenuButton(String icon, String text, String key, int y) {
+    private void addMenuButton(Icon icon, String text, String key, int y) {
         // Design: Rounded filled rectangle when active, otherwise text with icon
-        RoundedButton btn = new RoundedButton(icon + "   " + text, 20,
+        RoundedButton btn = new RoundedButton(text, 20,
                 key.equals(activePanelKey) ? UIConstants.SELECTION_GREEN : UIConstants.SIDEBAR_BG,
                 key.equals(activePanelKey) ? UIConstants.SELECTION_GREEN : new Color(245, 245, 245));
 
+        btn.setIcon(icon);
         btn.setBounds(20, y, 220, 45);
         btn.setFont(new Font("Arial", Font.PLAIN, 14));
         btn.setHorizontalAlignment(SwingConstants.LEFT);
@@ -124,8 +125,29 @@ public class SidebarPanel extends JPanel {
 
         if (key.equals(activePanelKey)) {
             btn.setForeground(Color.WHITE);
-            // "Selection Green" is effectively the primary color or close to it
-            // Image shows a nice leaf green
+            // Active icon color to white. Since VectorIcon is simple, we might need a way
+            // to change color.
+            // But for now let's regenerate it or just let it be gray/white if we implement
+            // color changing.
+            // Actually, VectorIcons are static. Let's make them dynamic or just recreate
+            // for active state.
+            // Optimization: Just create new Icon for active.
+
+            if (key.equals("DASHBOARD"))
+                btn.setIcon(Icons.getDashboardIcon(20, Color.WHITE));
+            if (key.equals("BUDGET"))
+                btn.setIcon(Icons.getBudgetIcon(20, Color.WHITE));
+            if (key.equals("EXPENSES"))
+                btn.setIcon(Icons.getExpensesIcon(20, Color.WHITE));
+            if (key.equals("SHOP"))
+                btn.setIcon(Icons.getShopIcon(20, Color.WHITE));
+            if (key.equals("CHAT"))
+                btn.setIcon(Icons.getChatIcon(20, Color.WHITE));
+            if (key.equals("PROFILE"))
+                btn.setIcon(Icons.getProfileIcon(20, Color.WHITE));
+            if (key.equals("SETTINGS"))
+                btn.setIcon(Icons.getSettingsIcon(20, Color.WHITE));
+
         } else {
             btn.setForeground(new Color(100, 100, 100));
         }

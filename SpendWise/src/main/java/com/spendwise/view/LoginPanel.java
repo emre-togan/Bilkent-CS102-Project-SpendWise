@@ -45,7 +45,7 @@ public class LoginPanel extends JPanel {
             Image newimg = image.getScaledInstance(100, 100, java.awt.Image.SCALE_SMOOTH); // Slightly larger logo
             logoLabel.setIcon(new ImageIcon(newimg));
         } else {
-            logoLabel.setText("W$");
+            logoLabel.setText("W₺");
             logoLabel.setFont(new Font("Arial", Font.BOLD, 50));
             logoLabel.setForeground(UIConstants.PRIMARY_GREEN);
         }
@@ -98,7 +98,7 @@ public class LoginPanel extends JPanel {
         passLayer.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         passwordField = new RoundedPasswordField(UIConstants.ROUNDED_RADIUS, "Enter your password");
-        passwordField.setBounds(0, 0, 300, 40); 
+        passwordField.setBounds(0, 0, 300, 40);
 
         JPanel passWrapper = new JPanel();
         passWrapper.setLayout(new OverlayLayout(passWrapper));
@@ -182,7 +182,6 @@ public class LoginPanel extends JPanel {
         cardPanel.add(Box.createVerticalStrut(10));
         cardPanel.add(logoLabel);
         cardPanel.add(Box.createVerticalStrut(15));
-
 
         cardPanel.add(sloganLabel);
 

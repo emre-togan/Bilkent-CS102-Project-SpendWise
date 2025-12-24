@@ -55,7 +55,7 @@ public class ExpensesPanel extends JPanel {
     private JPanel transactionsContainer;
     private JComboBox<String> categoryFilter;
     private RoundedTextField searchField;
-    private JLayeredPane layeredPane; 
+    private JLayeredPane layeredPane;
     private JButton fabBtn;
 
     // Services & Data
@@ -380,7 +380,7 @@ public class ExpensesPanel extends JPanel {
         card.add(subtitle);
 
         // Amount
-        JLabel amount = new JLabel(String.format("-$%.2f", exp.getAmount()));
+        JLabel amount = new JLabel(String.format("-₺%.2f", exp.getAmount()));
         amount.setFont(new Font("Arial", Font.BOLD, 15));
         amount.setForeground(UIConstants.DANGER_RED);
         amount.setHorizontalAlignment(SwingConstants.RIGHT);

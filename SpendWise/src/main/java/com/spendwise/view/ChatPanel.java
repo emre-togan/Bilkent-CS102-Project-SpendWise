@@ -11,6 +11,7 @@ import com.spendwise.services.ChatService;
 import com.spendwise.services.productService;
 import com.spendwise.view.components.RoundedPanel;
 import com.spendwise.view.components.SidebarPanel;
+import com.spendwise.view.components.Icons;
 
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -37,7 +38,7 @@ public class ChatPanel extends JPanel {
     private productService productServiceInstance;
 
     private String currentFriendName = "";
-    private List<User> allFriends; 
+    private List<User> allFriends;
     private List<Message> currentMessages;
 
     public ChatPanel(MainFrame mainFrame) {
@@ -113,8 +114,7 @@ public class ChatPanel extends JPanel {
         searchContainer.setLayout(new BorderLayout());
         searchContainer.setBorder(new EmptyBorder(5, 15, 5, 10));
 
-        JLabel searchIcon = new JLabel("🔍"); // Or use icon
-        searchIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 14));
+        JLabel searchIcon = new JLabel(Icons.getSearchIcon(16, Color.GRAY));
         searchIcon.setBorder(new EmptyBorder(0, 0, 0, 10));
 
         JTextField searchField = new JTextField("Search friends...");
@@ -238,7 +238,8 @@ public class ChatPanel extends JPanel {
         inputPanel.setBackground(Color.WHITE);
         inputPanel.setBorder(new EmptyBorder(20, 30, 20, 30));
 
-        recommendProductButton = new JButton("🛍 Recommend");
+        recommendProductButton = new JButton("Recommend");
+        recommendProductButton.setIcon(Icons.getShopIcon(14, new Color(80, 80, 80)));
         recommendProductButton.setFont(new Font("Arial", Font.BOLD, 12));
         recommendProductButton.setPreferredSize(new Dimension(130, 45));
         recommendProductButton.setBackground(new Color(240, 240, 240));
@@ -371,14 +372,13 @@ public class ChatPanel extends JPanel {
         avatar.setMaximumSize(new Dimension(45, 45));
         avatar.setHorizontalAlignment(SwingConstants.CENTER);
         avatar.setOpaque(true);
-        avatar.setBackground(UIConstants.PRIMARY_GREEN); 
+        avatar.setBackground(UIConstants.PRIMARY_GREEN);
         avatar.setForeground(Color.WHITE);
         avatar.setFont(new Font("Arial", Font.BOLD, 16));
-  
 
         JPanel infoPanel = new JPanel();
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
-        infoPanel.setOpaque(false); 
+        infoPanel.setOpaque(false);
 
         JLabel nameLabel = new JLabel(friend.getUserName());
         nameLabel.setFont(new Font("Arial", Font.BOLD, 15));
@@ -401,7 +401,7 @@ public class ChatPanel extends JPanel {
         item.addMouseListener(new MouseAdapter() {
             public void mouseEntered(MouseEvent e) {
                 if (!isSelected) {
-                    
+
                 }
             }
 
@@ -409,7 +409,6 @@ public class ChatPanel extends JPanel {
                 openChat(friend);
             }
         });
-
 
         itemWrapper.add(item, BorderLayout.CENTER);
         return itemWrapper;
@@ -424,7 +423,7 @@ public class ChatPanel extends JPanel {
         currentChatUserLabel.setText(friend.getUserName());
         String initials = getInitials(friend.getUserName());
         currentChatAvatarLabel.setText(initials);
-        currentChatAvatarLabel.setBackground(UIConstants.PRIMARY_GREEN); 
+        currentChatAvatarLabel.setBackground(UIConstants.PRIMARY_GREEN);
 
         boolean isOnline = ChatService.isUserOnline(friend.getUserName());
         currentChatStatusLabel.setText(isOnline ? "Online" : "Offline");
@@ -469,8 +468,8 @@ public class ChatPanel extends JPanel {
 
     private void showEmptyState() {
         messagesPanel.removeAll();
-        JLabel emptyIcon = new JLabel("💬", SwingConstants.CENTER);
-        emptyIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 64));
+        JLabel emptyIcon = new JLabel(Icons.getChatIcon(64, new Color(200, 200, 200)));
+        emptyIcon.setHorizontalAlignment(SwingConstants.CENTER);
         emptyIcon.setForeground(new Color(200, 200, 200));
         emptyIcon.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -503,8 +502,7 @@ public class ChatPanel extends JPanel {
         messagePanel.setBackground(Color.WHITE); // Panel background matches chat area
         messagePanel.setAlignmentX(isSentByMe ? Component.RIGHT_ALIGNMENT : Component.LEFT_ALIGNMENT);
         // Prevent vertical stretching
-        messagePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1000)); 
-
+        messagePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1000));
 
         // Check alignment
         if (!isSentByMe) {
@@ -584,8 +582,8 @@ public class ChatPanel extends JPanel {
                 new EmptyBorder(15, 15, 15, 15)));
         productCard.setMaximumSize(new Dimension(250, 220));
 
-        JLabel productIcon = new JLabel("🛍️", SwingConstants.CENTER);
-        productIcon.setFont(new Font("Arial", Font.PLAIN, 48));
+        JLabel productIcon = new JLabel(Icons.getShopIcon(48, Color.BLACK));
+        productIcon.setHorizontalAlignment(SwingConstants.CENTER);
         productIcon.setAlignmentX(Component.CENTER_ALIGNMENT);
         productIcon.setBorder(new EmptyBorder(10, 0, 10, 0));
 
@@ -600,7 +598,6 @@ public class ChatPanel extends JPanel {
         viewButton.setBorderPainted(false);
         viewButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         viewButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-
 
         productCard.add(productIcon);
         productCard.add(Box.createVerticalStrut(15));
@@ -661,7 +658,7 @@ public class ChatPanel extends JPanel {
 
         for (Product product : products) {
             JButton productBtn = new JButton(
-                    product.getName() + " - $" + String.format("%.2f", product.getPriceAfterDiscount()));
+                    product.getName() + " - ₺" + String.format("%.2f", product.getPriceAfterDiscount()));
             productBtn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
             productBtn.setFont(new Font("Arial", Font.PLAIN, 13));
             productBtn.setHorizontalAlignment(SwingConstants.LEFT);

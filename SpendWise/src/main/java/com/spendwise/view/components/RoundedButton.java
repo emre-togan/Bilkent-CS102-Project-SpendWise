@@ -22,6 +22,8 @@ public class RoundedButton extends JButton {
         setOpaque(false);
         setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
+        setIconTextGap(15);
+
         setBackground(normalColor);
 
         addMouseListener(new MouseAdapter() {

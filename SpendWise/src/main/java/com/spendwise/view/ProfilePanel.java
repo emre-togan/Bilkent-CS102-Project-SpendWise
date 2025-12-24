@@ -229,7 +229,7 @@ public class ProfilePanel extends JPanel {
         statsRow.setBorder(new EmptyBorder(30, 0, 0, 0)); // Spacing from top info
 
         statsRow.add(createStatItem("Purchases", "0", label -> purchaseCountLabel = label));
-        statsRow.add(createStatItem("Saved", "$0.00", label -> savedAmountLabel = label));
+        statsRow.add(createStatItem("Saved", "₺0.00", label -> savedAmountLabel = label));
         statsRow.add(createStatItem("Deals Found", "0", label -> dealsFoundLabel = label));
 
         JPanel contentWrapper = new JPanel(new BorderLayout());
@@ -328,15 +328,15 @@ public class ProfilePanel extends JPanel {
         RoundedPanel actionsPanel = new RoundedPanel(20, Color.WHITE);
         actionsPanel.setLayout(new BoxLayout(actionsPanel, BoxLayout.Y_AXIS));
         // Adjusted height since we removed one item
-        actionsPanel.setMaximumSize(new Dimension(1100, 120)); 
+        actionsPanel.setMaximumSize(new Dimension(1100, 120));
         actionsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         actionsPanel.setBorder(new EmptyBorder(10, 0, 10, 0)); // Outer padding
 
         actionsPanel.add(createActionRow("📦", "Purchase History",
                 e -> new PurchaseHistoryDialog((JFrame) SwingUtilities.getWindowAncestor(this)).setVisible(true)));
-        
+
         // --- REMOVED WISHLIST BUTTON HERE ---
-        
+
         actionsPanel.add(createDivider());
         actionsPanel.add(createActionRow("📍", "Addresses",
                 e -> JOptionPane.showMessageDialog(this, "Addresses feature coming soon!")));
@@ -459,7 +459,7 @@ public class ProfilePanel extends JPanel {
 
         // Price or other icon?
         // Let's put Price
-        JLabel price = new JLabel("$" + String.format("%.2f", product.getPriceAfterDiscount()));
+        JLabel price = new JLabel("₺" + String.format("%.2f", product.getPriceAfterDiscount()));
         price.setFont(new Font("Arial", Font.PLAIN, 12));
         price.setForeground(Color.GRAY);
 
@@ -517,7 +517,7 @@ public class ProfilePanel extends JPanel {
             updateFriendsList();
 
             savedProducts = productServiceInstance.getWishlist(userId);
-            
+
             if (savedProducts == null)
                 savedProducts = new ArrayList<>();
             updateSavedProducts();
@@ -536,7 +536,7 @@ public class ProfilePanel extends JPanel {
                 totalSaved += (product.getPrice() - product.getPriceAfterDiscount());
             }
             if (savedAmountLabel != null)
-                savedAmountLabel.setText(String.format("$%.1fk", totalSaved / 1000));
+                savedAmountLabel.setText(String.format("₺%.1fk", totalSaved / 1000));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -550,7 +550,7 @@ public class ProfilePanel extends JPanel {
         updateFriendsList();
         updateSavedProducts();
         purchaseCountLabel.setText("0");
-        savedAmountLabel.setText("$0");
+        savedAmountLabel.setText("₺0");
         dealsFoundLabel.setText("0");
     }
 }

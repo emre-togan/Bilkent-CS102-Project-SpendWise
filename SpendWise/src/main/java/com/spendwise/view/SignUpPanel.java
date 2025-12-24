@@ -41,7 +41,7 @@ public class SignUpPanel extends JPanel {
             Image scaledImage = originalIcon.getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH);
             logoLabel = new JLabel(new ImageIcon(scaledImage));
         } else {
-            logoLabel = new JLabel("W$");
+            logoLabel = new JLabel("W₺");
             logoLabel.setFont(new Font("Arial", Font.BOLD, 40));
             logoLabel.setForeground(UIConstants.PRIMARY_GREEN);
         }

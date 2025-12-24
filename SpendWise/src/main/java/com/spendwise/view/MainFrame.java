@@ -3,7 +3,11 @@ package com.spendwise.view;
 import javax.swing.*;
 import java.awt.*;
 
+import com.spendwise.view.components.CustomTitleBar;
+
 public class MainFrame extends JFrame {
+
+    private CustomTitleBar customTitleBar;
 
     private CardLayout cardLayout;
     private JPanel mainPanel;
@@ -20,11 +24,15 @@ public class MainFrame extends JFrame {
     private SettingsPanel settingsPanel;
 
     public MainFrame() {
-        setTitle("SpendWise - Personal Finance & Smart Shopping");
+        setTitle("SpendWise - Finance Assistant");
+        setUndecorated(true); // Custom title bar
         setSize(1500, 900);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
+
+        // Add border to the frame itself to define edges
+        getRootPane().setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, new Color(200, 200, 200)));
 
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -32,12 +40,19 @@ public class MainFrame extends JFrame {
             e.printStackTrace();
         }
 
+        setLayout(new BorderLayout());
+
+        customTitleBar = new CustomTitleBar(this);
+        add(customTitleBar, BorderLayout.NORTH);
+
         cardLayout = new CardLayout();
         mainPanel = new JPanel(cardLayout);
 
         initializePanels();
 
-        add(mainPanel);
+        initializePanels();
+
+        add(mainPanel, BorderLayout.CENTER);
 
         showPanel("LOGIN");
     }
@@ -68,14 +83,14 @@ public class MainFrame extends JFrame {
         mainPanel.add(loginPanel, "LOGIN");
         mainPanel.add(signUpPanel, "SIGNUP");
         mainPanel.add(forgotPasswordPanel, "FORGOT_PASSWORD");
-        
+
         mainPanel.add(dashboardPanel, "DASHBOARD");
         mainPanel.add(budgetPanel, "BUDGET");
         mainPanel.add(expensesPanel, "EXPENSES");
         mainPanel.add(shopPanel, "SHOP");
         mainPanel.add(chatPanel, "CHAT");
-        mainPanel.add(profilePanel, "PROFILE"); 
-        mainPanel.add(settingsPanel, "SETTINGS"); 
+        mainPanel.add(profilePanel, "PROFILE");
+        mainPanel.add(settingsPanel, "SETTINGS");
     }
 
     public void showPanel(String panelName) {
@@ -99,10 +114,10 @@ public class MainFrame extends JFrame {
                 chatPanel.refreshData();
                 break;
             case "PROFILE":
-                profilePanel.refreshData(); 
+                profilePanel.refreshData();
                 break;
             case "SETTINGS":
-                settingsPanel.refreshData(); 
+                settingsPanel.refreshData();
                 break;
         }
     }
@@ -128,9 +143,17 @@ public class MainFrame extends JFrame {
             chatPanel.clearData();
             profilePanel.clearData();
 
-            UserSession.setCurrentUserId(0); 
+            UserSession.setCurrentUserId(0);
 
             showPanel("LOGIN");
+        }
+    }
+
+    @Override
+    public void setTitle(String title) {
+        super.setTitle(title);
+        if (customTitleBar != null) {
+            customTitleBar.updateTitle(title);
         }
     }
 }

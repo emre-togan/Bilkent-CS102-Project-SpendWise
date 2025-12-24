@@ -31,6 +31,7 @@ import com.spendwise.services.expenseService;
 import com.spendwise.view.components.RoundedButton;
 import com.spendwise.view.components.RoundedPanel;
 import com.spendwise.view.components.SidebarPanel;
+import com.spendwise.view.components.Icons;
 
 public class DashBoardPanel extends JPanel {
     private MainFrame mainFrame;
@@ -116,7 +117,7 @@ public class DashBoardPanel extends JPanel {
         balanceTitle.setForeground(Color.GRAY);
         contentPanel.add(balanceTitle);
 
-        balanceLabel = new JLabel("$0");
+        balanceLabel = new JLabel("₺0");
         balanceLabel.setBounds(1000, 35, 150, 30);
         balanceLabel.setFont(new Font("Arial", Font.BOLD, 24));
         balanceLabel.setForeground(UIConstants.PRIMARY_GREEN); // Green per design
@@ -130,25 +131,25 @@ public class DashBoardPanel extends JPanel {
         int btnY = 240;
         int btnHeight = 60;
 
-        RoundedButton addExpenseButton = new RoundedButton("⊕ Add Expense", 20, UIConstants.SELECTION_GREEN,
+        RoundedButton addExpenseButton = new RoundedButton("Add Expense", 20, UIConstants.SELECTION_GREEN,
                 UIConstants.darker(UIConstants.SELECTION_GREEN));
+        addExpenseButton.setIcon(Icons.getAddIcon(16, Color.WHITE));
         addExpenseButton.setBounds(30, btnY, 400, btnHeight);
         addExpenseButton.setForeground(Color.WHITE);
         addExpenseButton.setFont(new Font("Arial", Font.BOLD, 14));
         addExpenseButton.addActionListener(e -> mainFrame.showPanel("EXPENSES"));
         contentPanel.add(addExpenseButton);
 
-        RoundedButton viewDiscountsButton = new RoundedButton("🏷 View Discounts", 20, new Color(255, 193, 7),
+        RoundedButton viewDiscountsButton = new RoundedButton("View Discounts", 20, new Color(255, 193, 7),
                 new Color(255, 160, 0));
-        viewDiscountsButton.setBounds(450, btnY, 400, btnHeight); 
+        viewDiscountsButton.setIcon(Icons.getShopIcon(16, Color.WHITE));
+        viewDiscountsButton.setBounds(450, btnY, 400, btnHeight);
         viewDiscountsButton.setForeground(Color.WHITE);
         viewDiscountsButton.setFont(new Font("Arial", Font.BOLD, 14));
         viewDiscountsButton.addActionListener(e -> mainFrame.showPanel("SHOP"));
         contentPanel.add(viewDiscountsButton);
 
-
         createWeeklyChart(contentPanel);
-
 
         createRecentTransactions(contentPanel);
     }
@@ -165,7 +166,7 @@ public class DashBoardPanel extends JPanel {
         titleLabel.setForeground(Color.GRAY);
         budgetCard.add(titleLabel);
 
-        budgetLimitLabel = new JLabel("$3.000");
+        budgetLimitLabel = new JLabel("₺3.000");
         budgetLimitLabel.setBounds(30, 45, 200, 30);
         budgetLimitLabel.setFont(new Font("Arial", Font.BOLD, 28));
         budgetCard.add(budgetLimitLabel);
@@ -178,7 +179,7 @@ public class DashBoardPanel extends JPanel {
         spentTitle.setHorizontalAlignment(SwingConstants.RIGHT);
         budgetCard.add(spentTitle);
 
-        spentAmountLabel = new JLabel("$2.010");
+        spentAmountLabel = new JLabel("₺2.010");
         spentAmountLabel.setBounds(1000, 45, 100, 25);
         spentAmountLabel.setFont(new Font("Arial", Font.BOLD, 18));
         spentAmountLabel.setForeground(UIConstants.DANGER_RED);
@@ -324,9 +325,7 @@ public class DashBoardPanel extends JPanel {
         item.setLayout(null);
         item.setOpaque(false);
 
-        String emo = getCategoryEmoji(exp.getCategory());
-        JLabel icon = new JLabel(emo);
-        icon.setFont(new Font("Arial", Font.PLAIN, 20));
+        JLabel icon = new JLabel(Icons.getCategoryIcon(exp.getCategory(), 20, UIConstants.PRIMARY_GREEN));
         icon.setBounds(0, 10, 30, 30);
         item.add(icon);
 
@@ -341,7 +340,7 @@ public class DashBoardPanel extends JPanel {
         date.setBounds(400, 15, 150, 20);
         item.add(date);
 
-        JLabel price = new JLabel("-$" + exp.getAmount());
+        JLabel price = new JLabel("-₺" + exp.getAmount());
         price.setFont(new Font("Arial", Font.BOLD, 14));
         price.setForeground(UIConstants.DANGER_RED);
         price.setBounds(1000, 15, 80, 20);
@@ -351,24 +350,7 @@ public class DashBoardPanel extends JPanel {
         return item;
     }
 
-    private String getCategoryEmoji(String category) {
-        if (category == null)
-            return "📋";
-        switch (category) {
-            case "Food":
-                return "🍔";
-            case "Transport":
-                return "🚗";
-            case "Shopping":
-                return "🛍";
-            case "Health":
-                return "🏥";
-            case "Entertainment":
-                return "🎬";
-            default:
-                return "📋";
-        }
-    }
+    // Category emoji helper removed as we use Icons.getCategoryIcon now
 
     private String getGreeting() {
         int hour = java.time.LocalTime.now().getHour();
@@ -397,8 +379,8 @@ public class DashBoardPanel extends JPanel {
                 totalSpent = currentBudget.getTotalSpending();
                 percentageUsed = (int) budgetService.calculateTheSpendingPercentage(currentBudget);
 
-                budgetLimitLabel.setText(String.format("$%.0f", budgetLimit));
-                spentAmountLabel.setText(String.format("$%.0f", totalSpent));
+                budgetLimitLabel.setText(String.format("₺%.0f", budgetLimit));
+                spentAmountLabel.setText(String.format("₺%.0f", totalSpent));
                 percentageLabel.setText(percentageUsed + "% used");
                 budgetProgressBar.setValue(Math.min(100, percentageUsed));
 
@@ -408,11 +390,11 @@ public class DashBoardPanel extends JPanel {
                 else
                     budgetProgressBar.setForeground(new Color(67, 160, 71));
 
-                balanceLabel.setText(String.format("$%.0f", budgetLimit - totalSpent));
+                balanceLabel.setText(String.format("₺%.0f", budgetLimit - totalSpent));
             } else {
-                budgetLimitLabel.setText("$0");
-                spentAmountLabel.setText("$0");
-                balanceLabel.setText("$0");
+                budgetLimitLabel.setText("₺0");
+                spentAmountLabel.setText("₺0");
+                balanceLabel.setText("₺0");
             }
 
             // 4. Chart Data
@@ -450,9 +432,9 @@ public class DashBoardPanel extends JPanel {
 
     public void clearData() {
         greetingLabel.setText("Good Morning");
-        balanceLabel.setText("$0");
-        budgetLimitLabel.setText("$0");
-        spentAmountLabel.setText("$0");
+        balanceLabel.setText("₺0");
+        budgetLimitLabel.setText("₺0");
+        spentAmountLabel.setText("₺0");
         budgetProgressBar.setValue(0);
         weeklySpending = new double[7];
         recentExpenses.clear();
