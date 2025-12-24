@@ -11,6 +11,7 @@ import java.util.List;
 import com.spendwise.models.Product;
 import com.spendwise.models.Purchase;
 import com.spendwise.models.User;
+import com.spendwise.services.ChatService;
 import com.spendwise.services.ProfileService;
 import com.spendwise.services.productService;
 
@@ -20,13 +21,12 @@ public class ProfilePanel extends JPanel {
     private User currentUser;
 
     // UI Components
-    // UI Components
     private JLabel sidebarNameLabel;
     private JLabel sidebarEmailLabel;
-    private JLabel sidebarAvatarLabel; // Sidebar Avatar
-    private JLabel avatarLabel; // Main Content Avatar
-    private JLabel mainNameLabel; // Main Content Name
-    private JLabel mainEmailLabel; // Main Content Email
+    private JLabel sidebarAvatarLabel;
+    private JLabel avatarLabel;
+    private JLabel mainNameLabel;
+    private JLabel mainEmailLabel;
     private JLabel purchaseCountLabel;
     private JLabel savedAmountLabel;
     private JLabel dealsFoundLabel;
@@ -55,7 +55,12 @@ public class ProfilePanel extends JPanel {
         setBackground(new Color(250, 250, 250));
 
         add(createSideMenu(), BorderLayout.WEST);
-        add(createContent(), BorderLayout.CENTER);
+        
+        // Scroll Pane for the main content
+        JScrollPane scrollPane = new JScrollPane(createContent());
+        scrollPane.setBorder(null);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        add(scrollPane, BorderLayout.CENTER);
 
         // Initial data load
         refreshData();
@@ -139,8 +144,7 @@ public class ProfilePanel extends JPanel {
     }
 
     private String getInitials(String name) {
-        if (name == null || name.isEmpty())
-            return "??";
+        if (name == null || name.isEmpty()) return "??";
         String[] parts = name.trim().split("\\s+");
         if (parts.length == 1) {
             return parts[0].substring(0, Math.min(2, parts[0].length())).toUpperCase();
@@ -173,7 +177,6 @@ public class ProfilePanel extends JPanel {
                     btn.setOpaque(true);
                 }
             }
-
             public void mouseExited(MouseEvent e) {
                 if (!active) {
                     btn.setContentAreaFilled(false);
@@ -189,6 +192,9 @@ public class ProfilePanel extends JPanel {
         JPanel content = new JPanel();
         content.setLayout(null);
         content.setBackground(new Color(250, 250, 250));
+        
+        // Ensure preferred size is large enough to trigger scrolling
+        content.setPreferredSize(new Dimension(1100, 950));
 
         // Header
         JLabel header = new JLabel("Profile");
@@ -211,7 +217,10 @@ public class ProfilePanel extends JPanel {
         editBtn.setFocusPainted(false);
         editBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         editBtn.setToolTipText("Edit Profile");
-        editBtn.addActionListener(e -> JOptionPane.showMessageDialog(this, "Edit profile feature coming soon!"));
+        editBtn.addActionListener(e -> {
+             new PersonalInfoDialog((JFrame) SwingUtilities.getWindowAncestor(this)).setVisible(true);
+             refreshData();
+        });
         content.add(editBtn);
 
         // Profile card
@@ -239,7 +248,6 @@ public class ProfilePanel extends JPanel {
         card.setLayout(null);
         card.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
 
-        // Large avatar
         String initials = getInitials(currentUser.getUserName());
         avatarLabel = new JLabel(initials);
         avatarLabel.setBounds(30, 20, 60, 60);
@@ -250,7 +258,6 @@ public class ProfilePanel extends JPanel {
         avatarLabel.setFont(new Font("Arial", Font.BOLD, 24));
         card.add(avatarLabel);
 
-        // User info
         mainNameLabel = new JLabel(currentUser.getUserName());
         mainNameLabel.setBounds(110, 25, 300, 25);
         mainNameLabel.setFont(new Font("Arial", Font.BOLD, 20));
@@ -270,19 +277,16 @@ public class ProfilePanel extends JPanel {
         int cardWidth = 340;
         int spacing = 25;
 
-        // Purchases card
         JPanel purchasesCard = createStatCard("156", "Purchases", cardWidth);
         purchasesCard.setBounds(30, cardY, cardWidth, 80);
         purchaseCountLabel = (JLabel) purchasesCard.getComponent(0);
         parent.add(purchasesCard);
 
-        // Saved card
         JPanel savedCard = createStatCard("$2.4k", "Saved", cardWidth);
         savedCard.setBounds(30 + cardWidth + spacing, cardY, cardWidth, 80);
         savedAmountLabel = (JLabel) savedCard.getComponent(0);
         parent.add(savedCard);
 
-        // Deals Found card
         JPanel dealsCard = createStatCard("12", "Deals Found", cardWidth);
         dealsCard.setBounds(30 + 2 * (cardWidth + spacing), cardY, cardWidth, 80);
         dealsFoundLabel = (JLabel) dealsCard.getComponent(0);
@@ -325,12 +329,16 @@ public class ProfilePanel extends JPanel {
         addFriendBtn.setBorder(BorderFactory.createLineBorder(UIConstants.PRIMARY_GREEN));
         addFriendBtn.setFocusPainted(false);
         addFriendBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        addFriendBtn.addActionListener(e -> JOptionPane.showMessageDialog(this, "Add friend feature coming soon!"));
+        
+        // Link to AddFriendDialog
+        addFriendBtn.addActionListener(e -> {
+            new AddFriendDialog((Frame) SwingUtilities.getWindowAncestor(this)).setVisible(true);
+            refreshData(); 
+        });
+        
         sectionHeader.add(addFriendBtn, BorderLayout.EAST);
-
         parent.add(sectionHeader);
 
-        // Friends container
         friendsContainer = new JPanel();
         friendsContainer.setBounds(30, 410, 1070, 120);
         friendsContainer.setBackground(Color.WHITE);
@@ -360,7 +368,6 @@ public class ProfilePanel extends JPanel {
 
         parent.add(sectionHeader);
 
-        // Saved products container (3 columns grid)
         savedProductsContainer = new JPanel();
         savedProductsContainer.setBounds(30, 600, 1070, 150);
         savedProductsContainer.setBackground(new Color(250, 250, 250));
@@ -369,7 +376,6 @@ public class ProfilePanel extends JPanel {
     }
 
     private void createActionButtons(JPanel parent) {
-        // Purchase History
         JPanel purchaseBtn = createActionButton("📦", "Purchase History", "View your order history");
         purchaseBtn.setBounds(30, 770, 1070, 60);
         purchaseBtn.addMouseListener(new MouseAdapter() {
@@ -379,7 +385,6 @@ public class ProfilePanel extends JPanel {
         });
         parent.add(purchaseBtn);
 
-        // Wishlist
         JPanel wishlistBtn = createActionButton("❤️", "Wishlist", "View saved items");
         wishlistBtn.setBounds(30, 770 + 70, 1070, 60);
         wishlistBtn.addMouseListener(new MouseAdapter() {
@@ -388,8 +393,6 @@ public class ProfilePanel extends JPanel {
             }
         });
         parent.add(wishlistBtn);
-
-        // Addresses (removed, moved above if needed)
     }
 
     private JPanel createActionButton(String emoji, String title, String subtitle) {
@@ -428,13 +431,11 @@ public class ProfilePanel extends JPanel {
         arrowLabel.setForeground(new Color(180, 180, 180));
         btn.add(arrowLabel, BorderLayout.EAST);
 
-        // Hover effect
         btn.addMouseListener(new MouseAdapter() {
             public void mouseEntered(MouseEvent e) {
                 btn.setBackground(new Color(248, 248, 248));
                 textPanel.setBackground(new Color(248, 248, 248));
             }
-
             public void mouseExited(MouseEvent e) {
                 btn.setBackground(Color.WHITE);
                 textPanel.setBackground(Color.WHITE);
@@ -486,7 +487,7 @@ public class ProfilePanel extends JPanel {
         nameLabel.setFont(new Font("Arial", Font.BOLD, 12));
         nameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel statusLabel = new JLabel("Friend since 2024");
+        JLabel statusLabel = new JLabel("Friend");
         statusLabel.setFont(new Font("Arial", Font.PLAIN, 10));
         statusLabel.setForeground(new Color(120, 120, 120));
         statusLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -541,7 +542,6 @@ public class ProfilePanel extends JPanel {
         card.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
         card.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        // Image placeholder
         JPanel imagePlaceholder = new JPanel(new BorderLayout());
         imagePlaceholder.setBounds(10, 10, 320, 90);
         imagePlaceholder.setBackground(new Color(245, 245, 245));
@@ -552,13 +552,11 @@ public class ProfilePanel extends JPanel {
         imagePlaceholder.add(imageLabel, BorderLayout.CENTER);
         card.add(imagePlaceholder);
 
-        // Product name
         JLabel nameLabel = new JLabel(truncateText(product.getName(), 25));
         nameLabel.setBounds(10, 110, 320, 20);
         nameLabel.setFont(new Font("Arial", Font.BOLD, 12));
         card.add(nameLabel);
 
-        // Price
         JLabel priceLabel = new JLabel(String.format("$%.2f", product.getPriceAfterDiscount()));
         priceLabel.setBounds(10, 132, 150, 18);
         priceLabel.setFont(new Font("Arial", Font.BOLD, 14));
@@ -569,10 +567,8 @@ public class ProfilePanel extends JPanel {
     }
 
     private String truncateText(String text, int maxLength) {
-        if (text == null)
-            return "";
-        if (text.length() <= maxLength)
-            return text;
+        if (text == null) return "";
+        if (text.length() <= maxLength) return text;
         return text.substring(0, maxLength) + "...";
     }
 
@@ -591,50 +587,38 @@ public class ProfilePanel extends JPanel {
                 "Saved Products", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    /**
-     * Refresh all profile data from backend
-     */
     public void refreshData() {
         try {
             currentUser = UserSession.getCurrentUser();
             int userId = currentUser.getId();
 
-            // Update Sidebar Profile
             if (sidebarNameLabel != null) {
                 sidebarNameLabel.setText(currentUser.getUserName());
                 sidebarEmailLabel.setText(currentUser.geteMail());
                 sidebarAvatarLabel.setText(getInitials(currentUser.getUserName()));
             }
 
-            // Update Main Content Profile
             if (mainNameLabel != null) {
                 mainNameLabel.setText(currentUser.getUserName());
                 mainEmailLabel.setText(currentUser.geteMail());
                 avatarLabel.setText(getInitials(currentUser.getUserName()));
             }
 
-            // Load friends
-            friends = profileService.getFriends();
-            if (friends == null)
-                friends = new ArrayList<>();
+            // USE CHAT SERVICE FOR FRIENDS TO ENSURE CONSISTENCY
+            friends = ChatService.getFriends(userId);
+            if (friends == null) friends = new ArrayList<>();
             updateFriendsList();
 
-            // Load saved products
             savedProducts = productServiceInstance.getAllProducts();
-            if (savedProducts == null)
-                savedProducts = new ArrayList<>();
+            if (savedProducts == null) savedProducts = new ArrayList<>();
             updateSavedProducts();
 
-            // Load purchases
             purchases = profileService.getOrders("" + userId);
-            if (purchases == null)
-                purchases = new ArrayList<>();
+            if (purchases == null) purchases = new ArrayList<>();
 
-            // Update stats
             purchaseCountLabel.setText(String.valueOf(purchases.size()));
             dealsFoundLabel.setText(String.valueOf(savedProducts.size()));
 
-            // Calculate saved amount (mock for now)
             double totalSaved = 0;
             for (Product product : savedProducts) {
                 totalSaved += (product.getPrice() - product.getPriceAfterDiscount());
@@ -643,21 +627,15 @@ public class ProfilePanel extends JPanel {
 
         } catch (Exception e) {
             e.printStackTrace();
-            System.err.println("Error refreshing profile data: " + e.getMessage());
         }
     }
 
-    /**
-     * Clear all data - called on logout
-     */
     public void clearData() {
         friends.clear();
         savedProducts.clear();
         purchases.clear();
-
         updateFriendsList();
         updateSavedProducts();
-
         purchaseCountLabel.setText("0");
         savedAmountLabel.setText("$0");
         dealsFoundLabel.setText("0");

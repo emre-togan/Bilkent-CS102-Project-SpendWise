@@ -24,6 +24,11 @@ public class ExpensesPanel extends JPanel {
     private JTextField searchField;
     private JButton addExpenseBtn;
     
+    // Sidebar Live References
+    private JLabel sidebarNameLabel;
+    private JLabel sidebarEmailLabel;
+    private JLabel sidebarAvatarLabel;
+    
     private expenseService expenseServiceInstance;
     private BudgetService budgetService;
     private List<Expense> currentExpenses;
@@ -65,13 +70,13 @@ public class ExpensesPanel extends JPanel {
         sideMenu.add(appName);
 
         int startY = 120;
-        addMenuItem(sideMenu, "🏠", "Dashboard", startY, false);
-        addMenuItem(sideMenu, "💳", "Budget", startY + 60, false);
-        addMenuItem(sideMenu, "🧾", "Expenses", startY + 120, true);
-        addMenuItem(sideMenu, "🛍️", "Shop", startY + 180, false);
-        addMenuItem(sideMenu, "💬", "Chat", startY + 240, false);
-        addMenuItem(sideMenu, "👤", "Profile", startY + 300, false);
-        addMenuItem(sideMenu, "⚙️", "Settings", startY + 360, false);
+        addMenuItem(sideMenu, "🏠", "Dashboard", "DASHBOARD", startY, false);
+        addMenuItem(sideMenu, "💳", "Budget", "BUDGET", startY + 60, false);
+        addMenuItem(sideMenu, "🧾", "Expenses", "EXPENSES", startY + 120, true);
+        addMenuItem(sideMenu, "🛍️", "Shop", "SHOP", startY + 180, false);
+        addMenuItem(sideMenu, "💬", "Chat", "CHAT", startY + 240, false);
+        addMenuItem(sideMenu, "👤", "Profile", "PROFILE", startY + 300, false);
+        addMenuItem(sideMenu, "⚙️", "Settings", "SETTINGS", startY + 360, false);
 
         // Profile card
         JPanel profileCard = createProfileCard();
@@ -98,30 +103,42 @@ public class ExpensesPanel extends JPanel {
         profileCard.setLayout(null);
         profileCard.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
 
-        currentUser = UserSession.getCurrentUser();
+        User u = UserSession.getCurrentUser();
+        String name = (u != null) ? u.getUserName() : "Guest";
+        String email = (u != null) ? u.geteMail() : "";
 
-        String initials = getInitials(currentUser.getUserName());
-        JLabel avatar = new JLabel(initials);
-        avatar.setBounds(15, 15, 40, 40);
-        avatar.setHorizontalAlignment(SwingConstants.CENTER);
-        avatar.setOpaque(true);
-        avatar.setBackground(UIConstants.PRIMARY_GREEN);
-        avatar.setForeground(Color.WHITE);
-        avatar.setFont(new Font("Arial", Font.BOLD, 16));
-        profileCard.add(avatar);
+        // Initialize and keep references to update later
+        sidebarAvatarLabel = new JLabel(getInitials(name));
+        sidebarAvatarLabel.setBounds(15, 15, 40, 40);
+        sidebarAvatarLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        sidebarAvatarLabel.setOpaque(true);
+        sidebarAvatarLabel.setBackground(UIConstants.PRIMARY_GREEN);
+        sidebarAvatarLabel.setForeground(Color.WHITE);
+        sidebarAvatarLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        profileCard.add(sidebarAvatarLabel);
 
-        JLabel userName = new JLabel(currentUser.getUserName());
-        userName.setBounds(65, 18, 150, 18);
-        userName.setFont(new Font("Arial", Font.BOLD, 13));
-        profileCard.add(userName);
+        sidebarNameLabel = new JLabel(name);
+        sidebarNameLabel.setBounds(65, 18, 150, 18);
+        sidebarNameLabel.setFont(new Font("Arial", Font.BOLD, 13));
+        profileCard.add(sidebarNameLabel);
 
-        JLabel userEmail = new JLabel(currentUser.geteMail());
-        userEmail.setBounds(65, 37, 150, 15);
-        userEmail.setFont(new Font("Arial", Font.PLAIN, 11));
-        userEmail.setForeground(new Color(120, 120, 120));
-        profileCard.add(userEmail);
+        sidebarEmailLabel = new JLabel(email);
+        sidebarEmailLabel.setBounds(65, 37, 150, 15);
+        sidebarEmailLabel.setFont(new Font("Arial", Font.PLAIN, 11));
+        sidebarEmailLabel.setForeground(new Color(120, 120, 120));
+        profileCard.add(sidebarEmailLabel);
 
         return profileCard;
+    }
+
+    // New Method: Updates the sidebar with the latest logged-in user info
+    private void updateSidebarUser() {
+        User u = UserSession.getCurrentUser();
+        if (u != null) {
+            if (sidebarNameLabel != null) sidebarNameLabel.setText(u.getUserName());
+            if (sidebarEmailLabel != null) sidebarEmailLabel.setText(u.geteMail());
+            if (sidebarAvatarLabel != null) sidebarAvatarLabel.setText(getInitials(u.getUserName()));
+        }
     }
 
     private String getInitials(String name) {
@@ -133,7 +150,7 @@ public class ExpensesPanel extends JPanel {
         return (parts[0].charAt(0) + "" + parts[parts.length - 1].charAt(0)).toUpperCase();
     }
 
-    private void addMenuItem(JPanel parent, String emoji, String text, int y, boolean active) {
+    private void addMenuItem(JPanel parent, String emoji, String text, String panelKey, int y, boolean active) {
         JButton btn = new JButton(emoji + "  " + text);
         btn.setBounds(10, y, 240, 50);
         btn.setFont(new Font("Arial", Font.PLAIN, 14));
@@ -158,7 +175,6 @@ public class ExpensesPanel extends JPanel {
                     btn.setOpaque(true);
                 }
             }
-
             public void mouseExited(MouseEvent e) {
                 if (!active) {
                     btn.setContentAreaFilled(false);
@@ -166,7 +182,7 @@ public class ExpensesPanel extends JPanel {
             }
         });
 
-        btn.addActionListener(e -> mainFrame.showPanel(text.toUpperCase()));
+        btn.addActionListener(e -> mainFrame.showPanel(panelKey));
         parent.add(btn);
     }
 
@@ -193,7 +209,6 @@ public class ExpensesPanel extends JPanel {
         searchField.setFont(new Font("Arial", Font.PLAIN, 14));
         searchField.setForeground(Color.GRAY);
         
-        // Add focus listener for placeholder
         searchField.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent e) {
                 if (searchField.getText().equals("Search transactions...")) {
@@ -218,7 +233,7 @@ public class ExpensesPanel extends JPanel {
         categoryFilter.addActionListener(e -> filterExpenses());
         content.add(categoryFilter);
 
-        // Add Expense Button (Floating Action Button style)
+        // Add Expense Button
         addExpenseBtn = new JButton("➕ Add Expense");
         addExpenseBtn.setBounds(970, 120, 130, 40);
         addExpenseBtn.setFont(new Font("Arial", Font.BOLD, 14));
@@ -251,13 +266,11 @@ public class ExpensesPanel extends JPanel {
         dialog.getContentPane().setBackground(Color.WHITE);
         dialog.setLayout(new BorderLayout());
 
-        // Main Panel
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         mainPanel.setBackground(Color.WHITE);
         mainPanel.setBorder(new EmptyBorder(30, 40, 30, 40));
 
-        // Amount
         JLabel amountLabel = new JLabel("Amount");
         amountLabel.setFont(new Font("Arial", Font.BOLD, 13));
         amountLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -274,7 +287,6 @@ public class ExpensesPanel extends JPanel {
         mainPanel.add(amountField);
         mainPanel.add(Box.createVerticalStrut(20));
 
-        // Category
         JLabel categoryLabel = new JLabel("Category");
         categoryLabel.setFont(new Font("Arial", Font.BOLD, 13));
         categoryLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -288,7 +300,6 @@ public class ExpensesPanel extends JPanel {
         mainPanel.add(categoryBox);
         mainPanel.add(Box.createVerticalStrut(20));
 
-        // Description
         JLabel descLabel = new JLabel("Description");
         descLabel.setFont(new Font("Arial", Font.BOLD, 13));
         descLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -305,7 +316,6 @@ public class ExpensesPanel extends JPanel {
         mainPanel.add(descField);
         mainPanel.add(Box.createVerticalStrut(30));
 
-        // Add Expense Button
         JButton addBtn = new JButton("Add Expense");
         addBtn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 45));
         addBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -318,7 +328,6 @@ public class ExpensesPanel extends JPanel {
         
         addBtn.addActionListener(e -> {
             try {
-                // Validation
                 if (amountField.getText().trim().isEmpty()) {
                     JOptionPane.showMessageDialog(dialog, "Please enter an amount!", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
@@ -342,27 +351,23 @@ public class ExpensesPanel extends JPanel {
                     description = category + " expense";
                 }
 
-                // Create new expense
                 int userId = UserSession.getCurrentUserId();
                 Expense newExpense = new Expense(
                     userId,
-                    0, // expenseId will be set by database
+                    0, 
                     category,
                     description,
                     amount,
                     new java.sql.Date(System.currentTimeMillis())
                 );
                 
-                // Save to database
                 boolean success = expenseServiceInstance.addExpense(newExpense);
                 
                 if (success) {
-                    // Update budget if exists
                     if (currentBudget != null) {
                         currentBudget.addExpense(newExpense);
                         budgetService.updateBudgetList(currentBudget);
                     }
-
                     JOptionPane.showMessageDialog(dialog, "Expense added successfully!");
                     dialog.dispose();
                     refreshData();
@@ -374,12 +379,10 @@ public class ExpensesPanel extends JPanel {
                 JOptionPane.showMessageDialog(dialog, "Please enter a valid amount!", "Error", JOptionPane.ERROR_MESSAGE);
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(dialog, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                ex.printStackTrace();
             }
         });
 
         mainPanel.add(addBtn);
-
         dialog.add(mainPanel, BorderLayout.CENTER);
         dialog.setVisible(true);
     }
@@ -391,10 +394,8 @@ public class ExpensesPanel extends JPanel {
 
     private void displayExpenses(String categoryFilter) {
         transactionsContainer.removeAll();
-
         List<Expense> expensesToShow = currentExpenses;
         
-        // Filter by category if not "All Categories"
         if (categoryFilter != null && !categoryFilter.equals("All Categories")) {
             expensesToShow = new ArrayList<>();
             for (Expense exp : currentExpenses) {
@@ -404,7 +405,6 @@ public class ExpensesPanel extends JPanel {
             }
         }
 
-        // Group by date
         String currentDateHeader = null;
         
         if (expensesToShow.isEmpty()) {
@@ -416,49 +416,35 @@ public class ExpensesPanel extends JPanel {
             transactionsContainer.add(emptyLabel);
         } else {
             for (Expense expense : expensesToShow) {
-                // Add date header if changed
                 String expenseDate = formatDate(expense.getDate());
                 if (!expenseDate.equals(currentDateHeader)) {
                     if (currentDateHeader != null) {
                         transactionsContainer.add(Box.createVerticalStrut(15));
                     }
-                    
                     JLabel dateHeader = new JLabel(expenseDate);
                     dateHeader.setFont(new Font("Arial", Font.BOLD, 13));
                     dateHeader.setForeground(new Color(100, 100, 100));
                     dateHeader.setAlignmentX(Component.LEFT_ALIGNMENT);
                     transactionsContainer.add(dateHeader);
                     transactionsContainer.add(Box.createVerticalStrut(8));
-                    
                     currentDateHeader = expenseDate;
                 }
-
                 transactionsContainer.add(createExpenseItem(expense));
                 transactionsContainer.add(Box.createVerticalStrut(10));
             }
         }
-
         transactionsContainer.revalidate();
         transactionsContainer.repaint();
     }
 
     private String formatDate(java.sql.Date date) {
         if (date == null) return "Unknown Date";
-        
         LocalDate expenseDate = date.toLocalDate();
         LocalDate today = LocalDate.now();
         LocalDate yesterday = today.minusDays(1);
-
-        if (expenseDate.equals(today)) {
-            return "Today";
-        } else if (expenseDate.equals(yesterday)) {
-            return "Yesterday";
-        } else {
-            // Format: "Nov 8, 2025"
-            return expenseDate.getMonth().toString().substring(0, 3) + " " + 
-                   expenseDate.getDayOfMonth() + ", " + 
-                   expenseDate.getYear();
-        }
+        if (expenseDate.equals(today)) return "Today";
+        else if (expenseDate.equals(yesterday)) return "Yesterday";
+        else return expenseDate.getMonth().toString().substring(0, 3) + " " + expenseDate.getDayOfMonth() + ", " + expenseDate.getYear();
     }
 
     private JPanel createExpenseItem(Expense expense) {
@@ -471,10 +457,8 @@ public class ExpensesPanel extends JPanel {
             new EmptyBorder(15, 15, 15, 15)
         ));
 
-        // Left: Icon + Info
         JPanel leftPanel = new JPanel(new BorderLayout(10, 0));
         leftPanel.setOpaque(false);
-
         String emoji = getCategoryEmoji(expense.getCategory());
         JLabel icon = new JLabel(emoji);
         icon.setFont(new Font("Arial", Font.PLAIN, 28));
@@ -482,48 +466,33 @@ public class ExpensesPanel extends JPanel {
 
         JPanel infoPanel = new JPanel(new GridLayout(2, 1));
         infoPanel.setOpaque(false);
-        
         JLabel descLabel = new JLabel(expense.getDescription());
         descLabel.setFont(new Font("Arial", Font.BOLD, 14));
-        
-        // Format time
-        String timeStr = expense.getDate() != null ? 
-            formatTime(expense.getDate()) : "Unknown time";
+        String timeStr = expense.getDate() != null ? formatTime(expense.getDate()) : "Unknown time";
         JLabel categoryLabel = new JLabel(expense.getCategory() + " • " + timeStr);
         categoryLabel.setFont(new Font("Arial", Font.PLAIN, 12));
         categoryLabel.setForeground(new Color(120, 120, 120));
 
         infoPanel.add(descLabel);
         infoPanel.add(categoryLabel);
-
         leftPanel.add(icon, BorderLayout.WEST);
         leftPanel.add(infoPanel, BorderLayout.CENTER);
 
-        // Right: Amount
         JLabel amountLabel = new JLabel(String.format("-$%.2f", expense.getAmount()));
         amountLabel.setFont(new Font("Arial", Font.BOLD, 16));
         amountLabel.setForeground(UIConstants.DANGER_RED);
 
         item.add(leftPanel, BorderLayout.CENTER);
         item.add(amountLabel, BorderLayout.EAST);
-
         return item;
     }
 
     private String formatTime(java.sql.Date date) {
         if (date == null) return "";
-        
         LocalDate expenseDate = date.toLocalDate();
         LocalDate today = LocalDate.now();
-
-        if (expenseDate.equals(today)) {
-            // Show time for today's expenses
-            return "Today";
-        } else {
-            // Show date for older expenses
-            return expenseDate.getMonth().toString().substring(0, 3) + " " + 
-                   expenseDate.getDayOfMonth();
-        }
+        if (expenseDate.equals(today)) return "Today";
+        else return expenseDate.getMonth().toString().substring(0, 3) + " " + expenseDate.getDayOfMonth();
     }
 
     private String getCategoryEmoji(String category) {
@@ -538,67 +507,38 @@ public class ExpensesPanel extends JPanel {
         }
     }
 
-    /**
-     * Refresh data from backend - called by MainFrame
-     */
     public void refreshData() {
-        try {
-            // Get current user ID
-            int userId = UserSession.getCurrentUserId();
-            
-            // Load budget
-            currentBudget = budgetService.getSpesificUserBudget(userId);
-            
-            // Load expenses from backend
-            currentExpenses = expenseServiceInstance.getExpensesOfTheUser(userId);
-            
-            if (currentExpenses == null) {
-                currentExpenses = new ArrayList<>();
-            }
+        // IMPORTANT: Update Sidebar Info whenever panel is refreshed
+        updateSidebarUser();
 
-            // Sort by date (most recent first)
+        try {
+            int userId = UserSession.getCurrentUserId();
+            currentBudget = budgetService.getSpesificUserBudget(userId);
+            currentExpenses = expenseServiceInstance.getExpensesOfTheUser(userId);
+            if (currentExpenses == null) currentExpenses = new ArrayList<>();
+
             currentExpenses.sort((e1, e2) -> {
                 if (e1.getDate() == null) return 1;
                 if (e2.getDate() == null) return -1;
                 return e2.getDate().compareTo(e1.getDate());
             });
             
-            // Display all expenses
             displayExpenses("All Categories");
             
         } catch (Exception e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this, 
-                "Error loading expenses: " + e.getMessage(), 
-                "Error", 
-                JOptionPane.ERROR_MESSAGE);
             currentExpenses = new ArrayList<>();
             displayExpenses("All Categories");
         }
     }
 
-    /**
-     * Clear all data - called on logout
-     */
     public void clearData() {
         currentExpenses.clear();
         transactionsContainer.removeAll();
-        
-        JLabel emptyLabel = new JLabel("Please login to view expenses");
-        emptyLabel.setFont(new Font("Arial", Font.PLAIN, 16));
-        emptyLabel.setForeground(Color.GRAY);
-        emptyLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        
-        transactionsContainer.add(Box.createVerticalStrut(50));
-        transactionsContainer.add(emptyLabel);
-        
         transactionsContainer.revalidate();
         transactionsContainer.repaint();
         
-        // Reset filters
-        if (categoryFilter != null) {
-            categoryFilter.setSelectedIndex(0);
-        }
+        if (categoryFilter != null) categoryFilter.setSelectedIndex(0);
         if (searchField != null) {
             searchField.setText("Search transactions...");
             searchField.setForeground(Color.GRAY);

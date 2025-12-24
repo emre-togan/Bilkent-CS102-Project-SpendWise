@@ -11,7 +11,6 @@ public class MainFrame extends JFrame {
     private LoginPanel loginPanel;
     private SignUpPanel signUpPanel;
     private ForgotPasswordPanel forgotPasswordPanel;
-
     private DashBoardPanel dashboardPanel;
     private BudgetPanel budgetPanel;
     private ExpensesPanel expensesPanel;
@@ -48,7 +47,7 @@ public class MainFrame extends JFrame {
         loginPanel = new LoginPanel();
         loginPanel.setOnForgotPasswordClicked(() -> showPanel("FORGOT_PASSWORD"));
         loginPanel.setOnSignUpClicked(() -> showPanel("SIGNUP"));
-        loginPanel.setOnLoginSuccess(() -> showDashboard());
+        loginPanel.setOnLoginSuccess(this::showDashboard);
 
         signUpPanel = new SignUpPanel();
         signUpPanel.setOnSignInClicked(() -> showPanel("LOGIN"));
@@ -64,21 +63,23 @@ public class MainFrame extends JFrame {
         profilePanel = new ProfilePanel(this);
         settingsPanel = new SettingsPanel(this);
 
-        settingsPanel.setOnLogoutClicked(() -> logout());
+        settingsPanel.setOnLogoutClicked(this::logout);
 
         mainPanel.add(loginPanel, "LOGIN");
         mainPanel.add(signUpPanel, "SIGNUP");
         mainPanel.add(forgotPasswordPanel, "FORGOT_PASSWORD");
+        
         mainPanel.add(dashboardPanel, "DASHBOARD");
         mainPanel.add(budgetPanel, "BUDGET");
         mainPanel.add(expensesPanel, "EXPENSES");
         mainPanel.add(shopPanel, "SHOP");
         mainPanel.add(chatPanel, "CHAT");
-        mainPanel.add(profilePanel, "PROFILE");
-        mainPanel.add(settingsPanel, "SETTINGS");
+        mainPanel.add(profilePanel, "PROFILE"); 
+        mainPanel.add(settingsPanel, "SETTINGS"); 
     }
 
     public void showPanel(String panelName) {
+
         cardLayout.show(mainPanel, panelName);
 
         switch (panelName) {
@@ -94,16 +95,19 @@ public class MainFrame extends JFrame {
             case "SHOP":
                 shopPanel.refreshData();
                 break;
+            case "CHAT":
+                chatPanel.refreshData();
+                break;
+            case "PROFILE":
+                profilePanel.refreshData(); 
+                break;
+            case "SETTINGS":
+                settingsPanel.refreshData(); 
+                break;
         }
     }
 
     public void showDashboard() {
-        // TODO: Set current user for all panels
-        // dashboardPanel.setCurrentUser(user);
-        // budgetPanel.setCurrentUser(user);
-        // expensesPanel.setCurrentUser(user);
-        // shopPanel.setCurrentUser(user);
-
         showPanel("DASHBOARD");
     }
 
@@ -116,20 +120,17 @@ public class MainFrame extends JFrame {
                 JOptionPane.QUESTION_MESSAGE);
 
         if (choice == JOptionPane.YES_OPTION) {
+
             dashboardPanel.clearData();
             budgetPanel.clearData();
             expensesPanel.clearData();
             shopPanel.clearData();
+            chatPanel.clearData();
+            profilePanel.clearData();
+
+            UserSession.setCurrentUserId(0); 
 
             showPanel("LOGIN");
         }
-    }
-
-    public static void main(String[] args) {
-        // Use Event Dispatch Thread for thread safety
-        SwingUtilities.invokeLater(() -> {
-            MainFrame frame = new MainFrame();
-            frame.setVisible(true);
-        });
     }
 }

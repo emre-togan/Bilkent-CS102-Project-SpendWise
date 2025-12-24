@@ -7,6 +7,7 @@ import com.spendwise.controllers.ChatController;
 import com.spendwise.models.Message;
 import com.spendwise.models.Product;
 import com.spendwise.models.User;
+import com.spendwise.services.ChatService;
 import com.spendwise.services.productService;
 
 import java.awt.*;
@@ -29,11 +30,16 @@ public class ChatPanel extends JPanel {
     private JButton sendButton;
     private JButton recommendProductButton;
 
+    // Sidebar Live References
+    private JLabel sidebarNameLabel;
+    private JLabel sidebarEmailLabel;
+    private JLabel sidebarAvatarLabel;
+
     private ChatController chatController;
     private productService productServiceInstance;
     
     private String currentFriendName = "";
-    private List<User> friends;
+    private List<User> allFriends; // Store full list for filtering
     private List<Message> currentMessages;
 
     public ChatPanel(MainFrame mainFrame) {
@@ -41,7 +47,7 @@ public class ChatPanel extends JPanel {
         this.currentUser = UserSession.getCurrentUser();
         this.chatController = new ChatController();
         this.productServiceInstance = new productService();
-        this.friends = new ArrayList<>();
+        this.allFriends = new ArrayList<>();
         this.currentMessages = new ArrayList<>();
 
         setLayout(new BorderLayout());
@@ -79,13 +85,13 @@ public class ChatPanel extends JPanel {
         sideMenu.add(appName);
 
         int startY = 120;
-        addMenuItem(sideMenu, "🏠", "Dashboard", startY, false);
-        addMenuItem(sideMenu, "💳", "Budget", startY + 60, false);
-        addMenuItem(sideMenu, "🧾", "Expenses", startY + 120, false);
-        addMenuItem(sideMenu, "🛍️", "Shop", startY + 180, false);
-        addMenuItem(sideMenu, "💬", "Chat", startY + 240, true);
-        addMenuItem(sideMenu, "👤", "Profile", startY + 300, false);
-        addMenuItem(sideMenu, "⚙️", "Settings", startY + 360, false);
+        addMenuItem(sideMenu, "🏠", "Dashboard", "DASHBOARD", startY, false);
+        addMenuItem(sideMenu, "💳", "Budget", "BUDGET", startY + 60, false);
+        addMenuItem(sideMenu, "🧾", "Expenses", "EXPENSES", startY + 120, false);
+        addMenuItem(sideMenu, "🛍️", "Shop", "SHOP", startY + 180, false);
+        addMenuItem(sideMenu, "💬", "Chat", "CHAT", startY + 240, true);
+        addMenuItem(sideMenu, "👤", "Profile", "PROFILE", startY + 300, false);
+        addMenuItem(sideMenu, "⚙️", "Settings", "SETTINGS", startY + 360, false);
 
         // Profile card
         JPanel profileCard = createProfileCard();
@@ -112,28 +118,40 @@ public class ChatPanel extends JPanel {
         profileCard.setLayout(null);
         profileCard.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
 
-        String initials = getInitials(currentUser.getUserName());
-        JLabel avatar = new JLabel(initials);
-        avatar.setBounds(15, 15, 40, 40);
-        avatar.setHorizontalAlignment(SwingConstants.CENTER);
-        avatar.setOpaque(true);
-        avatar.setBackground(UIConstants.PRIMARY_GREEN);
-        avatar.setForeground(Color.WHITE);
-        avatar.setFont(new Font("Arial", Font.BOLD, 16));
-        profileCard.add(avatar);
+        User u = UserSession.getCurrentUser();
+        String name = (u != null) ? u.getUserName() : "Guest";
+        String email = (u != null) ? u.geteMail() : "";
 
-        JLabel userName = new JLabel(currentUser.getUserName());
-        userName.setBounds(65, 18, 150, 18);
-        userName.setFont(new Font("Arial", Font.BOLD, 13));
-        profileCard.add(userName);
+        sidebarAvatarLabel = new JLabel(getInitials(name));
+        sidebarAvatarLabel.setBounds(15, 15, 40, 40);
+        sidebarAvatarLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        sidebarAvatarLabel.setOpaque(true);
+        sidebarAvatarLabel.setBackground(UIConstants.PRIMARY_GREEN);
+        sidebarAvatarLabel.setForeground(Color.WHITE);
+        sidebarAvatarLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        profileCard.add(sidebarAvatarLabel);
 
-        JLabel userEmail = new JLabel(currentUser.geteMail());
-        userEmail.setBounds(65, 37, 150, 15);
-        userEmail.setFont(new Font("Arial", Font.PLAIN, 11));
-        userEmail.setForeground(new Color(120, 120, 120));
-        profileCard.add(userEmail);
+        sidebarNameLabel = new JLabel(name);
+        sidebarNameLabel.setBounds(65, 18, 150, 18);
+        sidebarNameLabel.setFont(new Font("Arial", Font.BOLD, 13));
+        profileCard.add(sidebarNameLabel);
+
+        sidebarEmailLabel = new JLabel(email);
+        sidebarEmailLabel.setBounds(65, 37, 150, 15);
+        sidebarEmailLabel.setFont(new Font("Arial", Font.PLAIN, 11));
+        sidebarEmailLabel.setForeground(new Color(120, 120, 120));
+        profileCard.add(sidebarEmailLabel);
 
         return profileCard;
+    }
+
+    private void updateSidebarUser() {
+        User u = UserSession.getCurrentUser();
+        if (u != null) {
+            if (sidebarNameLabel != null) sidebarNameLabel.setText(u.getUserName());
+            if (sidebarEmailLabel != null) sidebarEmailLabel.setText(u.geteMail());
+            if (sidebarAvatarLabel != null) sidebarAvatarLabel.setText(getInitials(u.getUserName()));
+        }
     }
 
     private String getInitials(String name) {
@@ -145,7 +163,7 @@ public class ChatPanel extends JPanel {
         return (parts[0].charAt(0) + "" + parts[parts.length - 1].charAt(0)).toUpperCase();
     }
 
-    private void addMenuItem(JPanel parent, String emoji, String text, int y, boolean active) {
+    private void addMenuItem(JPanel parent, String emoji, String text, String panelKey, int y, boolean active) {
         JButton btn = new JButton(emoji + "  " + text);
         btn.setBounds(10, y, 240, 50);
         btn.setFont(new Font("Arial", Font.PLAIN, 14));
@@ -170,7 +188,6 @@ public class ChatPanel extends JPanel {
                     btn.setOpaque(true);
                 }
             }
-
             public void mouseExited(MouseEvent e) {
                 if (!active) {
                     btn.setContentAreaFilled(false);
@@ -178,7 +195,7 @@ public class ChatPanel extends JPanel {
             }
         });
 
-        btn.addActionListener(e -> mainFrame.showPanel(text.toUpperCase()));
+        btn.addActionListener(e -> mainFrame.showPanel(panelKey));
         parent.add(btn);
     }
 
@@ -187,7 +204,6 @@ public class ChatPanel extends JPanel {
         leftPanel.setBackground(Color.WHITE);
         leftPanel.setPreferredSize(new Dimension(300, 800));
 
-        // Header
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setBackground(Color.WHITE);
         headerPanel.setBorder(new EmptyBorder(20, 20, 15, 20));
@@ -195,10 +211,8 @@ public class ChatPanel extends JPanel {
         JLabel title = new JLabel("Chat with Friends");
         title.setFont(new Font("Arial", Font.BOLD, 20));
         headerPanel.add(title, BorderLayout.WEST);
-
         leftPanel.add(headerPanel, BorderLayout.NORTH);
 
-        // Search bar
         JPanel searchPanel = new JPanel(new BorderLayout());
         searchPanel.setBackground(Color.WHITE);
         searchPanel.setBorder(new EmptyBorder(0, 20, 15, 20));
@@ -211,6 +225,7 @@ public class ChatPanel extends JPanel {
             new EmptyBorder(8, 12, 8, 12)
         ));
 
+        // IMPLEMENTED SEARCH LOGIC
         searchField.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent e) {
                 if (searchField.getText().equals("Search friends...")) {
@@ -225,11 +240,18 @@ public class ChatPanel extends JPanel {
                 }
             }
         });
+        
+        searchField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                String query = searchField.getText().trim();
+                if(query.equals("Search friends...")) query = "";
+                filterFriendsList(query);
+            }
+        });
 
         searchPanel.add(searchField, BorderLayout.CENTER);
         leftPanel.add(searchPanel, BorderLayout.NORTH);
 
-        // Friends list
         friendListPanel = new JPanel();
         friendListPanel.setLayout(new BoxLayout(friendListPanel, BoxLayout.Y_AXIS));
         friendListPanel.setBackground(Color.WHITE);
@@ -246,7 +268,6 @@ public class ChatPanel extends JPanel {
         JPanel rightPanel = new JPanel(new BorderLayout());
         rightPanel.setBackground(Color.WHITE);
 
-        // Chat header
         JPanel chatHeader = new JPanel(new BorderLayout());
         chatHeader.setBackground(Color.WHITE);
         chatHeader.setBorder(BorderFactory.createCompoundBorder(
@@ -274,13 +295,11 @@ public class ChatPanel extends JPanel {
         chatHeader.add(userInfoPanel, BorderLayout.WEST);
         rightPanel.add(chatHeader, BorderLayout.NORTH);
 
-        // Messages area
         messagesPanel = new JPanel();
         messagesPanel.setLayout(new BoxLayout(messagesPanel, BoxLayout.Y_AXIS));
         messagesPanel.setBackground(new Color(245, 245, 245));
         messagesPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
 
-        // Show initial empty state
         showEmptyState();
 
         messagesScrollPane = new JScrollPane(messagesPanel);
@@ -288,12 +307,10 @@ public class ChatPanel extends JPanel {
         messagesScrollPane.getVerticalScrollBar().setUnitIncrement(16);
         rightPanel.add(messagesScrollPane, BorderLayout.CENTER);
 
-        // Message input
         JPanel inputPanel = new JPanel(new BorderLayout(10, 0));
         inputPanel.setBackground(Color.WHITE);
         inputPanel.setBorder(new EmptyBorder(15, 20, 15, 20));
 
-        // Recommend Product Button
         recommendProductButton = new JButton("🛍");
         recommendProductButton.setFont(new Font("Arial", Font.PLAIN, 20));
         recommendProductButton.setPreferredSize(new Dimension(45, 45));
@@ -334,31 +351,63 @@ public class ChatPanel extends JPanel {
         return rightPanel;
     }
 
-    private void loadFriends() {
-        friendListPanel.removeAll();
+    public void refreshData() {
+        updateSidebarUser();
+        loadFriends();
+        if (!currentFriendName.isEmpty()) {
+            loadMessages();
+        }
+    }
 
+    public void clearData() {
+        currentFriendName = "";
+        allFriends.clear();
+        currentMessages.clear();
+        friendListPanel.removeAll();
+        showEmptyState();
+        messageField.setEnabled(false);
+        sendButton.setEnabled(false);
+        recommendProductButton.setEnabled(false);
+    }
+    
+    private void loadFriends() {
         try {
             int currentUserId = UserSession.getCurrentUserId();
-            friends = chatController.getFriends(currentUserId);
-
-            if (friends == null || friends.isEmpty()) {
-                JLabel emptyLabel = new JLabel("No friends yet");
-                emptyLabel.setFont(new Font("Arial", Font.PLAIN, 14));
-                emptyLabel.setForeground(Color.GRAY);
-                emptyLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-                emptyLabel.setBorder(new EmptyBorder(50, 0, 0, 0));
-                friendListPanel.add(emptyLabel);
-            } else {
-                for (User friend : friends) {
-                    friendListPanel.add(createFriendItem(friend));
-                }
-            }
-
+            // Fetch once and store in allFriends
+            allFriends = ChatService.getFriends(currentUserId);
+            if(allFriends == null) allFriends = new ArrayList<>();
+            
+            // Show all initially
+            filterFriendsList("");
+            
         } catch (Exception e) {
             e.printStackTrace();
-            System.err.println("Error loading friends: " + e.getMessage());
         }
-
+    }
+    
+    // NEW FILTER METHOD
+    private void filterFriendsList(String query) {
+        friendListPanel.removeAll();
+        String q = query.toLowerCase();
+        
+        boolean foundAny = false;
+        
+        for (User friend : allFriends) {
+            if (friend.getUserName().toLowerCase().contains(q)) {
+                friendListPanel.add(createFriendItem(friend));
+                foundAny = true;
+            }
+        }
+        
+        if (!foundAny) {
+            JLabel emptyLabel = new JLabel("No friends found");
+            emptyLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+            emptyLabel.setForeground(Color.GRAY);
+            emptyLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            emptyLabel.setBorder(new EmptyBorder(50, 0, 0, 0));
+            friendListPanel.add(emptyLabel);
+        }
+        
         friendListPanel.revalidate();
         friendListPanel.repaint();
     }
@@ -370,7 +419,6 @@ public class ChatPanel extends JPanel {
         item.setCursor(new Cursor(Cursor.HAND_CURSOR));
         item.setMaximumSize(new Dimension(Integer.MAX_VALUE, 70));
 
-        // Avatar
         String initials = getInitials(friend.getUserName());
         JLabel avatar = new JLabel(initials);
         avatar.setPreferredSize(new Dimension(45, 45));
@@ -381,7 +429,6 @@ public class ChatPanel extends JPanel {
         avatar.setFont(new Font("Arial", Font.BOLD, 14));
         avatar.setBorder(BorderFactory.createEmptyBorder());
 
-        // Info
         JPanel infoPanel = new JPanel();
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
         infoPanel.setBackground(Color.WHITE);
@@ -390,8 +437,7 @@ public class ChatPanel extends JPanel {
         nameLabel.setFont(new Font("Arial", Font.BOLD, 14));
         nameLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        // Check online status
-        boolean isOnline = chatController.isUserOnline(friend.getUserName());
+        boolean isOnline = ChatService.isUserOnline(friend.getUserName());
         JLabel statusLabel = new JLabel(isOnline ? "Online" : "Offline");
         statusLabel.setFont(new Font("Arial", Font.PLAIN, 11));
         statusLabel.setForeground(isOnline ? UIConstants.SUCCESS_GREEN : Color.GRAY);
@@ -404,107 +450,78 @@ public class ChatPanel extends JPanel {
         item.add(avatar, BorderLayout.WEST);
         item.add(infoPanel, BorderLayout.CENTER);
 
-        // Hover effect
         item.addMouseListener(new MouseAdapter() {
             public void mouseEntered(MouseEvent e) {
                 item.setBackground(new Color(248, 248, 248));
                 infoPanel.setBackground(new Color(248, 248, 248));
             }
-
             public void mouseExited(MouseEvent e) {
                 item.setBackground(Color.WHITE);
                 infoPanel.setBackground(Color.WHITE);
             }
-
             public void mouseClicked(MouseEvent e) {
                 openChat(friend);
             }
         });
-
         return item;
     }
 
     private Color getRandomColor(String seed) {
         int hash = seed.hashCode();
-        Color[] colors = {
-            new Color(76, 175, 80),
-            new Color(33, 150, 243),
-            new Color(156, 39, 176),
-            new Color(255, 152, 0),
-            new Color(233, 30, 99),
-            new Color(0, 150, 136)
-        };
+        Color[] colors = { new Color(76, 175, 80), new Color(33, 150, 243), new Color(156, 39, 176), new Color(255, 152, 0), new Color(233, 30, 99), new Color(0, 150, 136) };
         return colors[Math.abs(hash) % colors.length];
     }
 
     private void openChat(User friend) {
         currentFriendName = friend.getUserName();
         currentChatUserLabel.setText(friend.getUserName());
-        
-        boolean isOnline = chatController.isUserOnline(friend.getUserName());
+        boolean isOnline = ChatService.isUserOnline(friend.getUserName());
         currentChatStatusLabel.setText(isOnline ? "Online" : "Offline");
         currentChatStatusLabel.setForeground(isOnline ? UIConstants.SUCCESS_GREEN : Color.GRAY);
-
-        // Enable input
         messageField.setEnabled(true);
         sendButton.setEnabled(true);
         recommendProductButton.setEnabled(true);
-
-        // Load messages
         loadMessages();
     }
 
     private void loadMessages() {
         messagesPanel.removeAll();
-
         try {
             int currentUserId = UserSession.getCurrentUserId();
             currentMessages = chatController.getMessages(currentUserId, currentFriendName);
-
             if (currentMessages == null || currentMessages.isEmpty()) {
                 showEmptyChatState();
             } else {
                 for (Message message : currentMessages) {
                     boolean isSentByMe = message.getSenderId() == currentUserId;
-                    
                     if (message.getSharedProductId() != null) {
-                        // Product recommendation message
                         messagesPanel.add(createProductMessage(message, isSentByMe));
                     } else {
-                        // Regular text message
                         messagesPanel.add(createTextMessage(message.getContent(), isSentByMe, message.getTimestamp()));
                     }
                     messagesPanel.add(Box.createVerticalStrut(10));
                 }
-
-                // Scroll to bottom
                 SwingUtilities.invokeLater(() -> {
                     JScrollBar vertical = messagesScrollPane.getVerticalScrollBar();
                     vertical.setValue(vertical.getMaximum());
                 });
             }
-
         } catch (Exception e) {
             e.printStackTrace();
-            System.err.println("Error loading messages: " + e.getMessage());
         }
-
         messagesPanel.revalidate();
         messagesPanel.repaint();
     }
 
     private void showEmptyState() {
         messagesPanel.removeAll();
-        
         JLabel emptyIcon = new JLabel("💬", SwingConstants.CENTER);
         emptyIcon.setFont(new Font("Arial", Font.PLAIN, 72));
         emptyIcon.setAlignmentX(Component.CENTER_ALIGNMENT);
-        
         JLabel emptyLabel = new JLabel("Select a friend to start chatting");
         emptyLabel.setFont(new Font("Arial", Font.PLAIN, 16));
         emptyLabel.setForeground(Color.GRAY);
         emptyLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
         messagesPanel.add(Box.createVerticalGlue());
         messagesPanel.add(emptyIcon);
         messagesPanel.add(Box.createVerticalStrut(15));
@@ -517,7 +534,6 @@ public class ChatPanel extends JPanel {
         emptyLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         emptyLabel.setForeground(Color.GRAY);
         emptyLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        
         messagesPanel.add(Box.createVerticalGlue());
         messagesPanel.add(emptyLabel);
         messagesPanel.add(Box.createVerticalGlue());
@@ -528,18 +544,12 @@ public class ChatPanel extends JPanel {
         messagePanel.setLayout(new BoxLayout(messagePanel, BoxLayout.X_AXIS));
         messagePanel.setBackground(new Color(245, 245, 245));
         messagePanel.setAlignmentX(isSentByMe ? Component.RIGHT_ALIGNMENT : Component.LEFT_ALIGNMENT);
-
-        if (!isSentByMe) {
-            messagePanel.add(Box.createHorizontalGlue());
-        }
+        if (!isSentByMe) messagePanel.add(Box.createHorizontalGlue());
 
         JPanel bubble = new JPanel();
         bubble.setLayout(new BoxLayout(bubble, BoxLayout.Y_AXIS));
         bubble.setBackground(isSentByMe ? UIConstants.PRIMARY_GREEN : Color.WHITE);
-        bubble.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(isSentByMe ? UIConstants.PRIMARY_GREEN : new Color(220, 220, 220)),
-            new EmptyBorder(10, 15, 10, 15)
-        ));
+        bubble.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(isSentByMe ? UIConstants.PRIMARY_GREEN : new Color(220, 220, 220)), new EmptyBorder(10, 15, 10, 15)));
 
         JLabel textLabel = new JLabel("<html><div style='width: 250px;'>" + content + "</div></html>");
         textLabel.setFont(new Font("Arial", Font.PLAIN, 13));
@@ -554,33 +564,22 @@ public class ChatPanel extends JPanel {
         bubble.add(textLabel);
         bubble.add(Box.createVerticalStrut(5));
         bubble.add(timeLabel);
-
         messagePanel.add(bubble);
 
-        if (isSentByMe) {
-            messagePanel.add(Box.createHorizontalGlue());
-        }
-
+        if (isSentByMe) messagePanel.add(Box.createHorizontalGlue());
         return messagePanel;
     }
 
     private JPanel createProductMessage(Message message, boolean isSentByMe) {
-        // For now, create a simple product card
         JPanel messagePanel = new JPanel();
         messagePanel.setLayout(new BoxLayout(messagePanel, BoxLayout.X_AXIS));
         messagePanel.setBackground(new Color(245, 245, 245));
-
-        if (!isSentByMe) {
-            messagePanel.add(Box.createHorizontalGlue());
-        }
+        if (!isSentByMe) messagePanel.add(Box.createHorizontalGlue());
 
         JPanel productCard = new JPanel();
         productCard.setLayout(new BoxLayout(productCard, BoxLayout.Y_AXIS));
         productCard.setBackground(Color.WHITE);
-        productCard.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(220, 220, 220)),
-            new EmptyBorder(15, 15, 15, 15)
-        ));
+        productCard.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)), new EmptyBorder(15, 15, 15, 15)));
         productCard.setMaximumSize(new Dimension(280, 200));
 
         JLabel productIcon = new JLabel("🛍️", SwingConstants.CENTER);
@@ -604,13 +603,9 @@ public class ChatPanel extends JPanel {
         productCard.add(productLabel);
         productCard.add(Box.createVerticalStrut(10));
         productCard.add(viewButton);
-
         messagePanel.add(productCard);
 
-        if (isSentByMe) {
-            messagePanel.add(Box.createHorizontalGlue());
-        }
-
+        if (isSentByMe) messagePanel.add(Box.createHorizontalGlue());
         return messagePanel;
     }
 
@@ -622,21 +617,12 @@ public class ChatPanel extends JPanel {
 
     private void sendMessage() {
         String content = messageField.getText().trim();
-        
-        if (content.isEmpty() || currentFriendName.isEmpty()) {
-            return;
-        }
-
+        if (content.isEmpty() || currentFriendName.isEmpty()) return;
         try {
             int senderId = UserSession.getCurrentUserId();
             chatController.sendMessage(senderId, currentFriendName, content);
-            
-            // Clear input
             messageField.setText("");
-            
-            // Reload messages
             loadMessages();
-
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Failed to send message!", "Error", JOptionPane.ERROR_MESSAGE);
@@ -644,15 +630,11 @@ public class ChatPanel extends JPanel {
     }
 
     private void showRecommendProductDialog() {
-        // Get saved products
         List<Product> products = productServiceInstance.getAllProducts();
-        
         if (products == null || products.isEmpty()) {
             JOptionPane.showMessageDialog(this, "You don't have any saved products to recommend!", "No Products", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
-
-        // Show dialog with product selection
         JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Recommend a Product", true);
         dialog.setSize(500, 600);
         dialog.setLocationRelativeTo(this);
@@ -676,40 +658,18 @@ public class ChatPanel extends JPanel {
             productBtn.setBackground(Color.WHITE);
             productBtn.setFocusPainted(false);
             productBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-            
             productBtn.addActionListener(e -> {
                 int senderId = UserSession.getCurrentUserId();
                 chatController.sendProductRecommendation(senderId, currentFriendName, product);
                 dialog.dispose();
                 loadMessages();
             });
-
             productsPanel.add(productBtn);
             productsPanel.add(Box.createVerticalStrut(5));
         }
-
         JScrollPane scrollPane = new JScrollPane(productsPanel);
         scrollPane.setBorder(null);
         dialog.add(scrollPane, BorderLayout.CENTER);
-
         dialog.setVisible(true);
-    }
-
-    public void refreshData() {
-        loadFriends();
-        if (!currentFriendName.isEmpty()) {
-            loadMessages();
-        }
-    }
-
-    public void clearData() {
-        currentFriendName = "";
-        friends.clear();
-        currentMessages.clear();
-        friendListPanel.removeAll();
-        showEmptyState();
-        messageField.setEnabled(false);
-        sendButton.setEnabled(false);
-        recommendProductButton.setEnabled(false);
     }
 }

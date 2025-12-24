@@ -38,6 +38,11 @@ public class BudgetPanel extends JPanel {
     private JPanel alertPanel;
     private JPanel categoriesContainer;
 
+    // Sidebar Live References
+    private JLabel sidebarNameLabel;
+    private JLabel sidebarEmailLabel;
+    private JLabel sidebarAvatarLabel;
+
     // Data
     private double monthlyLimit;
     private double totalSpent;
@@ -92,14 +97,81 @@ public class BudgetPanel extends JPanel {
 
         int startY = 120;
         addMenuItem(sideMenu, "🏠", "Dashboard", "DASHBOARD", startY, false);
-        addMenuItem(sideMenu, "💰", "Budget", "BUDGET", startY + 60, true);
-        addMenuItem(sideMenu, "📋", "Expenses", "EXPENSES", startY + 120, false);
-        addMenuItem(sideMenu, "🛒", "Shop", "SHOP", startY + 180, false);
+        addMenuItem(sideMenu, "💳", "Budget", "BUDGET", startY + 60, true);
+        addMenuItem(sideMenu, "🧾", "Expenses", "EXPENSES", startY + 120, false);
+        addMenuItem(sideMenu, "🛍️", "Shop", "SHOP", startY + 180, false);
         addMenuItem(sideMenu, "💬", "Chat", "CHAT", startY + 240, false);
         addMenuItem(sideMenu, "👤", "Profile", "PROFILE", startY + 300, false);
         addMenuItem(sideMenu, "⚙️", "Settings", "SETTINGS", startY + 360, false);
 
+        // Profile card
+        JPanel profileCard = createProfileCard();
+        sideMenu.add(profileCard);
+
+        JButton logoutBtn = new JButton("🚪 Logout");
+        logoutBtn.setBounds(15, 735, 230, 40);
+        logoutBtn.setFont(new Font("Arial", Font.BOLD, 14));
+        logoutBtn.setForeground(new Color(220, 53, 69));
+        logoutBtn.setBackground(Color.WHITE);
+        logoutBtn.setFocusPainted(false);
+        logoutBtn.setBorder(BorderFactory.createLineBorder(new Color(220, 53, 69)));
+        logoutBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        logoutBtn.addActionListener(e -> mainFrame.logout());
+        sideMenu.add(logoutBtn);
+
         return sideMenu;
+    }
+
+    private JPanel createProfileCard() {
+        JPanel profileCard = new JPanel();
+        profileCard.setBounds(15, 650, 230, 70);
+        profileCard.setBackground(new Color(248, 249, 250));
+        profileCard.setLayout(null);
+        profileCard.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
+
+        User u = UserSession.getCurrentUser();
+        String name = (u != null) ? u.getUserName() : "Guest";
+        String email = (u != null) ? u.geteMail() : "";
+
+        sidebarAvatarLabel = new JLabel(getInitials(name));
+        sidebarAvatarLabel.setBounds(15, 15, 40, 40);
+        sidebarAvatarLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        sidebarAvatarLabel.setOpaque(true);
+        sidebarAvatarLabel.setBackground(UIConstants.PRIMARY_GREEN);
+        sidebarAvatarLabel.setForeground(Color.WHITE);
+        sidebarAvatarLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        profileCard.add(sidebarAvatarLabel);
+
+        sidebarNameLabel = new JLabel(name);
+        sidebarNameLabel.setBounds(65, 18, 150, 18);
+        sidebarNameLabel.setFont(new Font("Arial", Font.BOLD, 13));
+        profileCard.add(sidebarNameLabel);
+
+        sidebarEmailLabel = new JLabel(email);
+        sidebarEmailLabel.setBounds(65, 37, 150, 15);
+        sidebarEmailLabel.setFont(new Font("Arial", Font.PLAIN, 11));
+        sidebarEmailLabel.setForeground(new Color(120, 120, 120));
+        profileCard.add(sidebarEmailLabel);
+
+        return profileCard;
+    }
+
+    private void updateSidebarUser() {
+        User u = UserSession.getCurrentUser();
+        if (u != null) {
+            if (sidebarNameLabel != null) sidebarNameLabel.setText(u.getUserName());
+            if (sidebarEmailLabel != null) sidebarEmailLabel.setText(u.geteMail());
+            if (sidebarAvatarLabel != null) sidebarAvatarLabel.setText(getInitials(u.getUserName()));
+        }
+    }
+
+    private String getInitials(String name) {
+        if (name == null || name.isEmpty()) return "??";
+        String[] parts = name.trim().split("\\s+");
+        if (parts.length == 1) {
+            return parts[0].substring(0, Math.min(2, parts[0].length())).toUpperCase();
+        }
+        return (parts[0].charAt(0) + "" + parts[parts.length - 1].charAt(0)).toUpperCase();
     }
 
     private void addMenuItem(JPanel parent, String emoji, String text, String targetPanelName, int y, boolean active) {
@@ -610,6 +682,9 @@ public class BudgetPanel extends JPanel {
      */
     public void refreshData() {
         try {
+            // Update Sidebar Info
+            updateSidebarUser();
+
             // Get current user
             currentUser = UserSession.getCurrentUser();
             int userId = currentUser.getId();
@@ -666,11 +741,19 @@ public class BudgetPanel extends JPanel {
      * Calculate spending per category
      */
     private void calculateCategorySpending() {
-        // Initialize with default categories
+        // Initialize with default categories if empty
         if (categorySpending.isEmpty()) {
             categorySpending.put("Food", new CategoryData("Food", 800, 0));
             categorySpending.put("Transport", new CategoryData("Transport", 400, 0));
             categorySpending.put("Shopping", new CategoryData("Shopping", 800, 0));
+            categorySpending.put("Health", new CategoryData("Health", 200, 0));
+            categorySpending.put("Entertainment", new CategoryData("Entertainment", 300, 0));
+            categorySpending.put("Other", new CategoryData("Other", 200, 0));
+        }
+
+        // RESET SPENDING TO ZERO (FIX)
+        for (CategoryData data : categorySpending.values()) {
+            data.spent = 0.0;
         }
 
         // Calculate actual spending per category
