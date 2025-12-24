@@ -3,8 +3,6 @@ package com.spendwise.services;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 
-// DB'de notifications tablosu garanti değil.
-// Şimdilik basit in-memory notification listesi.
 public class NotificationService {
 
     public static class NotificationDTO {

@@ -15,7 +15,7 @@ public class AmazonScraper {
 
         try (Playwright playwright = Playwright.create()) {
             Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions()
-                    .setHeadless(true) // Amazon için UI görmek iyidir, bazen captcha çıkabilir.
+                    .setHeadless(true)
                     .setArgs(Arrays.asList(
                             "--disable-blink-features=AutomationControlled",
                             "--disable-dev-shm-usage",
@@ -28,11 +28,9 @@ public class AmazonScraper {
 
             Page page = context.newPage();
 
-            // Amazon Türkiye araması
             String searchUrl = "https://www.amazon.com.tr/s?k=" + searchTerm.replace(" ", "+");
             page.navigate(searchUrl);
 
-            // Ürünlerin yüklenmesini bekle
             try {
                 page.waitForSelector("div[data-component-type='s-search-result']",
                         new Page.WaitForSelectorOptions().setTimeout(5000));
@@ -43,14 +41,11 @@ public class AmazonScraper {
 
             List<Locator> items = page.locator("div[data-component-type='s-search-result']").all();
 
-            // İlk 5-10 ürünü alalım (Performans için sınır koymak iyi olabilir)
             int limit = Math.min(items.size(), 10);
 
             for (int i = 0; i < limit; i++) {
                 Locator item = items.get(i);
                 try {
-                    // İsim
-                    // İsim
                     Locator nameLoc = item.locator("h2 a span");
                     if (nameLoc.count() == 0) {
                         nameLoc = item.locator("span.a-size-medium");
@@ -72,10 +67,7 @@ public class AmazonScraper {
                     Locator imgLoc = item.locator("img.s-image");
                     String imageUrl = imgLoc.count() > 0 ? imgLoc.first().getAttribute("src") : "";
 
-                    // Kategoriyi "Electronic" varsayalım veya genel bırakalım
                     if (price > 0) {
-                        // TrendyolScraper'daki constructor yapısını kullanıyoruz
-                        // Seller Name olarak "Amazon" veriyoruz.
                         productsList.add(new Product(name, price, "General", imageUrl, "Amazon"));
                     }
 
@@ -93,11 +85,8 @@ public class AmazonScraper {
 
     private double parsePrice(String price) {
         try {
-            // "1.234,50 TL" veya "TL 1.234,50" formatlarını temizle
             String clean = price.replaceAll("[^0-9.,]", "").trim();
 
-            // Türkçe format: Binlik nokta, ondalık virgül ise -> Javaya uygun (Nokta
-            // ondalık) çevir
             if (clean.contains(",")) {
                 clean = clean.replace(".", "").replace(",", ".");
             }

@@ -11,7 +11,7 @@ public class productService {
 
     public boolean saveProduct(Product product) {
         String sql = "INSERT INTO products (name, description, price, original_price, category, image_url, rating, review_count, seller, is_second_hand, product_condition, location, discount_percentage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        
+
         int affectedRows = DBconnection.executeUpdate(sql,
                 product.getName(),
                 product.getDescription() != null ? product.getDescription() : "No description",
@@ -23,7 +23,7 @@ public class productService {
                 product.getReviewCount(),
                 product.getSellerName(),
                 product.isSecondHand(),
-                product.getCondition(), 
+                product.getCondition(),
                 product.getLocation(),
                 product.getDiscountPercentage());
 
@@ -65,38 +65,35 @@ public class productService {
     }
 
     public boolean requestProduct(int productId, int userId) {
-    String query = "UPDATE products SET requested_by_user_id = ? WHERE product_id = ?";
-    
-    try (java.sql.Connection conn = DBconnection.getConnection();
-         java.sql.PreparedStatement stmt = conn.prepareStatement(query)) {
-        
-        stmt.setInt(1, userId);
-        stmt.setInt(2, productId);
-        
-        int rowsUpdated = stmt.executeUpdate();
-        return rowsUpdated > 0;
-        
-    } catch (Exception e) {
-        e.printStackTrace();
-        return false;
-    }
-}
+        String query = "UPDATE products SET requested_by_user_id = ? WHERE product_id = ?";
 
-public boolean toggleWishlist(int userId, int productId) {
-        // Check if exists
+        try (java.sql.Connection conn = DBconnection.getConnection();
+                java.sql.PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setInt(1, userId);
+            stmt.setInt(2, productId);
+
+            int rowsUpdated = stmt.executeUpdate();
+            return rowsUpdated > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean toggleWishlist(int userId, int productId) {
         String checkSql = "SELECT * FROM wishlist WHERE user_id = ? AND product_id = ?";
         try {
             ResultSet rs = DBconnection.executeQuery(checkSql, userId, productId);
             if (rs != null && rs.next()) {
-                // It exists, so remove it (Unlike)
                 String deleteSql = "DELETE FROM wishlist WHERE user_id = ? AND product_id = ?";
                 DBconnection.executeUpdate(deleteSql, userId, productId);
-                return false; // Returns false indicating it is now NOT wishlisted
+                return false;
             } else {
-                // It doesn't exist, so add it (Like)
                 String insertSql = "INSERT INTO wishlist (user_id, product_id) VALUES (?, ?)";
                 DBconnection.executeUpdate(insertSql, userId, productId);
-                return true; // Returns true indicating it IS wishlisted
+                return true;
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -106,10 +103,9 @@ public boolean toggleWishlist(int userId, int productId) {
 
     public ArrayList<Product> getWishlist(int userId) {
         ArrayList<Product> products = new ArrayList<>();
-        // Join products with wishlist table
         String sql = "SELECT p.*, 1 as is_wishlisted FROM products p " +
-                     "JOIN wishlist w ON p.product_id = w.product_id " +
-                     "WHERE w.user_id = ?";
+                "JOIN wishlist w ON p.product_id = w.product_id " +
+                "WHERE w.user_id = ?";
         try {
             ResultSet resultSet = DBconnection.executeQuery(sql, userId);
             while (resultSet != null && resultSet.next()) {
@@ -143,10 +139,11 @@ public boolean toggleWishlist(int userId, int productId) {
             if (!resultSet.wasNull()) {
                 p.setRequestByUserId(requesterId);
             }
-        } catch (SQLException e) {}
+        } catch (SQLException e) {
+        }
 
         try {
-  
+
             int wish = resultSet.getInt("is_wishlisted");
             p.setWishlisted(wish > 0);
         } catch (SQLException e) {
@@ -155,17 +152,17 @@ public boolean toggleWishlist(int userId, int productId) {
 
         return p;
     }
-    
 
     public void updateWishlistStatusForList(ArrayList<Product> products, int userId) {
-        for(Product p : products) {
+        for (Product p : products) {
             String sql = "SELECT 1 FROM wishlist WHERE user_id = ? AND product_id = ?";
             try {
                 ResultSet rs = DBconnection.executeQuery(sql, userId, p.getProductId());
-                if(rs != null && rs.next()) {
+                if (rs != null && rs.next()) {
                     p.setWishlisted(true);
                 }
-            } catch (Exception e) {}
+            } catch (Exception e) {
+            }
         }
     }
 }

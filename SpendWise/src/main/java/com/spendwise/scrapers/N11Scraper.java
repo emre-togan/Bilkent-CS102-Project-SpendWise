@@ -27,16 +27,13 @@ public class N11Scraper {
             String searchUrl = "https://www.n11.com/arama?q=" + searchTerm.replace(" ", "+");
             page.navigate(searchUrl);
 
-            // Liste elemanlarını bekle
             try {
-                // Daha genel bir bekleme
                 page.waitForLoadState(LoadState.DOMCONTENTLOADED);
-                Thread.sleep(2000); // Dinamik yükleme için kısa bekleme
+                Thread.sleep(2000);
             } catch (Exception e) {
-                // ignore
+
             }
 
-            // N11 ürün kartları
             List<Locator> items = page.locator(".product-item").all();
             if (items.isEmpty()) {
                 items = page.locator(".list-ul > li").all();
@@ -84,7 +81,7 @@ public class N11Scraper {
                     }
 
                 } catch (Exception e) {
-                    // Hata olursa bu ürünü atla
+
                 }
             }
 

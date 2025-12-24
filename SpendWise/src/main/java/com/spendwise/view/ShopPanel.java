@@ -708,7 +708,7 @@ public class ShopPanel extends JPanel {
                         }
                     }
                     if (sellerUser != null) {
-                        ChatService.addFriend(currentUserId, sellerUser.getId());
+                        ChatService.sendFriendRequest(currentUserId, sellerUser.getId());
                         mainFrame.showPanel("CHAT");
                     } else {
                         JOptionPane.showMessageDialog(this, "Seller not found.", "Error", JOptionPane.ERROR_MESSAGE);

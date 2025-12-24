@@ -27,13 +27,11 @@ public class HepsiburadaScraper {
             String searchUrl = "https://www.hepsiburada.com/ara?q=" + searchTerm.replace(" ", "+");
             page.navigate(searchUrl);
 
-            // Sayfanın yüklenmesini bekle
-            // Sayfanın yüklenmesini bekle
             try {
                 page.waitForLoadState(LoadState.DOMCONTENTLOADED);
                 Thread.sleep(2000);
             } catch (Exception e) {
-                // ignore
+
             }
 
             List<Locator> items = page.locator("li[class*='productListContent']").all();
@@ -45,24 +43,22 @@ public class HepsiburadaScraper {
             for (int i = 0; i < limit; i++) {
                 Locator item = items.get(i);
                 try {
-                    // İsim
-                    Locator nameLoc = item.locator("[class*='title-module_titleText']"); // New selector
+                    Locator nameLoc = item.locator("[class*='title-module_titleText']");
                     if (nameLoc.count() == 0) {
-                        nameLoc = item.locator("h3[data-test-id='product-card-name']"); // Old selector
+                        nameLoc = item.locator("h3[data-test-id='product-card-name']");
                     }
                     if (nameLoc.count() == 0) {
-                        nameLoc = item.locator("h3"); // General fallback
+                        nameLoc = item.locator("h3");
                     }
 
                     String name = nameLoc.count() > 0 ? nameLoc.first().innerText() : "";
 
-                    // Fiyat
                     Locator priceLoc = item.locator("[data-test-id='price-current-price']");
                     if (priceLoc.count() == 0) {
-                        priceLoc = item.locator("[class*='price-module_price']"); // New specific selector part
+                        priceLoc = item.locator("[class*='price-module_price']");
                     }
                     if (priceLoc.count() == 0) {
-                        priceLoc = item.locator("[class*='price-module_finalPrice']"); // Another new one
+                        priceLoc = item.locator("[class*='price-module_finalPrice']");
                     }
 
                     String priceText = priceLoc.count() > 0 ? priceLoc.first().innerText() : "0";
@@ -81,7 +77,7 @@ public class HepsiburadaScraper {
                     }
 
                 } catch (Exception e) {
-                    // Item parse hatası
+
                 }
             }
 

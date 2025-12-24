@@ -29,6 +29,7 @@ public class ProfilePanel extends JPanel {
     private JLabel dealsFoundLabel;
     private JPanel friendsContainer;
     private JPanel savedProductsContainer;
+    private JPanel friendRequestsSection;
 
     // Services
     private ProfileService profileService;
@@ -36,6 +37,7 @@ public class ProfilePanel extends JPanel {
 
     // Data
     private List<User> friends;
+    private List<User> friendRequests;
     private List<Product> savedProducts;
     private List<Purchase> purchases;
 
@@ -43,7 +45,9 @@ public class ProfilePanel extends JPanel {
         this.currentUser = UserSession.getCurrentUser();
         this.profileService = new ProfileService();
         this.productServiceInstance = new productService();
+        this.productServiceInstance = new productService();
         this.friends = new ArrayList<>();
+        this.friendRequests = new ArrayList<>();
         this.savedProducts = new ArrayList<>();
         this.purchases = new ArrayList<>();
 
@@ -112,6 +116,14 @@ public class ProfilePanel extends JPanel {
         // Big Profile Card (Info + Stats)
         content.add(createBigProfileCard());
         content.add(Box.createVerticalStrut(30));
+
+        // Friend Requests Section
+        // Friend Requests Section (Container)
+        friendRequestsSection = new JPanel();
+        friendRequestsSection.setLayout(new BoxLayout(friendRequestsSection, BoxLayout.Y_AXIS));
+        friendRequestsSection.setBackground(new Color(250, 250, 250));
+        friendRequestsSection.setAlignmentX(Component.LEFT_ALIGNMENT);
+        content.add(friendRequestsSection);
 
         // Friends Section Header
         content.add(createSectionHeader("👥 Friends", "Add Friend", e -> {
@@ -323,6 +335,86 @@ public class ProfilePanel extends JPanel {
         return row;
     }
 
+    private JPanel createRequestRow(User user) {
+        RoundedPanel row = new RoundedPanel(15, Color.WHITE);
+        row.setLayout(new BorderLayout());
+        row.setMaximumSize(new Dimension(1100, 70));
+        row.setPreferredSize(new Dimension(1100, 70));
+        row.setBorder(new EmptyBorder(10, 20, 10, 20));
+        row.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        // Left: Avatar + Name
+        JPanel left = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 0));
+        left.setOpaque(false);
+
+        JLabel avatar = new JLabel(getInitials(user.getUserName()));
+        avatar.setPreferredSize(new Dimension(40, 40));
+        avatar.setOpaque(true);
+        avatar.setBackground(Color.ORANGE);
+        avatar.setForeground(Color.WHITE);
+        avatar.setHorizontalAlignment(SwingConstants.CENTER);
+        avatar.setFont(new Font("Arial", Font.BOLD, 14));
+
+        JLabel name = new JLabel(user.getUserName());
+        name.setFont(new Font("Arial", Font.BOLD, 14));
+
+        left.add(avatar);
+        left.add(name);
+
+        // Right: Accept/Reject Buttons
+        JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 5));
+        right.setOpaque(false);
+
+        JButton acceptBtn = new JButton("Accept");
+        acceptBtn.setForeground(Color.WHITE);
+        acceptBtn.setBackground(UIConstants.PRIMARY_GREEN);
+        acceptBtn.addActionListener(e -> {
+            if (ChatService.acceptFriendRequest(currentUser.getId(), user.getId())) {
+                JOptionPane.showMessageDialog(this, "Friend request accepted!");
+                refreshData();
+                // Re-render content to update UI (simplest way is to refresh panel logic or
+                // re-create content, but refreshData acts on data mostly)
+                // Forcing re-layout:
+                removeAll();
+                add(sidebarPanel, BorderLayout.WEST);
+                JScrollPane scrollPane = new JScrollPane(createContent());
+                scrollPane.setBorder(null);
+                scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+                scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+                add(scrollPane, BorderLayout.CENTER);
+                revalidate();
+                repaint();
+            }
+        });
+
+        JButton rejectBtn = new JButton("Reject");
+        rejectBtn.setForeground(Color.WHITE);
+        rejectBtn.setBackground(Color.RED);
+        rejectBtn.addActionListener(e -> {
+            if (ChatService.rejectFriendRequest(currentUser.getId(), user.getId())) {
+                JOptionPane.showMessageDialog(this, "Friend request rejected.");
+                refreshData();
+                removeAll();
+                add(sidebarPanel, BorderLayout.WEST);
+                JScrollPane scrollPane = new JScrollPane(createContent());
+                scrollPane.setBorder(null);
+                scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+                scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+                add(scrollPane, BorderLayout.CENTER);
+                revalidate();
+                repaint();
+            }
+        });
+
+        right.add(acceptBtn);
+        right.add(rejectBtn);
+
+        row.add(left, BorderLayout.WEST);
+        row.add(right, BorderLayout.EAST);
+
+        return row;
+    }
+
     private void createActionButtons(JPanel parent) {
         // Container for the list of actions
         RoundedPanel actionsPanel = new RoundedPanel(20, Color.WHITE);
@@ -516,6 +608,12 @@ public class ProfilePanel extends JPanel {
                 friends = new ArrayList<>();
             updateFriendsList();
 
+            // Fetch Friend Requests
+            friendRequests = ChatService.getFriendRequests(userId);
+            if (friendRequests == null)
+                friendRequests = new ArrayList<>();
+            updateFriendRequestsUI();
+
             savedProducts = productServiceInstance.getWishlist(userId);
 
             if (savedProducts == null)
@@ -543,12 +641,35 @@ public class ProfilePanel extends JPanel {
         }
     }
 
+    public void updateFriendRequestsUI() {
+        if (friendRequestsSection == null)
+            return;
+
+        friendRequestsSection.removeAll();
+
+        if (!friendRequests.isEmpty()) {
+            friendRequestsSection.add(createSectionHeader("🔔 Friend Requests", null, null));
+            friendRequestsSection.add(Box.createVerticalStrut(15));
+
+            for (User reqUser : friendRequests) {
+                friendRequestsSection.add(createRequestRow(reqUser));
+                friendRequestsSection.add(Box.createVerticalStrut(10));
+            }
+            friendRequestsSection.add(Box.createVerticalStrut(30));
+        }
+
+        friendRequestsSection.revalidate();
+        friendRequestsSection.repaint();
+    }
+
     public void clearData() {
         friends.clear();
+        friendRequests.clear();
         savedProducts.clear();
         purchases.clear();
         updateFriendsList();
         updateSavedProducts();
+        updateFriendRequestsUI();
         purchaseCountLabel.setText("0");
         savedAmountLabel.setText("₺0");
         dealsFoundLabel.setText("0");

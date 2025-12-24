@@ -95,10 +95,8 @@ public class BudgetPanel extends JPanel {
                 () -> mainFrame.logout());
         add(sidebarPanel, BorderLayout.WEST);
 
-        // Content
         add(createContent(), BorderLayout.CENTER);
 
-        // Load initial data
         refreshData();
     }
 

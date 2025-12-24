@@ -25,7 +25,7 @@ public class AddFriendDialog extends JDialog {
 
         searchField = new JTextField();
         searchField.setToolTipText("Enter username...");
-        
+
         JButton searchBtn = new JButton("Search");
         searchBtn.setBackground(UIConstants.PRIMARY_BLUE);
         searchBtn.setForeground(Color.WHITE);
@@ -48,7 +48,8 @@ public class AddFriendDialog extends JDialog {
 
     private void performSearch() {
         String query = searchField.getText().trim();
-        if (query.isEmpty()) return;
+        if (query.isEmpty())
+            return;
 
         resultsPanel.removeAll();
 
@@ -61,28 +62,33 @@ public class AddFriendDialog extends JDialog {
             resultsPanel.add(lbl);
         } else {
             for (User u : users) {
-                if (u.getId() == currentUserId) continue;
+                if (u.getId() == currentUserId)
+                    continue;
 
                 JPanel row = new JPanel(new BorderLayout());
                 row.setBackground(Color.WHITE);
                 row.setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY),
-                    new EmptyBorder(10, 5, 10, 5)
-                ));
+                        BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY),
+                        new EmptyBorder(10, 5, 10, 5)));
                 row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
 
                 JLabel name = new JLabel(u.getUserName());
                 name.setFont(new Font("Arial", Font.BOLD, 14));
 
-                JButton addBtn = new JButton("Add");
+                JButton addBtn = new JButton("Send Request");
                 addBtn.setForeground(UIConstants.PRIMARY_GREEN);
                 addBtn.addActionListener(e -> {
                     // Ensure ChatService has addFriend method
-                    boolean success = ChatService.addFriend(currentUserId, u.getId());
+                    boolean success = ChatService.sendFriendRequest(currentUserId, u.getId());
                     if (success) {
-                        JOptionPane.showMessageDialog(this, "Friend added!");
+                        JOptionPane.showMessageDialog(this, "Friend request sent!");
                         addBtn.setEnabled(false);
-                        addBtn.setText("Added");
+                        addBtn.setText("Sent");
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Request failed or already pending/friends.", "Error",
+                                JOptionPane.ERROR_MESSAGE);
+                        addBtn.setEnabled(false);
+                        addBtn.setText("Sent/Friends");
                     }
                 });
 

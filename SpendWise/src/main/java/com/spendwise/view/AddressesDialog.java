@@ -9,9 +9,6 @@ import com.spendwise.services.ProfileService;
 import java.awt.*;
 import java.util.List;
 
-// import Models.Address;
-// import Services.ProfileService;
-
 public class AddressesDialog extends JDialog {
 
     private JPanel mainContainer;
@@ -39,7 +36,6 @@ public class AddressesDialog extends JDialog {
     private void refreshAddressList() {
         listContentPanel.removeAll();
 
-        // Backend
         List<Address> addresses = ProfileService.getAddresses();
 
         if (addresses != null) {
@@ -119,14 +115,13 @@ public class AddressesDialog extends JDialog {
         saveBtn.addActionListener(e -> {
             Address newAddr = new Address(
                     labelField.getText(),
-                    nameField.getText(), 
-                    addressField.getText(), 
-                    cityField.getText(), 
-                    "", 
-                    "", 
-                    phoneField.getText(), 
-                    false 
-            );
+                    nameField.getText(),
+                    addressField.getText(),
+                    cityField.getText(),
+                    "",
+                    "",
+                    phoneField.getText(),
+                    false);
 
             ProfileService.addAddress(newAddr);
 
