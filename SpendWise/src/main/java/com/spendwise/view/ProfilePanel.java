@@ -142,7 +142,7 @@ public class ProfilePanel extends JPanel {
 
         content.add(Box.createVerticalStrut(30));
 
-        // Action Buttons (History, Wishlist, Addresses)
+        // Action Buttons (History, Addresses) - Wishlist Removed
         createActionButtons(content);
 
         // Fill remaining
@@ -171,8 +171,6 @@ public class ProfilePanel extends JPanel {
                 actionBtn.setBorder(BorderFactory.createCompoundBorder(
                         new RoundedPanel(10, new Color(230, 245, 230)).getBorder(), // Fake border logic
                         new EmptyBorder(5, 10, 5, 10)));
-                // Actually button styling is tricky with just border.
-                // Let's use standard button logic or just text link style.
                 actionBtn.setBorder(BorderFactory.createLineBorder(UIConstants.PRIMARY_GREEN, 1, true));
                 actionBtn.setBackground(Color.WHITE);
                 actionBtn.setPreferredSize(new Dimension(100, 30));
@@ -267,7 +265,6 @@ public class ProfilePanel extends JPanel {
 
         if (friends.isEmpty()) {
             // Empty state
-            // ...
         } else {
             for (User friend : friends) {
                 friendsContainer.add(createFriendRow(friend));
@@ -330,15 +327,16 @@ public class ProfilePanel extends JPanel {
         // Container for the list of actions
         RoundedPanel actionsPanel = new RoundedPanel(20, Color.WHITE);
         actionsPanel.setLayout(new BoxLayout(actionsPanel, BoxLayout.Y_AXIS));
-        actionsPanel.setMaximumSize(new Dimension(1100, 180)); // Approx height for 3 items
+        // Adjusted height since we removed one item
+        actionsPanel.setMaximumSize(new Dimension(1100, 120)); 
         actionsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         actionsPanel.setBorder(new EmptyBorder(10, 0, 10, 0)); // Outer padding
 
         actionsPanel.add(createActionRow("📦", "Purchase History",
                 e -> new PurchaseHistoryDialog((JFrame) SwingUtilities.getWindowAncestor(this)).setVisible(true)));
-        actionsPanel.add(createDivider());
-        actionsPanel.add(createActionRow("❤️", "Wishlist",
-                e -> new WishlistDialog((JFrame) SwingUtilities.getWindowAncestor(this)).setVisible(true)));
+        
+        // --- REMOVED WISHLIST BUTTON HERE ---
+        
         actionsPanel.add(createDivider());
         actionsPanel.add(createActionRow("📍", "Addresses",
                 e -> JOptionPane.showMessageDialog(this, "Addresses feature coming soon!")));
@@ -485,11 +483,9 @@ public class ProfilePanel extends JPanel {
     }
 
     private void showAllSavedProducts() {
-        JOptionPane.showMessageDialog(this, "Showing all " + savedProducts.size() + " saved products!",
-                "Saved Products", JOptionPane.INFORMATION_MESSAGE);
+        // This can now open the dialog directly since the button was removed
+        new WishlistDialog((JFrame) SwingUtilities.getWindowAncestor(this)).setVisible(true);
     }
-
-    // Unused methods removed (showPurchaseHistory, showWishlist)
 
     private String truncateText(String text, int maxLength) {
         if (text == null)
@@ -520,7 +516,8 @@ public class ProfilePanel extends JPanel {
                 friends = new ArrayList<>();
             updateFriendsList();
 
-            savedProducts = productServiceInstance.getAllProducts();
+            savedProducts = productServiceInstance.getWishlist(userId);
+            
             if (savedProducts == null)
                 savedProducts = new ArrayList<>();
             updateSavedProducts();

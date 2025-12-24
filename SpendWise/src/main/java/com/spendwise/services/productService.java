@@ -64,8 +64,64 @@ public class productService {
         return products;
     }
 
-    public Product helperResultSet(ResultSet resultSet) throws SQLException {
+    public boolean requestProduct(int productId, int userId) {
+    String query = "UPDATE products SET requested_by_user_id = ? WHERE product_id = ?";
+    
+    try (java.sql.Connection conn = DBconnection.getConnection();
+         java.sql.PreparedStatement stmt = conn.prepareStatement(query)) {
+        
+        stmt.setInt(1, userId);
+        stmt.setInt(2, productId);
+        
+        int rowsUpdated = stmt.executeUpdate();
+        return rowsUpdated > 0;
+        
+    } catch (Exception e) {
+        e.printStackTrace();
+        return false;
+    }
+}
 
+public boolean toggleWishlist(int userId, int productId) {
+        // Check if exists
+        String checkSql = "SELECT * FROM wishlist WHERE user_id = ? AND product_id = ?";
+        try {
+            ResultSet rs = DBconnection.executeQuery(checkSql, userId, productId);
+            if (rs != null && rs.next()) {
+                // It exists, so remove it (Unlike)
+                String deleteSql = "DELETE FROM wishlist WHERE user_id = ? AND product_id = ?";
+                DBconnection.executeUpdate(deleteSql, userId, productId);
+                return false; // Returns false indicating it is now NOT wishlisted
+            } else {
+                // It doesn't exist, so add it (Like)
+                String insertSql = "INSERT INTO wishlist (user_id, product_id) VALUES (?, ?)";
+                DBconnection.executeUpdate(insertSql, userId, productId);
+                return true; // Returns true indicating it IS wishlisted
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public ArrayList<Product> getWishlist(int userId) {
+        ArrayList<Product> products = new ArrayList<>();
+        // Join products with wishlist table
+        String sql = "SELECT p.*, 1 as is_wishlisted FROM products p " +
+                     "JOIN wishlist w ON p.product_id = w.product_id " +
+                     "WHERE w.user_id = ?";
+        try {
+            ResultSet resultSet = DBconnection.executeQuery(sql, userId);
+            while (resultSet != null && resultSet.next()) {
+                products.add(helperResultSet(resultSet));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return products;
+    }
+
+    public Product helperResultSet(ResultSet resultSet) throws SQLException {
         Product p = new Product(
                 resultSet.getInt("product_id"),
                 resultSet.getString("name"),
@@ -87,30 +143,29 @@ public class productService {
             if (!resultSet.wasNull()) {
                 p.setRequestByUserId(requesterId);
             }
-        } 
-        
-        catch (SQLException e) {
+        } catch (SQLException e) {}
+
+        try {
+  
+            int wish = resultSet.getInt("is_wishlisted");
+            p.setWishlisted(wish > 0);
+        } catch (SQLException e) {
 
         }
 
         return p;
     }
-
-    public boolean requestProduct(int productId, int userId) {
-    String query = "UPDATE products SET requested_by_user_id = ? WHERE product_id = ?";
     
-    try (java.sql.Connection conn = DBconnection.getConnection();
-         java.sql.PreparedStatement stmt = conn.prepareStatement(query)) {
-        
-        stmt.setInt(1, userId);
-        stmt.setInt(2, productId);
-        
-        int rowsUpdated = stmt.executeUpdate();
-        return rowsUpdated > 0;
-        
-    } catch (Exception e) {
-        e.printStackTrace();
-        return false;
+
+    public void updateWishlistStatusForList(ArrayList<Product> products, int userId) {
+        for(Product p : products) {
+            String sql = "SELECT 1 FROM wishlist WHERE user_id = ? AND product_id = ?";
+            try {
+                ResultSet rs = DBconnection.executeQuery(sql, userId, p.getProductId());
+                if(rs != null && rs.next()) {
+                    p.setWishlisted(true);
+                }
+            } catch (Exception e) {}
+        }
     }
-}
 }

@@ -54,7 +54,7 @@ import com.spendwise.scrapers.TrendyolScraper;
 import com.spendwise.services.ChatService;
 import com.spendwise.services.expenseService;
 import com.spendwise.services.productService;
-import com.spendwise.services.userService; // Added userService
+import com.spendwise.services.userService; 
 import com.spendwise.view.components.RoundedButton;
 import com.spendwise.view.components.RoundedPanel;
 import com.spendwise.view.components.RoundedTextField;
@@ -81,7 +81,7 @@ public class ShopPanel extends JPanel {
     // Services
     private productService productServiceInstance;
     private expenseService expenseServiceInstance; 
-    private userService userServiceInstance; // Added userService
+    private userService userServiceInstance; 
     private TrendyolScraper trendyolScraper;
     private AmazonScraper amazonScraper;
     private N11Scraper n11Scraper;
@@ -100,7 +100,7 @@ public class ShopPanel extends JPanel {
         this.mainFrame = mainFrame;
         this.productServiceInstance = new productService();
         this.expenseServiceInstance = new expenseService(); 
-        this.userServiceInstance = new userService(); // Initialize userService
+        this.userServiceInstance = new userService(); 
 
         // Initialize Scrapers
         this.trendyolScraper = new TrendyolScraper();
@@ -340,7 +340,7 @@ public class ShopPanel extends JPanel {
         JLabel l = new JLabel(text);
         l.setFont(new Font("Arial", Font.PLAIN, 12));
         l.setForeground(Color.GRAY);
-        l.setBorder(new EmptyBorder(0, 0, 5, 0)); // space below label? actually this is gridbag, so maybe margin needed
+        l.setBorder(new EmptyBorder(0, 0, 5, 0)); 
         return l;
     }
 
@@ -432,7 +432,9 @@ public class ShopPanel extends JPanel {
                     if (!showOnlineDeals) {
                         // Second Hand (DB)
                         List<Product> db = productServiceInstance.getAllProducts();
+                        // UPDATE WISHLIST STATUS FOR THESE PRODUCTS
                         if (db != null) {
+                            productServiceInstance.updateWishlistStatusForList((ArrayList<Product>)db, UserSession.getCurrentUserId());
                             for (Product p : db) {
                                 if (p.isSecondHand()) {
                                     if (query.isEmpty() || p.getName().toLowerCase().contains(query.toLowerCase())) {
@@ -444,22 +446,13 @@ public class ShopPanel extends JPanel {
                     } else {
                         // Online Scrapers
                         if (!query.isEmpty()) {
-                            try {
-                                results.addAll(trendyolScraper.searchAndSearch(query));
-                            } catch (Exception e) {
-                            }
-                            try {
-                                results.addAll(amazonScraper.searchAndSearch(query));
-                            } catch (Exception e) {
-                            }
-                            try {
-                                results.addAll(n11Scraper.searchAndSearch(query));
-                            } catch (Exception e) {
-                            }
-                            try {
-                                results.addAll(hepsiburadaScraper.searchAndSearch(query));
-                            } catch (Exception e) {
-                            }
+                            try { results.addAll(trendyolScraper.searchAndSearch(query)); } catch (Exception e) {}
+                            try { results.addAll(amazonScraper.searchAndSearch(query)); } catch (Exception e) {}
+                            try { results.addAll(n11Scraper.searchAndSearch(query)); } catch (Exception e) {}
+                            try { results.addAll(hepsiburadaScraper.searchAndSearch(query)); } catch (Exception e) {}
+                            
+                            // Also check wishlist status for scraped products (if they exist in DB by name/ID, though tricky for scrapers)
+                            // For simplicity, scrapers usually aren't in DB with IDs, so heart might be tricky or just local.
                         }
                     }
                 } catch (Exception e) {
@@ -504,7 +497,6 @@ public class ShopPanel extends JPanel {
             empty.setFont(new Font("Arial", Font.PLAIN, 16));
             productsContainer.add(empty, BorderLayout.CENTER);
         } else {
-            // Check grid width to determine columns? For now fixed 3 cols
             productsContainer.setLayout(new GridLayout(0, 3, 20, 20)); // 3 columns
             for (Product p : products) {
                 productsContainer.add(createProductCard(p));
@@ -520,10 +512,39 @@ public class ShopPanel extends JPanel {
         card.setBorder(new EmptyBorder(10, 10, 10, 10));
         card.setPreferredSize(new Dimension(220, 300));
 
+        // --- TOP BAR FOR WISHLIST HEART ---
+        JPanel topBar = new JPanel(new BorderLayout());
+        topBar.setBackground(Color.WHITE);
+        topBar.setMaximumSize(new Dimension(200, 30));
+        topBar.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JButton heartBtn = new JButton(p.isWishlisted() ? "❤" : "♡");
+        heartBtn.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 20));
+        heartBtn.setForeground(p.isWishlisted() ? Color.RED : Color.GRAY);
+        heartBtn.setBorderPainted(false);
+        heartBtn.setContentAreaFilled(false);
+        heartBtn.setFocusPainted(false);
+        heartBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        
+        heartBtn.addActionListener(e -> {
+            int currentUserId = UserSession.getCurrentUserId();
+            // Toggle Logic
+            boolean nowWishlisted = productServiceInstance.toggleWishlist(currentUserId, p.getProductId());
+            p.setWishlisted(nowWishlisted);
+            
+            // UI Update
+            heartBtn.setText(nowWishlisted ? "❤" : "♡");
+            heartBtn.setForeground(nowWishlisted ? Color.RED : Color.GRAY);
+        });
+
+        topBar.add(heartBtn, BorderLayout.EAST);
+        card.add(topBar);
+        // ----------------------------------
+
         // Image
         JLabel imgLabel = new JLabel("Loading...", SwingConstants.CENTER);
-        imgLabel.setPreferredSize(new Dimension(200, 140));
-        imgLabel.setMaximumSize(new Dimension(200, 140));
+        imgLabel.setPreferredSize(new Dimension(200, 110)); // Adjusted height slightly to fit heart
+        imgLabel.setMaximumSize(new Dimension(200, 110));
         imgLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         imgLabel.setBackground(new Color(245, 245, 245));
         imgLabel.setOpaque(true);
@@ -544,7 +565,7 @@ public class ShopPanel extends JPanel {
         tagsPanel.setOpaque(false);
         tagsPanel.setMaximumSize(new Dimension(200, 30));
         if (p.isSecondHand()) {
-            JLabel badge = new JLabel("Like New"); // Placeholder logic
+            JLabel badge = new JLabel("Like New"); 
             badge.setFont(new Font("Arial", Font.BOLD, 10));
             badge.setForeground(new Color(39, 174, 96));
             badge.setBorder(BorderFactory.createLineBorder(new Color(39, 174, 96), 1, true));
@@ -568,7 +589,7 @@ public class ShopPanel extends JPanel {
         sellerLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         card.add(imgLabel);
-        card.add(Box.createVerticalStrut(10));
+        card.add(Box.createVerticalStrut(5));
         card.add(nameLabel);
         card.add(tagsPanel);
         card.add(priceLabel);
@@ -576,25 +597,12 @@ public class ShopPanel extends JPanel {
         card.add(Box.createVerticalGlue());
 
         if (p.isSecondHand()) {
-
             int currentUserId = UserSession.getCurrentUserId();
             User currentUser = userServiceInstance.getUser(currentUserId);
-
-            // debug check attim
-            System.out.println("DEBUG CHECK:");
-            System.out.println("  -> Current User ID: " + currentUserId);
-            if (currentUser == null) {
-                System.out.println("  -> ERROR: currentUser is NULL! (Check userService query)");
-            } else {
-                System.out.println("  -> Current User Name: '" + currentUser.getUserName() + "'");
-            }
-            System.out.println("  -> Product Seller Name: '" + p.getSellerName() + "'");
-
-
             boolean isCurrentUserSeller = currentUser != null && currentUser.getUserName().equalsIgnoreCase(p.getSellerName());
 
             if (isCurrentUserSeller) {
-
+                // I AM THE SELLER - Show "Sell" Button
                 boolean isRequested = p.getRequestByUserId() > 0; 
                 
                 Color btnColor = isRequested ? UIConstants.SELECTION_GREEN : Color.GRAY;
@@ -604,7 +612,7 @@ public class ShopPanel extends JPanel {
                 sellBtn.setForeground(txtColor);
                 sellBtn.setMaximumSize(new Dimension(140, 35));
                 sellBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
-                sellBtn.setEnabled(isRequested); // Only enable if someone clicked "Buy"
+                sellBtn.setEnabled(isRequested); 
                 
                 sellBtn.addActionListener(e -> {
                     int buyerId = p.getRequestByUserId();
@@ -615,17 +623,15 @@ public class ShopPanel extends JPanel {
                             "Confirm Sale", JOptionPane.YES_NO_OPTION);
 
                     if (choice == JOptionPane.YES_OPTION) {
-                        // 1. Add Expense to Buyer
                         Expense expense = new Expense(buyerId, 0, "Shopping",
                                 "Bought: " + p.getName(), p.getPriceAfterDiscount(),
                                 new Date(System.currentTimeMillis()));
                         
                         if (expenseServiceInstance.addExpense(expense)) {
-                            // 2. Delete Product
                             boolean deleted = productServiceInstance.deleteProduct(p.getProductId());
                             if (deleted) {
                                 JOptionPane.showMessageDialog(this, "Item sold successfully!");
-                                refreshData(); // Reload list
+                                refreshData(); 
                             } else {
                                 JOptionPane.showMessageDialog(this, "Error removing listing.", "Warning", JOptionPane.WARNING_MESSAGE);
                             }
@@ -645,7 +651,6 @@ public class ShopPanel extends JPanel {
                 buyBtn.setMaximumSize(new Dimension(140, 35));
                 buyBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
                 
-                // Check if already requested (optional visual feedback)
                 if (p.getRequestByUserId() == currentUserId) {
                     buyBtn.setText("Requested");
                     buyBtn.setEnabled(false);
@@ -653,7 +658,6 @@ public class ShopPanel extends JPanel {
                 }
                 
                 buyBtn.addActionListener(e -> {
-                    // Don't buy immediately. Request purchase.
                     boolean sent = productServiceInstance.requestProduct(p.getProductId(), currentUserId);
                     if (sent) {
                         buyBtn.setText("Requested");
@@ -692,7 +696,6 @@ public class ShopPanel extends JPanel {
                 });
                 card.add(chatBtn);
             }
-            // --- NEW LOGIC END ---
 
         } else {
             // Online Deal Button

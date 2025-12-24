@@ -16,6 +16,7 @@ public class Product {
     private String location;
     private int discountPercentage;
     private int requestByUserId;
+    private boolean isWishlisted;
 
     // this constructor for scraping
     public Product(String name, double priceAfterDiscount, String category, String imageUrl, String sellerName) {
@@ -144,6 +145,14 @@ public class Product {
         }
 
         return priceAfterDiscount;
+    }
+
+    public boolean isWishlisted() {
+        return isWishlisted;
+    }
+
+    public void setWishlisted(boolean isWishlisted) {
+        this.isWishlisted = isWishlisted;
     }
 
 }

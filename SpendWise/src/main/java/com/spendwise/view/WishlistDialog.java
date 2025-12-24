@@ -6,95 +6,124 @@ import java.awt.*;
 import java.util.List;
 
 import com.spendwise.models.Product;
-import com.spendwise.services.ProfileService;
+import com.spendwise.services.productService;
+import com.spendwise.view.components.RoundedButton;
+import com.spendwise.view.components.RoundedPanel;
 
 public class WishlistDialog extends JDialog {
 
-    private JPanel gridPanel;
+    private JPanel productsContainer;
+    private productService productServiceInstance;
 
     public WishlistDialog(JFrame parent) {
         super(parent, "My Wishlist", true);
-        setSize(500, 600);
+        this.productServiceInstance = new productService();
+
+        setSize(450, 600);
         setLocationRelativeTo(parent);
         setLayout(new BorderLayout());
-        getContentPane().setBackground(UIConstants.WHITE_BG);
+        getContentPane().setBackground(new Color(250, 250, 250));
 
-        // Alert Banner
-        JPanel alertPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        alertPanel.setBackground(new Color(255, 244, 229));
-        JLabel alertLabel = new JLabel("🔔 Price Drop Alert: Some items are on sale!");
-        alertLabel.setForeground(new Color(180, 80, 0));
-        alertPanel.add(alertLabel);
-        add(alertPanel, BorderLayout.NORTH);
+        // --- Header ---
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(Color.WHITE);
+        headerPanel.setBorder(new EmptyBorder(15, 20, 15, 20));
 
-        // Grid
-        gridPanel = new JPanel(new GridLayout(0, 2, 15, 15));
-        gridPanel.setBackground(UIConstants.WHITE_BG);
-        gridPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
+        JLabel title = new JLabel("Your Wishlist");
+        title.setFont(new Font("Arial", Font.BOLD, 20));
+        
+        headerPanel.add(title, BorderLayout.CENTER);
+        add(headerPanel, BorderLayout.NORTH);
 
-        JScrollPane scrollPane = new JScrollPane(gridPanel);
+        // --- Scrollable Content ---
+        productsContainer = new JPanel();
+        productsContainer.setLayout(new BoxLayout(productsContainer, BoxLayout.Y_AXIS));
+        productsContainer.setBackground(new Color(250, 250, 250));
+        productsContainer.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        JScrollPane scrollPane = new JScrollPane(productsContainer);
         scrollPane.setBorder(null);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         add(scrollPane, BorderLayout.CENTER);
 
-        refreshWishlist();
+        // --- Close Button Area ---
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        bottomPanel.setBackground(Color.WHITE);
+        bottomPanel.setBorder(new EmptyBorder(10, 10, 10, 20));
+
+        JButton closeBtn = new JButton("Close");
+        closeBtn.addActionListener(e -> dispose());
+        bottomPanel.add(closeBtn);
+        add(bottomPanel, BorderLayout.SOUTH);
+
+        // Load the actual data
+        loadWishlistData();
     }
 
-    private void refreshWishlist() {
-        gridPanel.removeAll();
+    private void loadWishlistData() {
+        productsContainer.removeAll();
 
-        // Backend Call
-        List<Product> products = ProfileService.getSavedProducts(); 
+        int currentUserId = UserSession.getCurrentUserId();
+        // 1. Fetch data using the new service method
+        List<Product> wishlist = productServiceInstance.getWishlist(currentUserId);
 
-        if (products != null) {
-            for (Product p : products) {
-                gridPanel.add(createWishlistItem(p));
+        if (wishlist == null || wishlist.isEmpty()) {
+            JLabel empty = new JLabel("Your wishlist is empty.", SwingConstants.CENTER);
+            empty.setFont(new Font("Arial", Font.PLAIN, 14));
+            empty.setForeground(Color.GRAY);
+            empty.setAlignmentX(Component.CENTER_ALIGNMENT);
+            
+            productsContainer.add(Box.createVerticalStrut(50));
+            productsContainer.add(empty);
+        } else {
+            for (Product p : wishlist) {
+                productsContainer.add(createWishlistRow(p));
+                productsContainer.add(Box.createVerticalStrut(10));
             }
         }
 
-        gridPanel.revalidate();
-        gridPanel.repaint();
+        productsContainer.revalidate();
+        productsContainer.repaint();
     }
 
-    private JPanel createWishlistItem(Product product) {
-        JPanel card = new JPanel();
-        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
-        card.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
-        card.setBackground(Color.WHITE);
+    private JPanel createWishlistRow(Product p) {
+        RoundedPanel row = new RoundedPanel(15, Color.WHITE);
+        row.setLayout(new BorderLayout());
+        row.setMaximumSize(new Dimension(400, 80));
+        row.setPreferredSize(new Dimension(400, 80));
+        row.setBorder(new EmptyBorder(10, 10, 10, 10));
+        row.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JPanel imagePlaceholder = new JPanel();
-        imagePlaceholder.setBackground(new Color(245, 245, 245));
-        imagePlaceholder.setPreferredSize(new Dimension(100, 100));
-        imagePlaceholder.setMaximumSize(new Dimension(Short.MAX_VALUE, 100));
+        // Left: Info
+        JPanel infoPanel = new JPanel(new GridLayout(2, 1));
+        infoPanel.setOpaque(false);
+        
+        JLabel nameLabel = new JLabel(p.getName());
+        nameLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        
+        JLabel priceLabel = new JLabel("$" + p.getPriceAfterDiscount());
+        priceLabel.setFont(new Font("Arial", Font.PLAIN, 12));
+        priceLabel.setForeground(new Color(39, 174, 96));
 
-        JLabel nameLabel = new JLabel(product.getName());
-        nameLabel.setFont(new Font("Arial", Font.BOLD, 12));
-        nameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        infoPanel.add(nameLabel);
+        infoPanel.add(priceLabel);
 
-        JLabel priceLabel = new JLabel("$" + product.getPrice());
-        priceLabel.setForeground(UIConstants.PRIMARY_GREEN);
-        priceLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        JButton removeBtn = new JButton("Remove");
-        removeBtn.setFont(new Font("Arial", Font.PLAIN, 10));
+        // Right: Remove Button
+        RoundedButton removeBtn = new RoundedButton("Remove", 10, new Color(255, 230, 230), Color.RED);
         removeBtn.setForeground(Color.RED);
-        removeBtn.setBorderPainted(false);
-        removeBtn.setContentAreaFilled(false);
-        removeBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
-        removeBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
+        removeBtn.setFont(new Font("Arial", Font.BOLD, 11));
+        removeBtn.setPreferredSize(new Dimension(80, 30));
         removeBtn.addActionListener(e -> {
-            // Backend
-            ProfileService.removeFromWishlist(product);
-            refreshWishlist();
+            // Remove from DB
+            int userId = UserSession.getCurrentUserId();
+            productServiceInstance.toggleWishlist(userId, p.getProductId());
+            // Refresh UI
+            loadWishlistData();
         });
 
-        card.add(imagePlaceholder);
-        card.add(Box.createVerticalStrut(10));
-        card.add(nameLabel);
-        card.add(priceLabel);
-        card.add(Box.createVerticalStrut(5));
-        card.add(removeBtn);
+        row.add(infoPanel, BorderLayout.CENTER);
+        row.add(removeBtn, BorderLayout.EAST);
 
-        return card;
+        return row;
     }
 }
