@@ -22,7 +22,7 @@ public class ForgotPasswordPanel extends JPanel {
 
         // 2. Logo (Diğer panellerle aynı mantık)
         JLabel logoLabel;
-        java.net.URL imgURL = getClass().getResource("/logo.png");
+        java.net.URL imgURL = getClass().getResource("/Resim1.png");
         if (imgURL != null) {
             ImageIcon originalIcon = new ImageIcon(imgURL);
             Image scaledImage = originalIcon.getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH);

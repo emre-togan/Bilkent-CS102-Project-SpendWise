@@ -31,7 +31,7 @@ public class SignUpPanel extends JPanel {
 
         // 2. Logo and header
         JLabel logoLabel;
-        java.net.URL imgURL = getClass().getResource("/logo.png");
+        java.net.URL imgURL = getClass().getResource("/Resim1.png");
         if (imgURL != null) {
             ImageIcon originalIcon = new ImageIcon(imgURL);
             Image scaledImage = originalIcon.getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH);
@@ -171,40 +171,41 @@ public class SignUpPanel extends JPanel {
         }
 
         if (pass.length() < 4) {
-            JOptionPane.showMessageDialog(this, "Password must be at least 4 characters!", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Password must be at least 4 characters!", "Error",
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         // Backend registration
         boolean registrationSuccess = authController.register(username, pass, email);
-        
+
         if (registrationSuccess) {
-            JOptionPane.showMessageDialog(this, 
-                "Account created successfully!\nYou can now login with your credentials.", 
-                "Registration Successful", 
-                JOptionPane.INFORMATION_MESSAGE);
-            
+            JOptionPane.showMessageDialog(this,
+                    "Account created successfully!\nYou can now login with your credentials.",
+                    "Registration Successful",
+                    JOptionPane.INFORMATION_MESSAGE);
+
             // Clear fields
             fullNameField.setText("");
             usernameField.setText("");
             emailField.setText("");
             passwordField.setText("");
             confirmPasswordField.setText("");
-            
+
             // Go back to login
             if (onSignInClicked != null) {
                 onSignInClicked.run();
             }
         } else {
             // More specific error message
-            JOptionPane.showMessageDialog(this, 
-                "<html><body style='width: 250px'>" +
-                "<b>Registration Failed!</b><br><br>" +
-                "This username or email is already registered.<br>" +
-                "Please try with different credentials or login if you already have an account." +
-                "</body></html>", 
-                "Registration Error", 
-                JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                    "<html><body style='width: 250px'>" +
+                            "<b>Registration Failed!</b><br><br>" +
+                            "This username or email is already registered.<br>" +
+                            "Please try with different credentials or login if you already have an account." +
+                            "</body></html>",
+                    "Registration Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 }

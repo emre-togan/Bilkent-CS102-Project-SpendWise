@@ -2,7 +2,6 @@ package com.spendwise.view;
 
 import javax.swing.*;
 import java.awt.*;
-import java.net.URL;
 
 import com.spendwise.controllers.AuthController;
 import com.spendwise.models.User;
@@ -16,7 +15,7 @@ public class LoginPanel extends JPanel {
     private Runnable onForgotPasswordClicked;
     private Runnable onSignUpClicked;
     private Runnable onLoginSuccess;
-    
+
     private AuthController authController;
 
     public LoginPanel() {
@@ -32,7 +31,7 @@ public class LoginPanel extends JPanel {
         JLabel logoLabel = new JLabel();
         logoLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        URL logoUrl = getClass().getResource("/logo.png");
+        java.net.URL logoUrl = getClass().getResource("/Resim1.png");
 
         if (logoUrl != null) {
             ImageIcon originalIcon = new ImageIcon(logoUrl);
@@ -95,7 +94,7 @@ public class LoginPanel extends JPanel {
         forgotPassLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         forgotPassLabel.setMaximumSize(new Dimension(Integer.MAX_VALUE, forgotPassLabel.getPreferredSize().height));
         forgotPassLabel.setHorizontalAlignment(SwingConstants.LEFT);
-        
+
         forgotPassLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 if (onForgotPasswordClicked != null) {
@@ -120,7 +119,7 @@ public class LoginPanel extends JPanel {
         signUpLabel.setForeground(UIConstants.PRIMARY_BLUE);
         signUpLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         signUpLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        
+
         signUpLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 if (onSignUpClicked != null) {
@@ -201,19 +200,19 @@ public class LoginPanel extends JPanel {
 
         // Backend login
         boolean loginSuccess = authController.login(username, password);
-        
+
         if (loginSuccess) {
             User currentUser = authController.getCurrentUser();
-            
+
             // Update UserSession
             if (currentUser != null) {
                 UserSession.setCurrentUserId(currentUser.getId());
             }
-            
+
             // Clear fields
             usernameField.setText("");
             passwordField.setText("");
-            
+
             // Success callback
             if (onLoginSuccess != null) {
                 onLoginSuccess.run();
