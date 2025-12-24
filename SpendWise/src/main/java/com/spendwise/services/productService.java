@@ -30,6 +30,12 @@ public class productService {
         return affectedRows > 0;
     }
 
+    public boolean deleteProduct(int productId) {
+        String sql = "DELETE FROM products WHERE product_id = ?";
+        int affected = DBconnection.executeUpdate(sql, productId);
+        return affected > 0;
+    }
+
     public ArrayList<Product> getAllProducts() {
         ArrayList<Product> products = new ArrayList<>();
         String sql = "SELECT * FROM products";
