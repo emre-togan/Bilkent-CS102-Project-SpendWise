@@ -17,6 +17,13 @@ public class User {
         this.eMail = eMail;
     }
 
+    public User(int id, String userName, String password, String eMail) {
+    this.id = id;
+    this.userName = userName; // or whatever your field is named
+    this.password = password;
+    this.eMail = eMail;
+}
+
     // this constructor for get the data from database
     public User(String userName, String password, String eMail, int id, Timestamp accountCreationTime) {
         this.userName = userName;

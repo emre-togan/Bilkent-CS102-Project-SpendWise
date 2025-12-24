@@ -15,6 +15,7 @@ public class Product {
     private String condition;
     private String location;
     private int discountPercentage;
+    private int requestByUserId;
 
     // this constructor for scraping
     public Product(String name, double priceAfterDiscount, String category, String imageUrl, String sellerName) {
@@ -126,6 +127,14 @@ public class Product {
 
     public String getDescription() {
         return description;
+    }
+
+    public int getRequestByUserId() {
+        return requestByUserId;
+    }
+
+    public void setRequestByUserId(int requestByUserId) {
+        this.requestByUserId = requestByUserId;
     }
 
     public double priceWithDiscount() {

@@ -187,4 +187,34 @@ public class userService {
 
         return targetUser;
     }
+
+    public com.spendwise.models.User getUser(int userId) {
+        
+    String query = "SELECT * FROM users WHERE user_id = ?";
+    
+    try (java.sql.Connection conn = DBconnection.getConnection();
+         java.sql.PreparedStatement stmt = conn.prepareStatement(query)) {
+        
+        stmt.setInt(1, userId);
+        java.sql.ResultSet rs = stmt.executeQuery();
+        
+        if (rs.next()) {
+            // ERROR FIX: Check your User.java to see what arguments it needs.
+            // If you have a constructor like User(int id, String name, String email)...
+            // Adjust the line below to match YOUR User class fields exactly.
+            
+            // OPTION A (Try this first):
+            return new com.spendwise.models.User(
+                rs.getString("username"),
+                rs.getString("password"),
+                rs.getString("email"),
+                rs.getInt("user_id"),
+                rs.getTimestamp("registration_date")
+            );
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return null;
+}
 }

@@ -65,7 +65,8 @@ public class productService {
     }
 
     public Product helperResultSet(ResultSet resultSet) throws SQLException {
-        return new Product(
+
+        Product p = new Product(
                 resultSet.getInt("product_id"),
                 resultSet.getString("name"),
                 resultSet.getString("description"),
@@ -80,5 +81,37 @@ public class productService {
                 resultSet.getString("product_condition"),
                 resultSet.getString("location"),
                 resultSet.getInt("discount_percentage"));
+
+        // 2. THIS IS THE MISSING PART: Read the request status!
+        try {
+            int requesterId = resultSet.getInt("requested_by_user_id");
+            // If the database value is not null, set it on the object
+            if (!resultSet.wasNull()) {
+                p.setRequestByUserId(requesterId);
+            }
+        } catch (SQLException e) {
+            // This catch block prevents a crash if you haven't added the column to the DB yet
+            // System.out.println("Column requested_by_user_id not found in DB");
+        }
+
+        return p;
     }
+
+    public boolean requestProduct(int productId, int userId) {
+    String query = "UPDATE products SET requested_by_user_id = ? WHERE product_id = ?";
+    
+    try (java.sql.Connection conn = DBconnection.getConnection();
+         java.sql.PreparedStatement stmt = conn.prepareStatement(query)) {
+        
+        stmt.setInt(1, userId);
+        stmt.setInt(2, productId);
+        
+        int rowsUpdated = stmt.executeUpdate();
+        return rowsUpdated > 0;
+        
+    } catch (Exception e) {
+        e.printStackTrace();
+        return false;
+    }
+}
 }

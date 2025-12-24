@@ -54,6 +54,7 @@ import com.spendwise.scrapers.TrendyolScraper;
 import com.spendwise.services.ChatService;
 import com.spendwise.services.expenseService;
 import com.spendwise.services.productService;
+import com.spendwise.services.userService; // Added userService
 import com.spendwise.view.components.RoundedButton;
 import com.spendwise.view.components.RoundedPanel;
 import com.spendwise.view.components.RoundedTextField;
@@ -79,7 +80,8 @@ public class ShopPanel extends JPanel {
 
     // Services
     private productService productServiceInstance;
-    private expenseService expenseServiceInstance; // Added for buying logic
+    private expenseService expenseServiceInstance; 
+    private userService userServiceInstance; // Added userService
     private TrendyolScraper trendyolScraper;
     private AmazonScraper amazonScraper;
     private N11Scraper n11Scraper;
@@ -97,7 +99,8 @@ public class ShopPanel extends JPanel {
     public ShopPanel(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
         this.productServiceInstance = new productService();
-        this.expenseServiceInstance = new expenseService(); // Initialize expense service
+        this.expenseServiceInstance = new expenseService(); 
+        this.userServiceInstance = new userService(); // Initialize userService
 
         // Initialize Scrapers
         this.trendyolScraper = new TrendyolScraper();
@@ -573,70 +576,126 @@ public class ShopPanel extends JPanel {
         card.add(Box.createVerticalGlue());
 
         if (p.isSecondHand()) {
-            // BUY BUTTON
-            RoundedButton buyBtn = new RoundedButton("Buy Now", 15, UIConstants.SELECTION_GREEN,
-                    UIConstants.darker(UIConstants.SELECTION_GREEN));
-            buyBtn.setForeground(Color.WHITE);
-            buyBtn.setMaximumSize(new Dimension(140, 35));
-            buyBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
-            buyBtn.addActionListener(e -> {
-                int choice = JOptionPane.showConfirmDialog(this,
-                        "Are you sure you want to buy '" + p.getName() + "' for $" + p.getPriceAfterDiscount() + "?",
-                        "Confirm Purchase", JOptionPane.YES_NO_OPTION);
+            // --- NEW LOGIC START ---
+            int currentUserId = UserSession.getCurrentUserId();
+            User currentUser = userServiceInstance.getUser(currentUserId);
 
-                if (choice == JOptionPane.YES_OPTION) {
-                    int userId = UserSession.getCurrentUserId();
-                    // 1. Add Expense
-                    Expense expense = new Expense(userId, 0, "Shopping",
-                            "Bought: " + p.getName(), p.getPriceAfterDiscount(),
-                            new Date(System.currentTimeMillis()));
+            // --- ADD THESE DEBUG LINES ---
+            System.out.println("DEBUG CHECK:");
+            System.out.println("  -> Current User ID: " + currentUserId);
+            if (currentUser == null) {
+                System.out.println("  -> ERROR: currentUser is NULL! (Check userService query)");
+            } else {
+                System.out.println("  -> Current User Name: '" + currentUser.getUserName() + "'");
+            }
+            System.out.println("  -> Product Seller Name: '" + p.getSellerName() + "'");
+            // -----------------------------
+            
+            boolean isCurrentUserSeller = currentUser != null && currentUser.getUserName().equalsIgnoreCase(p.getSellerName());
+
+            if (isCurrentUserSeller) {
+                // I AM THE SELLER - Show "Sell" Button
+                
+                // Assuming Product has a method to check if requested. 
+                // Using p.getRequestByUserId() > 0 as a flag for "Requested".
+                boolean isRequested = p.getRequestByUserId() > 0; 
+                
+                Color btnColor = isRequested ? UIConstants.SELECTION_GREEN : Color.GRAY;
+                Color txtColor = Color.WHITE;
+                
+                RoundedButton sellBtn = new RoundedButton("Sell Product", 15, btnColor, UIConstants.darker(btnColor));
+                sellBtn.setForeground(txtColor);
+                sellBtn.setMaximumSize(new Dimension(140, 35));
+                sellBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+                sellBtn.setEnabled(isRequested); // Only enable if someone clicked "Buy"
+                
+                sellBtn.addActionListener(e -> {
+                    int buyerId = p.getRequestByUserId();
+                    if(buyerId <= 0) return;
                     
-                    if (expenseServiceInstance.addExpense(expense)) {
-                        // 2. Delete Product
-                        boolean deleted = productServiceInstance.deleteProduct(p.getProductId());
-                        if (deleted) {
-                            JOptionPane.showMessageDialog(this, "Purchase successful!");
-                            refreshData(); // Reload list
-                        } else {
-                            JOptionPane.showMessageDialog(this, "Bought, but error removing listing.", "Warning", JOptionPane.WARNING_MESSAGE);
-                        }
-                    } else {
-                        JOptionPane.showMessageDialog(this, "Transaction failed.", "Error", JOptionPane.ERROR_MESSAGE);
-                    }
-                }
-            });
-            card.add(buyBtn);
-            card.add(Box.createVerticalStrut(5));
+                    int choice = JOptionPane.showConfirmDialog(this,
+                            "Finalize sale of '" + p.getName() + "' to buyer?",
+                            "Confirm Sale", JOptionPane.YES_NO_OPTION);
 
-            // CHAT BUTTON
-            RoundedButton chatBtn = new RoundedButton("Start Chat", 15, UIConstants.PRIMARY_BLUE,
-                    Color.DARK_GRAY);
-            chatBtn.setForeground(Color.WHITE);
-            chatBtn.setMaximumSize(new Dimension(140, 35));
-            chatBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
-            chatBtn.addActionListener(e -> {
-                String sellerName = p.getSellerName();
-                int currentUserId = UserSession.getCurrentUserId();
-                List<User> foundUsers = ChatService.searchUsers(sellerName);
-                User sellerUser = null;
-                for (User u : foundUsers) {
-                    if (u.getUserName().equalsIgnoreCase(sellerName)) {
-                        sellerUser = u;
-                        break;
+                    if (choice == JOptionPane.YES_OPTION) {
+                        // 1. Add Expense to Buyer
+                        Expense expense = new Expense(buyerId, 0, "Shopping",
+                                "Bought: " + p.getName(), p.getPriceAfterDiscount(),
+                                new Date(System.currentTimeMillis()));
+                        
+                        if (expenseServiceInstance.addExpense(expense)) {
+                            // 2. Delete Product
+                            boolean deleted = productServiceInstance.deleteProduct(p.getProductId());
+                            if (deleted) {
+                                JOptionPane.showMessageDialog(this, "Item sold successfully!");
+                                refreshData(); // Reload list
+                            } else {
+                                JOptionPane.showMessageDialog(this, "Error removing listing.", "Warning", JOptionPane.WARNING_MESSAGE);
+                            }
+                        } else {
+                            JOptionPane.showMessageDialog(this, "Transaction failed.", "Error", JOptionPane.ERROR_MESSAGE);
+                        }
                     }
+                });
+                card.add(sellBtn);
+                
+            } else {
+                // I AM A BUYER - Show "Buy Now" and "Chat"
+                
+                RoundedButton buyBtn = new RoundedButton("Buy Now", 15, UIConstants.SELECTION_GREEN,
+                        UIConstants.darker(UIConstants.SELECTION_GREEN));
+                buyBtn.setForeground(Color.WHITE);
+                buyBtn.setMaximumSize(new Dimension(140, 35));
+                buyBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+                
+                // Check if already requested (optional visual feedback)
+                if (p.getRequestByUserId() == currentUserId) {
+                    buyBtn.setText("Requested");
+                    buyBtn.setEnabled(false);
+                    buyBtn.setBackground(Color.GRAY);
                 }
-                if (sellerUser != null) {
-                    if (sellerUser.getId() == currentUserId) {
-                        JOptionPane.showMessageDialog(this, "You cannot chat with yourself!", "Info", JOptionPane.INFORMATION_MESSAGE);
-                        return;
+                
+                buyBtn.addActionListener(e -> {
+                    // Don't buy immediately. Request purchase.
+                    boolean sent = productServiceInstance.requestProduct(p.getProductId(), currentUserId);
+                    if (sent) {
+                        buyBtn.setText("Requested");
+                        buyBtn.setEnabled(false);
+                        buyBtn.setBackground(Color.GRAY);
+                        JOptionPane.showMessageDialog(this, "Purchase request sent to seller!");
+                    } else {
+                         JOptionPane.showMessageDialog(this, "Failed to send request.", "Error", JOptionPane.ERROR_MESSAGE);
                     }
-                    ChatService.addFriend(currentUserId, sellerUser.getId());
-                    mainFrame.showPanel("CHAT");
-                } else {
-                    JOptionPane.showMessageDialog(this, "Seller not found.", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-            });
-            card.add(chatBtn);
+                });
+                card.add(buyBtn);
+                card.add(Box.createVerticalStrut(5));
+
+                // CHAT BUTTON
+                RoundedButton chatBtn = new RoundedButton("Start Chat", 15, UIConstants.PRIMARY_BLUE,
+                        Color.DARK_GRAY);
+                chatBtn.setForeground(Color.WHITE);
+                chatBtn.setMaximumSize(new Dimension(140, 35));
+                chatBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+                chatBtn.addActionListener(e -> {
+                    String sellerName = p.getSellerName();
+                    List<User> foundUsers = ChatService.searchUsers(sellerName);
+                    User sellerUser = null;
+                    for (User u : foundUsers) {
+                        if (u.getUserName().equalsIgnoreCase(sellerName)) {
+                            sellerUser = u;
+                            break;
+                        }
+                    }
+                    if (sellerUser != null) {
+                        ChatService.addFriend(currentUserId, sellerUser.getId());
+                        mainFrame.showPanel("CHAT");
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Seller not found.", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                });
+                card.add(chatBtn);
+            }
+            // --- NEW LOGIC END ---
 
         } else {
             // Online Deal Button
