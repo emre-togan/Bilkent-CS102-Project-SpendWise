@@ -1,5 +1,6 @@
 package com.spendwise.view;
 
+<<<<<<< HEAD
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -23,31 +24,74 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
+=======
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.spendwise.models.Product;
+import com.spendwise.models.Purchase;
+>>>>>>> origin/main
 import com.spendwise.models.User;
+import com.spendwise.services.ChatService;
 import com.spendwise.services.ProfileService;
+import com.spendwise.services.productService;
+import com.spendwise.view.components.RoundedPanel;
+import com.spendwise.view.components.SidebarPanel;
 
 public class ProfilePanel extends JPanel {
 
-    private MainFrame mainFrame;
-    private JLabel userNameLabel;
-    private JLabel userEmailLabel;
+    private User currentUser;
+
+    // UI Components
+    private SidebarPanel sidebarPanel;
+    private JLabel mainNameLabel;
+    private JLabel mainEmailLabel;
+    private JLabel avatarLabel;
     private JLabel purchaseCountLabel;
     private JLabel savedAmountLabel;
     private JLabel dealsFoundLabel;
     private JPanel friendsContainer;
+    private JPanel savedProductsContainer;
+
+    // Services
+    private ProfileService profileService;
+    private productService productServiceInstance;
+
+    // Data
+    private List<User> friends;
+    private List<Product> savedProducts;
+    private List<Purchase> purchases;
 
     public ProfilePanel(MainFrame mainFrame) {
-        this.mainFrame = mainFrame;
+        this.currentUser = UserSession.getCurrentUser();
+        this.profileService = new ProfileService();
+        this.productServiceInstance = new productService();
+        this.friends = new ArrayList<>();
+        this.savedProducts = new ArrayList<>();
+        this.purchases = new ArrayList<>();
+
         setLayout(new BorderLayout());
         setBackground(new Color(250, 250, 250));
 
-        add(createSideMenu(), BorderLayout.WEST);
-        add(createContent(), BorderLayout.CENTER);
-        
+        // Sidebar
+        sidebarPanel = new SidebarPanel("PROFILE", key -> mainFrame.showPanel(key), mainFrame::logout);
+        add(sidebarPanel, BorderLayout.WEST);
+
+        // Scroll Pane for the main content
+        JScrollPane scrollPane = new JScrollPane(createContent());
+        scrollPane.setBorder(null);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        add(scrollPane, BorderLayout.CENTER);
+
         // Initial data load
         refreshData();
     }
 
+<<<<<<< HEAD
     private JPanel createSideMenu() {
         JPanel sideMenu = new JPanel();
         sideMenu.setPreferredSize(new Dimension(260, 800));
@@ -153,66 +197,66 @@ public class ProfilePanel extends JPanel {
         parent.add(btn);
     }
 
+=======
+>>>>>>> origin/main
     private JPanel createContent() {
         JPanel content = new JPanel();
-        content.setLayout(null);
+        content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS)); // Center aligned vertical flow
         content.setBackground(new Color(250, 250, 250));
+        content.setBorder(new EmptyBorder(30, 30, 30, 30));
 
-        // Profile Header Card
-        JPanel headerCard = new JPanel();
-        headerCard.setBounds(30, 30, 1070, 120);
-        headerCard.setBackground(Color.WHITE);
-        headerCard.setLayout(null);
-        headerCard.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
+        // Header
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(new Color(250, 250, 250)); // Match bg
+        headerPanel.setMaximumSize(new Dimension(1100, 60));
+        headerPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        // Avatar
-        JLabel bigAvatar = new JLabel("SJ");
-        bigAvatar.setBounds(30, 25, 70, 70);
-        bigAvatar.setHorizontalAlignment(SwingConstants.CENTER);
-        bigAvatar.setOpaque(true);
-        bigAvatar.setBackground(UIConstants.PRIMARY_GREEN);
-        bigAvatar.setForeground(Color.WHITE);
-        bigAvatar.setFont(new Font("Arial", Font.BOLD, 32));
-        headerCard.add(bigAvatar);
+        JPanel titleBlock = new JPanel(new GridLayout(2, 1));
+        titleBlock.setBackground(new Color(250, 250, 250));
 
-        // User Info
-        JLabel nameLabel = new JLabel("Sarah Johnson");
-        nameLabel.setBounds(120, 30, 300, 30);
-        nameLabel.setFont(new Font("Arial", Font.BOLD, 24));
-        headerCard.add(nameLabel);
+        JLabel header = new JLabel("Profile");
+        header.setFont(new Font("Arial", Font.BOLD, 20));
 
-        JLabel emailLabel = new JLabel("sarah.johnson@email.com");
-        emailLabel.setBounds(120, 65, 300, 20);
-        emailLabel.setFont(new Font("Arial", Font.PLAIN, 14));
-        emailLabel.setForeground(new Color(120, 120, 120));
-        headerCard.add(emailLabel);
+        JLabel subHeader = new JLabel("Manage your account and preferences");
+        subHeader.setFont(new Font("Arial", Font.PLAIN, 12));
+        subHeader.setForeground(new Color(120, 120, 120));
 
+<<<<<<< HEAD
         // Edit Profile Button
         RoundedButton editBtn = new RoundedButton("✏️ Edit Profile", 15);
         editBtn.setBounds(920, 40, 130, 40);
         editBtn.setFont(new Font("Arial", Font.BOLD, 13));
         editBtn.setBackground(UIConstants.PRIMARY_BLUE);
         editBtn.setForeground(Color.WHITE);
+=======
+        titleBlock.add(header);
+        titleBlock.add(subHeader);
+
+        JButton editBtn = new JButton("✏");
+        editBtn.setFont(new Font("Arial", Font.PLAIN, 16));
+        editBtn.setBackground(new Color(250, 250, 250)); // Transparent-ish
+        editBtn.setBorder(null);
+        editBtn.setFocusPainted(false);
+>>>>>>> origin/main
         editBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        editBtn.setForeground(new Color(150, 150, 150));
+        editBtn.setToolTipText("Edit Profile");
         editBtn.addActionListener(e -> {
-            JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
-            new PersonalInfoDialog(parent).setVisible(true);
+            new PersonalInfoDialog((JFrame) SwingUtilities.getWindowAncestor(this)).setVisible(true);
+            refreshData();
         });
-        headerCard.add(editBtn);
 
-        content.add(headerCard);
+        headerPanel.add(titleBlock, BorderLayout.WEST);
+        headerPanel.add(editBtn, BorderLayout.EAST);
 
-        // Stats Cards
-        createStatsCard(content, "156", "Purchases", 30, 170);
-        createStatsCard(content, "$2.4k", "Saved", 380, 170);
-        createStatsCard(content, "12", "Deals Found", 730, 170);
+        content.add(headerPanel);
+        content.add(Box.createVerticalStrut(25));
 
-        // Friends Section
-        JLabel friendsTitle = new JLabel("Friends");
-        friendsTitle.setBounds(30, 290, 200, 30);
-        friendsTitle.setFont(new Font("Arial", Font.BOLD, 18));
-        content.add(friendsTitle);
+        // Big Profile Card (Info + Stats)
+        content.add(createBigProfileCard());
+        content.add(Box.createVerticalStrut(30));
 
+<<<<<<< HEAD
         RoundedButton addFriendBtn = new RoundedButton("➕ Add Friend", 15);
         addFriendBtn.setBounds(950, 290, 150, 35);
         addFriendBtn.setFont(new Font("Arial", Font.BOLD, 13));
@@ -220,54 +264,57 @@ public class ProfilePanel extends JPanel {
         addFriendBtn.setForeground(Color.WHITE);
         addFriendBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         content.add(addFriendBtn);
+=======
+        // Friends Section Header
+        content.add(createSectionHeader("👥 Friends", "Add Friend", e -> {
+            new AddFriendDialog((Frame) SwingUtilities.getWindowAncestor(this)).setVisible(true);
+            refreshData();
+        }));
+        content.add(Box.createVerticalStrut(15));
+>>>>>>> origin/main
 
+        // Friends Container
         friendsContainer = new JPanel();
         friendsContainer.setLayout(new BoxLayout(friendsContainer, BoxLayout.Y_AXIS));
         friendsContainer.setBackground(new Color(250, 250, 250));
+        friendsContainer.setAlignmentX(Component.LEFT_ALIGNMENT);
+        content.add(friendsContainer);
 
-        JScrollPane friendsScroll = new JScrollPane(friendsContainer);
-        friendsScroll.setBounds(30, 340, 1070, 180);
-        friendsScroll.setBorder(null);
-        friendsScroll.getVerticalScrollBar().setUnitIncrement(16);
-        content.add(friendsScroll);
+        content.add(Box.createVerticalStrut(30));
 
-        // Quick Actions
-        JLabel actionsTitle = new JLabel("Quick Actions");
-        actionsTitle.setBounds(30, 540, 200, 30);
-        actionsTitle.setFont(new Font("Arial", Font.BOLD, 18));
-        content.add(actionsTitle);
+        // Saved Products Header
+        content.add(createSectionHeader("🛍️ Saved Products", "See All", e -> showAllSavedProducts()));
+        content.add(Box.createVerticalStrut(15));
 
-        createActionButton(content, "📦 Purchase History", 30, 580, e -> {
-            JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
-            new PurchaseHistoryDialog(parent).setVisible(true);
-        });
+        // Saved Products Container
+        savedProductsContainer = new JPanel();
+        savedProductsContainer.setLayout(new FlowLayout(FlowLayout.LEFT, 20, 0));
+        savedProductsContainer.setBackground(new Color(250, 250, 250));
+        savedProductsContainer.setAlignmentX(Component.LEFT_ALIGNMENT);
+        content.add(savedProductsContainer);
 
-        createActionButton(content, "❤️ Wishlist", 380, 580, e -> {
-            JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
-            new WishlistDialog(parent).setVisible(true);
-        });
+        content.add(Box.createVerticalStrut(30));
 
-        createActionButton(content, "📍 Addresses", 730, 580, e -> {
-            JFrame parent = (JFrame) SwingUtilities.getWindowAncestor(this);
-            new AddressesDialog(parent).setVisible(true);
-        });
+        // Action Buttons (History, Wishlist, Addresses)
+        createActionButtons(content);
+
+        // Fill remaining
+        content.add(Box.createVerticalGlue());
 
         return content;
     }
 
-    private void createStatsCard(JPanel parent, String value, String label, int x, int y) {
-        JPanel card = new JPanel();
-        card.setBounds(x, y, 330, 100);
-        card.setBackground(Color.WHITE);
-        card.setLayout(null);
-        card.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
+    private JPanel createSectionHeader(String title, String actionText, java.awt.event.ActionListener action) {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(new Color(250, 250, 250));
+        panel.setMaximumSize(new Dimension(1100, 30));
+        panel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JLabel valueLabel = new JLabel(value);
-        valueLabel.setBounds(20, 20, 290, 35);
-        valueLabel.setFont(new Font("Arial", Font.BOLD, 32));
-        valueLabel.setForeground(UIConstants.PRIMARY_GREEN);
-        card.add(valueLabel);
+        JLabel titleLabel = new JLabel(title);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        panel.add(titleLabel, BorderLayout.WEST);
 
+<<<<<<< HEAD
         JLabel descLabel = new JLabel(label);
         descLabel.setBounds(20, 60, 290, 20);
         descLabel.setFont(new Font("Arial", Font.PLAIN, 14));
@@ -299,161 +346,406 @@ public class ProfilePanel extends JPanel {
         btn.addMouseListener(new MouseAdapter() {
             public void mouseEntered(MouseEvent e) {
                 btn.setBackground(new Color(248, 248, 248));
+=======
+        if (actionText != null) {
+            JButton actionBtn = new JButton(actionText);
+            actionBtn.setFont(new Font("Arial", Font.BOLD, 12));
+            actionBtn.setForeground(UIConstants.PRIMARY_GREEN);
+            actionBtn.setBackground(new Color(250, 250, 250));
+            actionBtn.setBorder(null);
+            if (actionText.contains("Add")) {
+                actionBtn.setBorder(BorderFactory.createCompoundBorder(
+                        new RoundedPanel(10, new Color(230, 245, 230)).getBorder(), // Fake border logic
+                        new EmptyBorder(5, 10, 5, 10)));
+                // Actually button styling is tricky with just border.
+                // Let's use standard button logic or just text link style.
+                actionBtn.setBorder(BorderFactory.createLineBorder(UIConstants.PRIMARY_GREEN, 1, true));
+                actionBtn.setBackground(Color.WHITE);
+                actionBtn.setPreferredSize(new Dimension(100, 30));
+            } else {
+                actionBtn.setForeground(new Color(120, 120, 120));
+>>>>>>> origin/main
             }
 
-            public void mouseExited(MouseEvent e) {
-                btn.setBackground(Color.WHITE);
-            }
-        });
-        
-        parent.add(btn);
+            actionBtn.setFocusPainted(false);
+            actionBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            actionBtn.addActionListener(action);
+            panel.add(actionBtn, BorderLayout.EAST);
+        }
+        return panel;
     }
 
-    private void loadFriends() {
+    private JPanel createBigProfileCard() {
+        RoundedPanel card = new RoundedPanel(20, Color.WHITE);
+        card.setLayout(new BorderLayout());
+        card.setMaximumSize(new Dimension(1100, 200));
+        card.setPreferredSize(new Dimension(1100, 200));
+        card.setBorder(new EmptyBorder(30, 40, 30, 40));
+        card.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        // Top Info: Avatar, Name, Email
+        JPanel topInfo = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 0));
+        topInfo.setOpaque(false);
+
+        String initials = getInitials(currentUser.getUserName());
+        avatarLabel = new JLabel(initials);
+        avatarLabel.setPreferredSize(new Dimension(64, 64));
+        avatarLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        avatarLabel.setOpaque(true);
+        avatarLabel.setBackground(UIConstants.PRIMARY_GREEN); // Light green bg
+        avatarLabel.setForeground(Color.WHITE);
+        avatarLabel.setFont(new Font("Arial", Font.BOLD, 22));
+
+        JPanel nameEmailPanel = new JPanel(new GridLayout(2, 1, 0, 5));
+        nameEmailPanel.setOpaque(false);
+
+        mainNameLabel = new JLabel(currentUser.getUserName());
+        mainNameLabel.setFont(new Font("Arial", Font.BOLD, 18));
+
+        mainEmailLabel = new JLabel(currentUser.geteMail());
+        mainEmailLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        mainEmailLabel.setForeground(Color.GRAY);
+
+        nameEmailPanel.add(mainNameLabel);
+        nameEmailPanel.add(mainEmailLabel);
+
+        topInfo.add(avatarLabel);
+        topInfo.add(nameEmailPanel);
+
+        // Stats Row
+        JPanel statsRow = new JPanel(new GridLayout(1, 3, 50, 0));
+        statsRow.setOpaque(false);
+        statsRow.setBorder(new EmptyBorder(30, 0, 0, 0)); // Spacing from top info
+
+        statsRow.add(createStatItem("Purchases", "0", label -> purchaseCountLabel = label));
+        statsRow.add(createStatItem("Saved", "$0.00", label -> savedAmountLabel = label));
+        statsRow.add(createStatItem("Deals Found", "0", label -> dealsFoundLabel = label));
+
+        JPanel contentWrapper = new JPanel(new BorderLayout());
+        contentWrapper.setOpaque(false);
+        contentWrapper.add(topInfo, BorderLayout.NORTH);
+        contentWrapper.add(statsRow, BorderLayout.CENTER);
+
+        card.add(contentWrapper, BorderLayout.CENTER);
+        return card;
+    }
+
+    private JPanel createStatItem(String title, String initialValue, java.util.function.Consumer<JLabel> labelSetter) {
+        JPanel panel = new JPanel(new GridLayout(2, 1));
+        panel.setOpaque(false);
+
+        JLabel valueLabel = new JLabel(initialValue);
+        valueLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        valueLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        labelSetter.accept(valueLabel);
+
+        JLabel titleLabel = new JLabel(title);
+        titleLabel.setFont(new Font("Arial", Font.PLAIN, 12));
+        titleLabel.setForeground(Color.GRAY);
+        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+
+        panel.add(valueLabel);
+        panel.add(titleLabel);
+        return panel;
+    }
+
+    private void updateFriendsList() {
         friendsContainer.removeAll();
 
-        try {
-            List<User> friends = ProfileService.getFriends();
-            
-            if (friends == null || friends.isEmpty()) {
-                JLabel emptyLabel = new JLabel("No friends yet. Add some friends to get started!");
-                emptyLabel.setFont(new Font("Arial", Font.PLAIN, 14));
-                emptyLabel.setForeground(Color.GRAY);
-                emptyLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-                friendsContainer.add(Box.createVerticalStrut(30));
-                friendsContainer.add(emptyLabel);
-            } else {
-                for (User friend : friends) {
-                    friendsContainer.add(createFriendItem(friend));
-                    friendsContainer.add(Box.createVerticalStrut(10));
-                }
+        if (friends.isEmpty()) {
+            // Empty state
+            // ...
+        } else {
+            for (User friend : friends) {
+                friendsContainer.add(createFriendRow(friend));
+                friendsContainer.add(Box.createVerticalStrut(10));
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            JLabel errorLabel = new JLabel("Error loading friends");
-            errorLabel.setForeground(Color.RED);
-            friendsContainer.add(errorLabel);
         }
 
         friendsContainer.revalidate();
         friendsContainer.repaint();
     }
 
-    private JPanel createFriendItem(User friend) {
-        JPanel item = new JPanel(new BorderLayout(15, 0));
-        item.setMaximumSize(new Dimension(Integer.MAX_VALUE, 70));
-        item.setBackground(Color.WHITE);
-        item.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(230, 230, 230)),
-            new EmptyBorder(15, 15, 15, 15)
-        ));
+    private JPanel createFriendRow(User friend) {
+        RoundedPanel row = new RoundedPanel(15, Color.WHITE);
+        row.setLayout(new BorderLayout());
+        row.setMaximumSize(new Dimension(1100, 70));
+        row.setPreferredSize(new Dimension(1100, 70));
+        row.setBorder(new EmptyBorder(10, 20, 10, 20));
+        row.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        // Avatar
+        // Left: Avatar + Name + Subtext
+        JPanel left = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 0));
+        left.setOpaque(false);
+
         JLabel avatar = new JLabel(getInitials(friend.getUserName()));
-        avatar.setPreferredSize(new Dimension(45, 45));
-        avatar.setHorizontalAlignment(SwingConstants.CENTER);
+        avatar.setPreferredSize(new Dimension(40, 40));
         avatar.setOpaque(true);
-        avatar.setBackground(UIConstants.PRIMARY_BLUE);
+        avatar.setBackground(UIConstants.PRIMARY_GREEN); // or random color
         avatar.setForeground(Color.WHITE);
-        avatar.setFont(new Font("Arial", Font.BOLD, 16));
+        avatar.setHorizontalAlignment(SwingConstants.CENTER);
+        avatar.setFont(new Font("Arial", Font.BOLD, 14));
+
+        JPanel namePanel = new JPanel(new GridLayout(2, 1));
+        namePanel.setOpaque(false);
+
+        JLabel name = new JLabel(friend.getUserName());
+        name.setFont(new Font("Arial", Font.BOLD, 14));
+
+        JLabel sub = new JLabel("Friend since 2024");
+        sub.setFont(new Font("Arial", Font.PLAIN, 12));
+        sub.setForeground(Color.GRAY);
+
+        namePanel.add(name);
+        namePanel.add(sub);
+
+        left.add(avatar);
+        left.add(namePanel);
+
+        // Right: Chevron
+        JLabel arrow = new JLabel("›");
+        arrow.setFont(new Font("Arial", Font.BOLD, 20));
+        arrow.setForeground(Color.LIGHT_GRAY);
+
+        row.add(left, BorderLayout.WEST);
+        row.add(arrow, BorderLayout.EAST);
+
+        return row;
+    }
+
+    private void createActionButtons(JPanel parent) {
+        // Container for the list of actions
+        RoundedPanel actionsPanel = new RoundedPanel(20, Color.WHITE);
+        actionsPanel.setLayout(new BoxLayout(actionsPanel, BoxLayout.Y_AXIS));
+        actionsPanel.setMaximumSize(new Dimension(1100, 180)); // Approx height for 3 items
+        actionsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        actionsPanel.setBorder(new EmptyBorder(10, 0, 10, 0)); // Outer padding
+
+        actionsPanel.add(createActionRow("📦", "Purchase History",
+                e -> new PurchaseHistoryDialog((JFrame) SwingUtilities.getWindowAncestor(this)).setVisible(true)));
+        actionsPanel.add(createDivider());
+        actionsPanel.add(createActionRow("❤️", "Wishlist",
+                e -> new WishlistDialog((JFrame) SwingUtilities.getWindowAncestor(this)).setVisible(true)));
+        actionsPanel.add(createDivider());
+        actionsPanel.add(createActionRow("📍", "Addresses",
+                e -> JOptionPane.showMessageDialog(this, "Addresses feature coming soon!")));
+
+        parent.add(actionsPanel);
+        parent.add(Box.createVerticalStrut(30)); // Bottom spacing
+    }
+
+    private JPanel createActionRow(String icon, String text, java.awt.event.ActionListener action) {
+        JPanel row = new JPanel(new BorderLayout());
+        row.setBackground(Color.WHITE);
+        row.setMaximumSize(new Dimension(1100, 50));
+        row.setPreferredSize(new Dimension(1100, 50));
+        row.setBorder(new EmptyBorder(0, 25, 0, 25));
+        row.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        // Use BoxLayout for better vertical centering and alignment control
+        JPanel left = new JPanel();
+        left.setLayout(new BoxLayout(left, BoxLayout.X_AXIS));
+        left.setBackground(Color.WHITE);
+
+        JLabel iconLabel = new JLabel(icon);
+        iconLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 18));
+        // Fix icon width to ensure text aligns perfectly vertically
+        iconLabel.setPreferredSize(new Dimension(40, 40));
+        iconLabel.setMaximumSize(new Dimension(40, 40));
+        iconLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        iconLabel.setAlignmentY(Component.CENTER_ALIGNMENT);
+
+        JLabel textLabel = new JLabel(text);
+        textLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        textLabel.setForeground(new Color(50, 50, 50));
+        textLabel.setAlignmentY(Component.CENTER_ALIGNMENT);
+
+        left.add(iconLabel);
+        left.add(Box.createHorizontalStrut(10)); // Gap between icon and text
+        left.add(textLabel);
+
+        // Right side: Chevron
+        JLabel chevron = new JLabel("›");
+        chevron.setFont(new Font("Arial", Font.BOLD, 18));
+        chevron.setForeground(Color.LIGHT_GRAY);
+
+        row.add(left, BorderLayout.WEST);
+        row.add(chevron, BorderLayout.EAST);
+
+        // Click interaction
+        row.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                if (action != null)
+                    action.actionPerformed(null);
+            }
+
+            public void mouseEntered(java.awt.event.MouseEvent e) {
+                row.setBackground(new Color(248, 248, 248));
+                left.setBackground(new Color(248, 248, 248));
+            }
+
+            public void mouseExited(java.awt.event.MouseEvent e) {
+                row.setBackground(Color.WHITE);
+                left.setBackground(Color.WHITE);
+            }
+        });
+
+        return row;
+    }
+
+    private JPanel createDivider() {
+        JPanel dividerContainer = new JPanel(new BorderLayout());
+        dividerContainer.setBackground(Color.WHITE);
+        dividerContainer.setMaximumSize(new Dimension(1100, 1));
+
+        JSeparator separator = new JSeparator();
+        separator.setForeground(new Color(240, 240, 240));
+        separator.setBackground(new Color(240, 240, 240));
+
+        dividerContainer.add(separator, BorderLayout.CENTER);
+        // Add left/right padding to divider so it doesn't touch edges if desired,
+        // or keep full width. Design shows full width or indented.
+        // Let's indent slightly to match text alignment ideally, but full width is
+        // cleaner for simple lists.
+        dividerContainer.setBorder(new EmptyBorder(0, 20, 0, 20));
+
+        return dividerContainer;
+    }
+
+    private void updateSavedProducts() {
+        savedProductsContainer.removeAll();
+
+        if (savedProducts.isEmpty()) {
+            // ...
+        } else {
+            int max = Math.min(3, savedProducts.size());
+            for (int i = 0; i < max; i++) {
+                savedProductsContainer.add(createSmallProductCard(savedProducts.get(i)));
+            }
+        }
+        savedProductsContainer.revalidate();
+        savedProductsContainer.repaint();
+    }
+
+    private JPanel createSmallProductCard(Product product) {
+        // Matches the "Saved Products" cards in design
+        // Image on top (or left?), usually image top for cards.
+        // Design had 3 cards in a row.
+        RoundedPanel card = new RoundedPanel(15, Color.WHITE);
+        card.setLayout(new BorderLayout());
+        card.setPreferredSize(new Dimension(300, 200)); // Fixed size
+        card.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        // Image placeholder
+        JLabel image = new JLabel("📦", SwingConstants.CENTER); // Placeholder
+        image.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 40));
+        image.setBackground(new Color(245, 245, 245));
+        image.setOpaque(true);
+        image.setPreferredSize(new Dimension(280, 120));
 
         // Info
-        JPanel infoPanel = new JPanel(new GridLayout(2, 1));
-        infoPanel.setOpaque(false);
-        
-        JLabel nameLabel = new JLabel(friend.getUserName());
-        nameLabel.setFont(new Font("Arial", Font.BOLD, 14));
-        
-        JLabel sinceLabel = new JLabel("Friend since " + friend.getAccountCreationTime().toString().substring(0, 10));
-        sinceLabel.setFont(new Font("Arial", Font.PLAIN, 12));
-        sinceLabel.setForeground(new Color(120, 120, 120));
+        JPanel info = new JPanel(new BorderLayout());
+        info.setOpaque(false);
+        info.setBorder(new EmptyBorder(10, 5, 0, 5));
 
-        infoPanel.add(nameLabel);
-        infoPanel.add(sinceLabel);
+        JLabel name = new JLabel(truncateText(product.getName(), 25));
+        name.setFont(new Font("Arial", Font.BOLD, 13));
 
-        item.add(avatar, BorderLayout.WEST);
-        item.add(infoPanel, BorderLayout.CENTER);
+        // Price or other icon?
+        // Let's put Price
+        JLabel price = new JLabel("$" + String.format("%.2f", product.getPriceAfterDiscount()));
+        price.setFont(new Font("Arial", Font.PLAIN, 12));
+        price.setForeground(Color.GRAY);
 
-        return item;
+        info.add(name, BorderLayout.NORTH);
+        info.add(price, BorderLayout.SOUTH);
+
+        card.add(image, BorderLayout.NORTH);
+        card.add(info, BorderLayout.CENTER);
+
+        return card;
     }
 
     private String getInitials(String name) {
-        if (name == null || name.isEmpty()) return "?";
-        String[] parts = name.split(" ");
-        if (parts.length >= 2) {
-            return ("" + parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
+        if (name == null || name.isEmpty())
+            return "??";
+        String[] parts = name.trim().split("\\s+");
+        if (parts.length == 1) {
+            return parts[0].substring(0, Math.min(2, parts[0].length())).toUpperCase();
         }
-        return ("" + name.charAt(0)).toUpperCase();
+        return (parts[0].charAt(0) + "" + parts[parts.length - 1].charAt(0)).toUpperCase();
     }
 
-    /**
-     * Refresh data from backend - called by MainFrame
-     */
+    private void showAllSavedProducts() {
+        JOptionPane.showMessageDialog(this, "Showing all " + savedProducts.size() + " saved products!",
+                "Saved Products", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    // Unused methods removed (showPurchaseHistory, showWishlist)
+
+    private String truncateText(String text, int maxLength) {
+        if (text == null)
+            return "";
+        if (text.length() <= maxLength)
+            return text;
+        return text.substring(0, maxLength) + "...";
+    }
+
     public void refreshData() {
         try {
-            User currentUser = ProfileService.getCurrentUser();
-            
-            if (currentUser != null) {
-                // Update UI with user data
-                if (userNameLabel != null) {
-                    userNameLabel.setText(currentUser.getUserName());
-                }
-                if (userEmailLabel != null) {
-                    userEmailLabel.setText(currentUser.geteMail());
-                }
-                
-                // Update stats (placeholder values for now)
-                if (purchaseCountLabel != null) {
-                    purchaseCountLabel.setText(String.valueOf(currentUser.getPurchaseCount()));
-                }
-                if (savedAmountLabel != null) {
-                    savedAmountLabel.setText(String.format("$%.1fk", currentUser.getTotalSaved() / 1000.0));
-                }
-                if (dealsFoundLabel != null) {
-                    dealsFoundLabel.setText(String.valueOf(currentUser.getDealsFound()));
-                }
+            currentUser = UserSession.getCurrentUser();
+            int userId = currentUser.getId();
+
+            if (sidebarPanel != null) {
+                sidebarPanel.updateUser();
             }
-            
-            // Load friends
-            loadFriends();
-            
+
+            if (mainNameLabel != null) {
+                mainNameLabel.setText(currentUser.getUserName());
+                mainEmailLabel.setText(currentUser.geteMail());
+                avatarLabel.setText(getInitials(currentUser.getUserName()));
+            }
+
+            // USE CHAT SERVICE FOR FRIENDS TO ENSURE CONSISTENCY
+            friends = ChatService.getFriends(userId);
+            if (friends == null)
+                friends = new ArrayList<>();
+            updateFriendsList();
+
+            savedProducts = productServiceInstance.getAllProducts();
+            if (savedProducts == null)
+                savedProducts = new ArrayList<>();
+            updateSavedProducts();
+
+            purchases = profileService.getOrders("" + userId);
+            if (purchases == null)
+                purchases = new ArrayList<>();
+
+            if (purchaseCountLabel != null)
+                purchaseCountLabel.setText(String.valueOf(purchases.size()));
+            if (dealsFoundLabel != null)
+                dealsFoundLabel.setText(String.valueOf(savedProducts.size()));
+
+            double totalSaved = 0;
+            for (Product product : savedProducts) {
+                totalSaved += (product.getPrice() - product.getPriceAfterDiscount());
+            }
+            if (savedAmountLabel != null)
+                savedAmountLabel.setText(String.format("$%.1fk", totalSaved / 1000));
+
         } catch (Exception e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this, 
-                "Error loading profile: " + e.getMessage(), 
-                "Error", 
-                JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    /**
-     * Clear all data - called on logout
-     */
     public void clearData() {
-        if (userNameLabel != null) {
-            userNameLabel.setText("Guest");
-        }
-        if (userEmailLabel != null) {
-            userEmailLabel.setText("guest@email.com");
-        }
-        if (purchaseCountLabel != null) {
-            purchaseCountLabel.setText("0");
-        }
-        if (savedAmountLabel != null) {
-            savedAmountLabel.setText("$0");
-        }
-        if (dealsFoundLabel != null) {
-            dealsFoundLabel.setText("0");
-        }
-        
-        friendsContainer.removeAll();
-        JLabel emptyLabel = new JLabel("Please login to view profile");
-        emptyLabel.setFont(new Font("Arial", Font.PLAIN, 14));
-        emptyLabel.setForeground(Color.GRAY);
-        emptyLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        friendsContainer.add(Box.createVerticalStrut(30));
-        friendsContainer.add(emptyLabel);
-        friendsContainer.revalidate();
-        friendsContainer.repaint();
+        friends.clear();
+        savedProducts.clear();
+        purchases.clear();
+        updateFriendsList();
+        updateSavedProducts();
+        purchaseCountLabel.setText("0");
+        savedAmountLabel.setText("$0");
+        dealsFoundLabel.setText("0");
     }
 }

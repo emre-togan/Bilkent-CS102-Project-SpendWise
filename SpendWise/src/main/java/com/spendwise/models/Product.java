@@ -100,6 +100,34 @@ public class Product {
         return isSecondHand;
     }
 
+    public int getReviewCount() {
+        return reviewCount;
+    }
+
+    public String getCondition() {
+        return condition;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public int getDiscountPercentage() {
+        return discountPercentage;
+    }
+
+    public double getRating() {
+        return rating;
+    }
+
+    public double getOriginalPrice() {
+        return originalPrice;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
     public double priceWithDiscount() {
         double priceAfterDiscount = originalPrice;
         if (discountPercentage > 0) {

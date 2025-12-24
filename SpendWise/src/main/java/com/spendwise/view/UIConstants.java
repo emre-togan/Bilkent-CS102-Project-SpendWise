@@ -19,6 +19,13 @@ public class UIConstants {
     public static final Color WHITE_BG = Color.WHITE;
     public static final Color BACKGROUND_LIGHT = new Color(250, 250, 250);
     public static final Color BACKGROUND_DARK = new Color(245, 245, 245);
+    public static final Color INPUT_BG_COLOR = new Color(245, 245, 245); // Light Gray for inputs
+
+    // Sidebar Colors
+    public static final Color SIDEBAR_BG = Color.WHITE;
+    public static final Color SELECTION_GREEN = new Color(139, 195, 74); // Lighter green for selection
+
+    public static final int ROUNDED_RADIUS = 20;
 
     public static final Color TEXT_COLOR = new Color(50, 50, 50);
     public static final Color TEXT_DARK = new Color(33, 33, 33);

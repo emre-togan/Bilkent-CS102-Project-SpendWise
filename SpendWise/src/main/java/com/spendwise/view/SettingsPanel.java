@@ -22,13 +22,15 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
 import com.spendwise.services.SettingsService;
+import com.spendwise.view.components.RoundedPanel;
+import com.spendwise.view.components.SidebarPanel;
 
 public class SettingsPanel extends JPanel {
 
     private MainFrame mainFrame;
     private Runnable onLogoutClicked;
     private SettingsService settingsService;
-    private JPanel contentPanel;
+    private SidebarPanel sidebarPanel;
 
     // Toggle Buttons References (to update them)
     private JCheckBox budgetAlertsToggle;
@@ -40,8 +42,21 @@ public class SettingsPanel extends JPanel {
         setLayout(new BorderLayout());
         setBackground(UIConstants.WHITE_BG);
 
-        add(createSideMenu(), BorderLayout.WEST);
-        add(createContent(), BorderLayout.CENTER);
+        // Sidebar
+        sidebarPanel = new SidebarPanel("SETTINGS", key -> mainFrame.showPanel(key), () -> {
+            if (onLogoutClicked != null)
+                onLogoutClicked.run();
+            else
+                mainFrame.logout();
+        });
+        add(sidebarPanel, BorderLayout.WEST);
+
+        // Content wrapped in scroll pane
+        JScrollPane scrollPane = new JScrollPane(createContent());
+        scrollPane.setBorder(null);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        add(scrollPane, BorderLayout.CENTER);
 
         // Load UI and Settings
         loadSettings();
@@ -51,79 +66,146 @@ public class SettingsPanel extends JPanel {
         this.onLogoutClicked = callback;
     }
 
-    private JPanel createSideMenu() {
-        JPanel sideMenu = new JPanel();
-        sideMenu.setPreferredSize(new Dimension(260, 800));
-        sideMenu.setBackground(Color.WHITE);
-        sideMenu.setLayout(null);
-        sideMenu.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, new Color(240, 240, 240)));
+    private JPanel createContent() {
+        JPanel contentPanel = new JPanel();
+        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+        contentPanel.setBackground(new Color(250, 250, 250));
+        contentPanel.setBorder(new EmptyBorder(30, 40, 30, 40));
 
-        JLabel logo = new JLabel("W$");
-        logo.setBounds(20, 25, 50, 50);
-        logo.setFont(new Font("Arial", Font.BOLD, 40));
-        logo.setForeground(UIConstants.PRIMARY_GREEN);
-        sideMenu.add(logo);
+        // Header
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(new Color(250, 250, 250));
+        headerPanel.setMaximumSize(new Dimension(1100, 60));
+        headerPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JLabel appName = new JLabel("Finance Assistant");
-        appName.setBounds(80, 35, 150, 30);
-        appName.setFont(new Font("Arial", Font.PLAIN, 15));
-        appName.setForeground(new Color(100, 100, 100));
-        sideMenu.add(appName);
+        JLabel title = new JLabel("Settings");
+        title.setFont(new Font("Arial", Font.BOLD, 20));
 
-        int startY = 120;
-        addMenuButton(sideMenu, "🏠", "Dashboard", startY, false);
-        addMenuButton(sideMenu, "💳", "Budget", startY + 60, false);
-        addMenuButton(sideMenu, "🧾", "Expenses", startY + 120, false);
-        addMenuButton(sideMenu, "🛍️", "Shop", startY + 180, false);
-        addMenuButton(sideMenu, "💬", "Chat", startY + 240, false);
-        addMenuButton(sideMenu, "👤", "Profile", startY + 300, false);
-        addMenuButton(sideMenu, "⚙️", "Settings", startY + 360, true);
+        JLabel subtitle = new JLabel("Manage your app preferences");
+        subtitle.setFont(new Font("Arial", Font.PLAIN, 12));
+        subtitle.setForeground(Color.GRAY);
 
-        // Profile Card at bottom
-        JPanel profileCard = new JPanel();
-        profileCard.setBounds(15, 650, 230, 70);
-        profileCard.setBackground(new Color(248, 249, 250));
-        profileCard.setLayout(null);
-        profileCard.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230)));
+        JPanel titleBlock = new JPanel(new GridLayout(2, 1));
+        titleBlock.setBackground(new Color(250, 250, 250));
+        titleBlock.add(title);
+        titleBlock.add(subtitle);
 
-        JLabel avatar = new JLabel("SJ");
-        avatar.setBounds(15, 15, 40, 40);
-        avatar.setHorizontalAlignment(SwingConstants.CENTER);
-        avatar.setOpaque(true);
-        avatar.setBackground(UIConstants.PRIMARY_GREEN);
-        avatar.setForeground(Color.WHITE);
-        avatar.setFont(new Font("Arial", Font.BOLD, 16));
-        profileCard.add(avatar);
+        headerPanel.add(titleBlock, BorderLayout.WEST);
+        contentPanel.add(headerPanel);
+        contentPanel.add(Box.createVerticalStrut(30));
 
-        JLabel userName = new JLabel("Sarah Johnson");
-        userName.setBounds(65, 18, 150, 18);
-        userName.setFont(new Font("Arial", Font.BOLD, 13));
-        profileCard.add(userName);
+        // 1. Notifications Section
+        addSectionHeader(contentPanel, "Notifications");
+        RoundedPanel notificationsCard = new RoundedPanel(15, Color.WHITE);
+        notificationsCard.setLayout(new BoxLayout(notificationsCard, BoxLayout.Y_AXIS));
+        notificationsCard.setMaximumSize(new Dimension(1100, 150)); // Approx
+        notificationsCard.setAlignmentX(Component.LEFT_ALIGNMENT);
+        notificationsCard.setBorder(new EmptyBorder(10, 0, 10, 0));
 
-        JLabel userEmail = new JLabel("sarah@email.com");
-        userEmail.setBounds(65, 37, 150, 15);
-        userEmail.setFont(new Font("Arial", Font.PLAIN, 11));
-        userEmail.setForeground(new Color(120, 120, 120));
-        profileCard.add(userEmail);
+        budgetAlertsToggle = new JCheckBox();
+        discountAlertsToggle = new JCheckBox(); // We'll set icons/listeners later
 
-        sideMenu.add(profileCard);
+        notificationsCard
+                .add(createToggleRow("🔔", "Budget Alerts", "Notify when exceeding budget", budgetAlertsToggle));
+        notificationsCard.add(createDivider());
+        notificationsCard
+                .add(createToggleRow("🏷️", "Discount Alerts", "Get notified of new deals", discountAlertsToggle));
 
+<<<<<<< HEAD
         RoundedButton logoutBtn = new RoundedButton("🚪 Logout", 15);
         logoutBtn.setBounds(15, 735, 230, 40);
         logoutBtn.setFont(new Font("Arial", Font.BOLD, 14));
         logoutBtn.setForeground(new Color(220, 53, 69));
         logoutBtn.setBackground(Color.WHITE);
         logoutBtn.setBorder(BorderFactory.createLineBorder(new Color(220, 53, 69)));
+=======
+        contentPanel.add(notificationsCard);
+        contentPanel.add(Box.createVerticalStrut(30));
+
+        // 2. Account Section
+        addSectionHeader(contentPanel, "Account");
+        RoundedPanel accountCard = new RoundedPanel(15, Color.WHITE);
+        accountCard.setLayout(new BoxLayout(accountCard, BoxLayout.Y_AXIS));
+        accountCard.setMaximumSize(new Dimension(1100, 200));
+        accountCard.setAlignmentX(Component.LEFT_ALIGNMENT);
+        accountCard.setBorder(new EmptyBorder(10, 0, 10, 0));
+
+        accountCard.add(createNavigationRow("🛡️", "Personal Information",
+                () -> new PersonalInfoDialog(mainFrame).setVisible(true)));
+        accountCard.add(createDivider());
+        accountCard.add(createNavigationRow("🔒", "Change Password",
+                () -> new ChangePasswordDialog(mainFrame).setVisible(true)));
+        accountCard.add(createDivider());
+        accountCard.add(createNavigationRow("🛡️", "Privacy Settings",
+                () -> new PrivacySettingsDialog(mainFrame).setVisible(true)));
+
+        contentPanel.add(accountCard);
+        contentPanel.add(Box.createVerticalStrut(30));
+
+        // 3. Support Section
+        addSectionHeader(contentPanel, "Support");
+        RoundedPanel supportCard = new RoundedPanel(15, Color.WHITE);
+        supportCard.setLayout(new BoxLayout(supportCard, BoxLayout.Y_AXIS));
+        supportCard.setMaximumSize(new Dimension(1100, 200));
+        supportCard.setAlignmentX(Component.LEFT_ALIGNMENT);
+        supportCard.setBorder(new EmptyBorder(10, 0, 10, 0));
+
+        supportCard.add(createNavigationRow("❓", "Help Center",
+                () -> JOptionPane.showMessageDialog(this, "Help Center Coming Soon!")));
+        supportCard.add(createDivider());
+        supportCard.add(createNavigationRow("📄", "Terms of Service",
+                () -> JOptionPane.showMessageDialog(this, "Terms of Service...")));
+        supportCard.add(createDivider());
+        supportCard.add(createNavigationRow("🔐", "Privacy Policy",
+                () -> JOptionPane.showMessageDialog(this, "Privacy Policy...")));
+
+        contentPanel.add(supportCard);
+        contentPanel.add(Box.createVerticalStrut(40));
+
+        // Footer (Version & Logout)
+        JPanel footer = new JPanel();
+        footer.setLayout(new BoxLayout(footer, BoxLayout.Y_AXIS));
+        footer.setBackground(new Color(250, 250, 250));
+        footer.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JLabel versionLabel = new JLabel("SpendWise");
+        versionLabel.setFont(new Font("Arial", Font.PLAIN, 12));
+        versionLabel.setForeground(Color.GRAY);
+        versionLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel vNumLabel = new JLabel("Version 1.0.0");
+        vNumLabel.setFont(new Font("Arial", Font.PLAIN, 12));
+        vNumLabel.setForeground(Color.GRAY);
+        vNumLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JButton logoutBtn = new JButton("↪ Logout"); // Using text arrow for now
+        logoutBtn.setFont(new Font("Arial", Font.BOLD, 12));
+        logoutBtn.setForeground(new Color(220, 53, 69)); // Red
+        logoutBtn.setContentAreaFilled(false);
+        logoutBtn.setBorderPainted(false);
+        logoutBtn.setFocusPainted(false);
+>>>>>>> origin/main
         logoutBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        logoutBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
         logoutBtn.addActionListener(e -> {
             if (onLogoutClicked != null)
                 onLogoutClicked.run();
         });
-        sideMenu.add(logoutBtn);
 
-        return sideMenu;
+        footer.add(versionLabel);
+        footer.add(vNumLabel);
+        footer.add(Box.createVerticalStrut(10));
+        footer.add(logoutBtn);
+
+        contentPanel.add(footer);
+
+        // Fill remaining space
+        contentPanel.add(Box.createVerticalGlue());
+
+        return contentPanel;
     }
 
+<<<<<<< HEAD
     private void addMenuButton(JPanel panel, String icon, String text, int y, boolean selected) {
         RoundedButton button = new RoundedButton(icon + "  " + text, 15);
         button.setBounds(10, y, 240, 50);
@@ -207,65 +289,128 @@ public class SettingsPanel extends JPanel {
     }
 
     private void addSectionHeader(String title) {
+=======
+    private void addSectionHeader(JPanel parent, String title) {
+>>>>>>> origin/main
         JLabel label = new JLabel(title);
         label.setFont(new Font("Arial", Font.BOLD, 14));
-        label.setForeground(UIConstants.GRAY_TEXT);
+        label.setForeground(new Color(80, 80, 80));
         label.setAlignmentX(Component.LEFT_ALIGNMENT);
-        contentPanel.add(label);
-        contentPanel.add(Box.createVerticalStrut(10));
+        parent.add(label);
+        parent.add(Box.createVerticalStrut(10));
     }
 
-    private JPanel createToggleItem(String text, JCheckBox toggle) {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(UIConstants.WHITE_BG);
-        panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
-        panel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    private JPanel createToggleRow(String icon, String title, String subtitle, JCheckBox toggle) {
+        JPanel row = new JPanel(new BorderLayout());
+        row.setBackground(Color.WHITE);
+        row.setMaximumSize(new Dimension(1100, 60));
+        row.setPreferredSize(new Dimension(1100, 60));
+        row.setBorder(new EmptyBorder(0, 20, 0, 20));
 
-        JLabel label = new JLabel(text);
-        label.setFont(UIConstants.BODY_FONT);
+        // Use BoxLayout for better vertical centering
+        JPanel left = new JPanel();
+        left.setLayout(new BoxLayout(left, BoxLayout.X_AXIS));
+        left.setBackground(Color.WHITE);
 
-        toggle.setBackground(UIConstants.WHITE_BG);
-        toggle.addActionListener(e -> handleToggleChange(text, toggle.isSelected()));
+        // Icon
+        JLabel iconLabel = new JLabel(icon);
+        iconLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 20));
+        // Fix icon width for alignment
+        iconLabel.setPreferredSize(new Dimension(45, 45));
+        iconLabel.setMaximumSize(new Dimension(45, 45));
+        iconLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        iconLabel.setAlignmentY(Component.CENTER_ALIGNMENT);
 
-        panel.add(label, BorderLayout.WEST);
-        panel.add(toggle, BorderLayout.EAST);
+        JPanel textPanel = new JPanel(new GridLayout(2, 1));
+        textPanel.setBackground(Color.WHITE);
+        textPanel.setAlignmentY(Component.CENTER_ALIGNMENT);
 
-        return panel;
+        JLabel t = new JLabel(title);
+        t.setFont(new Font("Arial", Font.BOLD, 14));
+        JLabel s = new JLabel(subtitle);
+        s.setFont(new Font("Arial", Font.PLAIN, 12));
+        s.setForeground(Color.GRAY);
+        textPanel.add(t);
+        textPanel.add(s);
+
+        left.add(iconLabel);
+        left.add(Box.createHorizontalStrut(10));
+        left.add(textPanel);
+
+        // Right side
+        toggle.setBackground(Color.WHITE);
+        toggle.addActionListener(e -> handleToggleChange(title, toggle.isSelected()));
+
+        row.add(left, BorderLayout.WEST);
+        row.add(toggle, BorderLayout.EAST);
+
+        return row;
     }
 
-    private JPanel createNavigationItem(String text, Runnable onClickAction) {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(UIConstants.WHITE_BG);
-        panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 45));
-        panel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        panel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        panel.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(240, 240, 240)));
+    private JPanel createNavigationRow(String icon, String text, Runnable action) {
+        JPanel row = new JPanel(new BorderLayout());
+        row.setBackground(Color.WHITE);
+        row.setMaximumSize(new Dimension(1100, 50));
+        row.setPreferredSize(new Dimension(1100, 50));
+        row.setBorder(new EmptyBorder(0, 20, 0, 20));
+        row.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        JLabel label = new JLabel(text);
-        label.setFont(UIConstants.BODY_FONT);
+        JPanel left = new JPanel();
+        left.setLayout(new BoxLayout(left, BoxLayout.X_AXIS));
+        left.setBackground(Color.WHITE);
 
-        JLabel arrow = new JLabel(">");
-        arrow.setForeground(UIConstants.GRAY_TEXT);
-        arrow.setFont(new Font("Arial", Font.BOLD, 14));
+        JLabel iconLabel = new JLabel(icon);
+        iconLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 18));
+        iconLabel.setPreferredSize(new Dimension(40, 40));
+        iconLabel.setMaximumSize(new Dimension(40, 40));
+        iconLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        iconLabel.setAlignmentY(Component.CENTER_ALIGNMENT);
 
-        panel.add(label, BorderLayout.WEST);
-        panel.add(arrow, BorderLayout.EAST);
+        JLabel textLabel = new JLabel(text);
+        textLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        textLabel.setAlignmentY(Component.CENTER_ALIGNMENT);
 
-        panel.addMouseListener(new MouseAdapter() {
-            public void mouseEntered(MouseEvent e) {
-                panel.setBackground(new Color(250, 250, 250));
+        left.add(iconLabel);
+        left.add(Box.createHorizontalStrut(10));
+        left.add(textLabel);
+
+        JLabel chevron = new JLabel("›");
+        chevron.setFont(new Font("Arial", Font.PLAIN, 18));
+        chevron.setForeground(Color.LIGHT_GRAY);
+
+        row.add(left, BorderLayout.WEST);
+        row.add(chevron, BorderLayout.EAST);
+
+        row.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                if (action != null)
+                    action.run();
             }
 
-            public void mouseExited(MouseEvent e) {
-                panel.setBackground(UIConstants.WHITE_BG);
+            public void mouseEntered(java.awt.event.MouseEvent e) {
+                row.setBackground(new Color(248, 248, 248));
+                left.setBackground(new Color(248, 248, 248));
             }
 
-            public void mouseClicked(MouseEvent e) {
-                onClickAction.run();
+            public void mouseExited(java.awt.event.MouseEvent e) {
+                row.setBackground(Color.WHITE);
+                left.setBackground(Color.WHITE);
             }
         });
 
-        return panel;
+        return row;
+    }
+
+    private JPanel createDivider() {
+        JPanel div = new JPanel(new BorderLayout());
+        div.setBackground(Color.WHITE);
+        div.setMaximumSize(new Dimension(1100, 1));
+        JSeparator sep = new JSeparator();
+        sep.setForeground(new Color(240, 240, 240));
+        sep.setBackground(new Color(240, 240, 240));
+        div.add(sep);
+        div.setBorder(new EmptyBorder(0, 20, 0, 20));
+        return div;
     }
 
     private void loadSettings() {
@@ -285,20 +430,11 @@ public class SettingsPanel extends JPanel {
         // Optional: Show small feedback toast
     }
 
-    private void handleDeleteAccount() {
-        int confirm = JOptionPane.showConfirmDialog(this,
-                "Are you sure you want to delete your account? This cannot be undone.",
-                "Delete Account", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-
-        if (confirm == JOptionPane.YES_OPTION) {
-            boolean success = settingsService.deleteAccount(UserSession.getCurrentUserId());
-            if (success) {
-                JOptionPane.showMessageDialog(this, "Account deleted.");
-                if (onLogoutClicked != null)
-                    onLogoutClicked.run();
-            } else {
-                JOptionPane.showMessageDialog(this, "Error deleting account.");
-            }
+    public void refreshData() {
+        loadSettings();
+        // Update Sidebar Profile
+        if (sidebarPanel != null) {
+            sidebarPanel.updateUser();
         }
     }
 }
