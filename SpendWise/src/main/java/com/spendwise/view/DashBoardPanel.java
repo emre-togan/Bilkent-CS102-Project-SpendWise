@@ -9,6 +9,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -89,7 +91,16 @@ public class DashBoardPanel extends JPanel {
         sideMenu.setLayout(null);
         sideMenu.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, new Color(240, 240, 240)));
 
-        JLabel logo = new JLabel("W$");
+        JLabel logo = new JLabel();
+        try {
+            ImageIcon logoIcon = new ImageIcon(getClass().getResource("/Resim1.png"));
+            Image image = logoIcon.getImage();
+            Image newimg = image.getScaledInstance(50, 50, java.awt.Image.SCALE_SMOOTH);
+            logoIcon = new ImageIcon(newimg);
+            logo.setIcon(logoIcon);
+        } catch (Exception e) {
+            logo.setText("W$");
+        }
         logo.setBounds(20, 25, 50, 50);
         logo.setFont(new Font("Arial", Font.BOLD, 40));
         logo.setForeground(UIConstants.PRIMARY_GREEN);

@@ -49,7 +49,16 @@ public class SettingsPanel extends JPanel {
         sideMenu.setLayout(null);
         sideMenu.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, new Color(240, 240, 240)));
 
-        JLabel logo = new JLabel("W$");
+        JLabel logo = new JLabel();
+        try {
+            ImageIcon logoIcon = new ImageIcon(getClass().getResource("/Resim1.png"));
+            Image image = logoIcon.getImage();
+            Image newimg = image.getScaledInstance(50, 50, java.awt.Image.SCALE_SMOOTH);
+            logoIcon = new ImageIcon(newimg);
+            logo.setIcon(logoIcon);
+        } catch (Exception e) {
+            logo.setText("W$");
+        }
         logo.setBounds(20, 25, 50, 50);
         logo.setFont(new Font("Arial", Font.BOLD, 40));
         logo.setForeground(UIConstants.PRIMARY_GREEN);

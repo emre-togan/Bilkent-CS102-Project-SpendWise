@@ -29,7 +29,7 @@ public class ShopPanel extends JPanel {
     private JButton sellBtn;
 
     private productService productServiceInstance;
-    
+
     // Scraper Instances
     private TrendyolScraper trendyolScraper;
     private AmazonScraper amazonScraper;
@@ -39,17 +39,17 @@ public class ShopPanel extends JPanel {
     private List<Product> currentProducts;
     private boolean showOnlineDeals = true;
     private boolean showSecondHand = false;
-    
+
     // CACHING VARIABLES
     private String lastSearchQuery = ""; // Remembers text when switching tabs
-    private String cachedQuery = null;   // Remembers what was last SCRAPED
+    private String cachedQuery = null; // Remembers what was last SCRAPED
     private Boolean cachedOnlineState = null;
     private Boolean cachedSecondHandState = null;
 
     public ShopPanel(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
         this.productServiceInstance = new productService();
-        
+
         // Initialize Scrapers
         this.trendyolScraper = new TrendyolScraper();
         this.amazonScraper = new AmazonScraper();
@@ -75,7 +75,16 @@ public class ShopPanel extends JPanel {
         sideMenu.setLayout(null);
         sideMenu.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, new Color(240, 240, 240)));
 
-        JLabel logo = new JLabel("W$");
+        JLabel logo = new JLabel();
+        try {
+            ImageIcon logoIcon = new ImageIcon(getClass().getResource("/Resim1.png"));
+            Image image = logoIcon.getImage();
+            Image newimg = image.getScaledInstance(50, 50, java.awt.Image.SCALE_SMOOTH);
+            logoIcon = new ImageIcon(newimg);
+            logo.setIcon(logoIcon);
+        } catch (Exception e) {
+            logo.setText("W$");
+        }
         logo.setBounds(20, 25, 50, 50);
         logo.setFont(new Font("Arial", Font.BOLD, 40));
         logo.setForeground(UIConstants.PRIMARY_GREEN);
@@ -124,7 +133,7 @@ public class ShopPanel extends JPanel {
         JLabel title = new JLabel("Shop & Deals");
         title.setFont(new Font("Arial", Font.BOLD, 24));
         title.setAlignmentX(Component.LEFT_ALIGNMENT);
-        
+
         // Search and Sort Row
         JPanel searchRow = new JPanel(new BorderLayout(15, 0));
         searchRow.setBackground(UIConstants.WHITE_BG);
@@ -134,18 +143,18 @@ public class ShopPanel extends JPanel {
         searchField = new JTextField();
         searchField.putClientProperty("JTextField.placeholderText", "Search for products (e.g., iPhone 13)...");
         searchField.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(Color.LIGHT_GRAY), 
-            new EmptyBorder(5, 10, 5, 10)));
-        
+                BorderFactory.createLineBorder(Color.LIGHT_GRAY),
+                new EmptyBorder(5, 10, 5, 10)));
+
         // Populate with last search if exists
         if (!lastSearchQuery.isEmpty()) {
             searchField.setText(lastSearchQuery);
         }
-        
+
         JButton searchBtn = new JButton("🔍");
         searchBtn.setBackground(UIConstants.PRIMARY_BLUE);
         searchBtn.setForeground(Color.WHITE);
-        
+
         // FORCE REFRESH when clicking search button manually
         searchBtn.addActionListener(e -> {
             cachedQuery = null; // Reset cache to force reload
@@ -156,7 +165,7 @@ public class ShopPanel extends JPanel {
         searchContainer.add(searchField, BorderLayout.CENTER);
         searchContainer.add(searchBtn, BorderLayout.EAST);
 
-        String[] sorts = {"Sort by: Featured", "Price: Low to High", "Price: High to Low"};
+        String[] sorts = { "Sort by: Featured", "Price: Low to High", "Price: High to Low" };
         sortByBox = new JComboBox<>(sorts);
         sortByBox.setBackground(Color.WHITE);
         sortByBox.addActionListener(e -> sortProducts());
@@ -171,7 +180,7 @@ public class ShopPanel extends JPanel {
 
         onlineDealsBtn = new JToggleButton("Online Deals", true);
         styleToggle(onlineDealsBtn);
-        
+
         secondHandBtn = new JToggleButton("Second Hand", false);
         styleToggle(secondHandBtn);
 
@@ -193,11 +202,11 @@ public class ShopPanel extends JPanel {
         sellBtn.setFocusPainted(false);
         sellBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         sellBtn.setBorder(new EmptyBorder(8, 20, 8, 20));
-        
+
         sellBtn.addActionListener(e -> {
             new SellProductDialog((Frame) SwingUtilities.getWindowAncestor(this)).setVisible(true);
             // Force refresh because we added a new item
-            cachedQuery = null; 
+            cachedQuery = null;
             secondHandBtn.setSelected(true);
             onlineDealsBtn.setSelected(false);
             updateFilterState();
@@ -220,7 +229,7 @@ public class ShopPanel extends JPanel {
         // Products Grid
         productsContainer = new JPanel(new GridLayout(0, 3, 20, 20)); // 3 columns
         productsContainer.setBackground(UIConstants.BACKGROUND_LIGHT);
-        
+
         JScrollPane scrollPane = new JScrollPane(productsContainer);
         scrollPane.setBorder(new EmptyBorder(20, 30, 20, 30));
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
@@ -236,7 +245,7 @@ public class ShopPanel extends JPanel {
         btn.setFocusPainted(false);
         btn.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
         btn.setPreferredSize(new Dimension(150, 35));
-        
+
         btn.addChangeListener(e -> {
             if (btn.isSelected()) {
                 btn.setBackground(UIConstants.PRIMARY_GREEN);
@@ -257,12 +266,12 @@ public class ShopPanel extends JPanel {
     public void refreshData() {
         // --- SEARCH LOGIC ---
         String currentInput = searchField.getText().trim();
-        
+
         // 1. If input is empty, try to use lastSearchQuery (History)
         if (currentInput.isEmpty()) {
             if (!lastSearchQuery.isEmpty()) {
                 currentInput = lastSearchQuery;
-                searchField.setText(currentInput); 
+                searchField.setText(currentInput);
             }
         } else {
             // Update history
@@ -275,9 +284,9 @@ public class ShopPanel extends JPanel {
         // If query matches AND filter matches AND we have data -> STOP.
         if (currentProducts != null && !currentProducts.isEmpty()) {
             if (effectiveQuery.equals(cachedQuery) &&
-                showOnlineDeals == (cachedOnlineState != null && cachedOnlineState) &&
-                showSecondHand == (cachedSecondHandState != null && cachedSecondHandState)) {
-                
+                    showOnlineDeals == (cachedOnlineState != null && cachedOnlineState) &&
+                    showSecondHand == (cachedSecondHandState != null && cachedSecondHandState)) {
+
                 // Data is fresh enough, just ensure it's displayed
                 displayProducts(currentProducts);
                 return; // EXIT HERE
@@ -296,7 +305,7 @@ public class ShopPanel extends JPanel {
             productsContainer.add(emptyLabel, BorderLayout.CENTER);
             productsContainer.revalidate();
             productsContainer.repaint();
-            
+
             // Update cache to avoid looping
             cachedQuery = "";
             cachedOnlineState = showOnlineDeals;
@@ -305,7 +314,9 @@ public class ShopPanel extends JPanel {
         }
 
         // Show loading
-        JLabel loading = new JLabel("Searching for '" + (effectiveQuery.isEmpty() ? "All Items" : effectiveQuery) + "'...", SwingConstants.CENTER);
+        JLabel loading = new JLabel(
+                "Searching for '" + (effectiveQuery.isEmpty() ? "All Items" : effectiveQuery) + "'...",
+                SwingConstants.CENTER);
         loading.setFont(new Font("Arial", Font.PLAIN, 16));
         productsContainer.add(loading, BorderLayout.CENTER);
         productsContainer.revalidate();
@@ -323,7 +334,8 @@ public class ShopPanel extends JPanel {
                         if (dbProducts != null) {
                             for (Product p : dbProducts) {
                                 if (p.isSecondHand()) {
-                                    if (effectiveQuery.isEmpty() || p.getName().toLowerCase().contains(effectiveQuery.toLowerCase())) {
+                                    if (effectiveQuery.isEmpty()
+                                            || p.getName().toLowerCase().contains(effectiveQuery.toLowerCase())) {
                                         results.add(p);
                                     }
                                 }
@@ -333,10 +345,22 @@ public class ShopPanel extends JPanel {
 
                     // B. FETCH ONLINE SCRAPER PRODUCTS
                     if (showOnlineDeals && !effectiveQuery.isEmpty()) {
-                        try { results.addAll(trendyolScraper.searchAndSearch(effectiveQuery)); } catch (Exception e) {}
-                        try { results.addAll(amazonScraper.searchAndSearch(effectiveQuery)); } catch (Exception e) {}
-                        try { results.addAll(n11Scraper.searchAndSearch(effectiveQuery)); } catch (Exception e) {}
-                        try { results.addAll(hepsiburadaScraper.searchAndSearch(effectiveQuery)); } catch (Exception e) {}
+                        try {
+                            results.addAll(trendyolScraper.searchAndSearch(effectiveQuery));
+                        } catch (Exception e) {
+                        }
+                        try {
+                            results.addAll(amazonScraper.searchAndSearch(effectiveQuery));
+                        } catch (Exception e) {
+                        }
+                        try {
+                            results.addAll(n11Scraper.searchAndSearch(effectiveQuery));
+                        } catch (Exception e) {
+                        }
+                        try {
+                            results.addAll(hepsiburadaScraper.searchAndSearch(effectiveQuery));
+                        } catch (Exception e) {
+                        }
                     }
                 } catch (Exception e) {
                     System.err.println("Error fetching products: " + e.getMessage());
@@ -348,12 +372,12 @@ public class ShopPanel extends JPanel {
             protected void done() {
                 try {
                     currentProducts = get();
-                    
+
                     // UPDATE CACHE
                     cachedQuery = effectiveQuery;
                     cachedOnlineState = showOnlineDeals;
                     cachedSecondHandState = showSecondHand;
-                    
+
                     displayProducts(currentProducts);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -365,7 +389,8 @@ public class ShopPanel extends JPanel {
 
     private void sortProducts() {
         String sort = (String) sortByBox.getSelectedItem();
-        if (currentProducts == null || currentProducts.isEmpty()) return;
+        if (currentProducts == null || currentProducts.isEmpty())
+            return;
 
         if (sort.contains("Low to High")) {
             currentProducts.sort((p1, p2) -> Double.compare(p1.getPriceAfterDiscount(), p2.getPriceAfterDiscount()));
@@ -384,7 +409,7 @@ public class ShopPanel extends JPanel {
             empty.setFont(new Font("Arial", Font.PLAIN, 18));
             productsContainer.add(empty, BorderLayout.CENTER);
         } else {
-            productsContainer.setLayout(new GridLayout(0, 3, 20, 20)); 
+            productsContainer.setLayout(new GridLayout(0, 3, 20, 20));
             for (Product p : products) {
                 productsContainer.add(createProductCard(p));
             }
@@ -398,9 +423,8 @@ public class ShopPanel extends JPanel {
         card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
         card.setBackground(Color.WHITE);
         card.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(230, 230, 230), 1),
-            new EmptyBorder(10, 10, 10, 10)
-        ));
+                BorderFactory.createLineBorder(new Color(230, 230, 230), 1),
+                new EmptyBorder(10, 10, 10, 10)));
         card.setPreferredSize(new Dimension(200, 320));
 
         // IMAGE HANDLING
@@ -464,7 +488,8 @@ public class ShopPanel extends JPanel {
                         JOptionPane.showMessageDialog(this, "Link not available.", "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(this, "Could not open browser: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Could not open browser: " + ex.getMessage(), "Error",
+                            JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
@@ -490,7 +515,8 @@ public class ShopPanel extends JPanel {
                 try {
                     URL url = new URL(urlStr);
                     BufferedImage image = ImageIO.read(url);
-                    if (image == null) return null;
+                    if (image == null)
+                        return null;
                     Image scaled = image.getScaledInstance(180, 150, Image.SCALE_SMOOTH);
                     return new ImageIcon(scaled);
                 } catch (Exception e) {

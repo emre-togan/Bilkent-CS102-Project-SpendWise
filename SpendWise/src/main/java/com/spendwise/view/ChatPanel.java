@@ -37,7 +37,7 @@ public class ChatPanel extends JPanel {
 
     private ChatController chatController;
     private productService productServiceInstance;
-    
+
     private String currentFriendName = "";
     private List<User> allFriends; // Store full list for filtering
     private List<Message> currentMessages;
@@ -72,7 +72,16 @@ public class ChatPanel extends JPanel {
         sideMenu.setLayout(null);
         sideMenu.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, new Color(240, 240, 240)));
 
-        JLabel logo = new JLabel("W$");
+        JLabel logo = new JLabel();
+        try {
+            ImageIcon logoIcon = new ImageIcon(getClass().getResource("/Resim1.png"));
+            Image image = logoIcon.getImage();
+            Image newimg = image.getScaledInstance(50, 50, java.awt.Image.SCALE_SMOOTH);
+            logoIcon = new ImageIcon(newimg);
+            logo.setIcon(logoIcon);
+        } catch (Exception e) {
+            logo.setText("W$");
+        }
         logo.setBounds(20, 25, 50, 50);
         logo.setFont(new Font("Arial", Font.BOLD, 40));
         logo.setForeground(UIConstants.PRIMARY_GREEN);
@@ -148,14 +157,18 @@ public class ChatPanel extends JPanel {
     private void updateSidebarUser() {
         User u = UserSession.getCurrentUser();
         if (u != null) {
-            if (sidebarNameLabel != null) sidebarNameLabel.setText(u.getUserName());
-            if (sidebarEmailLabel != null) sidebarEmailLabel.setText(u.geteMail());
-            if (sidebarAvatarLabel != null) sidebarAvatarLabel.setText(getInitials(u.getUserName()));
+            if (sidebarNameLabel != null)
+                sidebarNameLabel.setText(u.getUserName());
+            if (sidebarEmailLabel != null)
+                sidebarEmailLabel.setText(u.geteMail());
+            if (sidebarAvatarLabel != null)
+                sidebarAvatarLabel.setText(getInitials(u.getUserName()));
         }
     }
 
     private String getInitials(String name) {
-        if (name == null || name.isEmpty()) return "??";
+        if (name == null || name.isEmpty())
+            return "??";
         String[] parts = name.trim().split("\\s+");
         if (parts.length == 1) {
             return parts[0].substring(0, Math.min(2, parts[0].length())).toUpperCase();
@@ -188,6 +201,7 @@ public class ChatPanel extends JPanel {
                     btn.setOpaque(true);
                 }
             }
+
             public void mouseExited(MouseEvent e) {
                 if (!active) {
                     btn.setContentAreaFilled(false);
@@ -221,9 +235,8 @@ public class ChatPanel extends JPanel {
         searchField.setFont(new Font("Arial", Font.PLAIN, 13));
         searchField.setForeground(Color.GRAY);
         searchField.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(220, 220, 220)),
-            new EmptyBorder(8, 12, 8, 12)
-        ));
+                BorderFactory.createLineBorder(new Color(220, 220, 220)),
+                new EmptyBorder(8, 12, 8, 12)));
 
         // IMPLEMENTED SEARCH LOGIC
         searchField.addFocusListener(new java.awt.event.FocusAdapter() {
@@ -233,6 +246,7 @@ public class ChatPanel extends JPanel {
                     searchField.setForeground(Color.BLACK);
                 }
             }
+
             public void focusLost(java.awt.event.FocusEvent e) {
                 if (searchField.getText().isEmpty()) {
                     searchField.setText("Search friends...");
@@ -240,11 +254,12 @@ public class ChatPanel extends JPanel {
                 }
             }
         });
-        
+
         searchField.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 String query = searchField.getText().trim();
-                if(query.equals("Search friends...")) query = "";
+                if (query.equals("Search friends..."))
+                    query = "";
                 filterFriendsList(query);
             }
         });
@@ -271,9 +286,8 @@ public class ChatPanel extends JPanel {
         JPanel chatHeader = new JPanel(new BorderLayout());
         chatHeader.setBackground(Color.WHITE);
         chatHeader.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(230, 230, 230)),
-            new EmptyBorder(20, 25, 20, 25)
-        ));
+                BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(230, 230, 230)),
+                new EmptyBorder(20, 25, 20, 25)));
 
         JPanel userInfoPanel = new JPanel();
         userInfoPanel.setLayout(new BoxLayout(userInfoPanel, BoxLayout.Y_AXIS));
@@ -325,9 +339,8 @@ public class ChatPanel extends JPanel {
         messageField = new JTextField();
         messageField.setFont(new Font("Arial", Font.PLAIN, 14));
         messageField.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(220, 220, 220)),
-            new EmptyBorder(10, 15, 10, 15)
-        ));
+                BorderFactory.createLineBorder(new Color(220, 220, 220)),
+                new EmptyBorder(10, 15, 10, 15)));
         messageField.setEnabled(false);
         messageField.addActionListener(e -> sendMessage());
 
@@ -369,36 +382,37 @@ public class ChatPanel extends JPanel {
         sendButton.setEnabled(false);
         recommendProductButton.setEnabled(false);
     }
-    
+
     private void loadFriends() {
         try {
             int currentUserId = UserSession.getCurrentUserId();
             // Fetch once and store in allFriends
             allFriends = ChatService.getFriends(currentUserId);
-            if(allFriends == null) allFriends = new ArrayList<>();
-            
+            if (allFriends == null)
+                allFriends = new ArrayList<>();
+
             // Show all initially
             filterFriendsList("");
-            
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    
+
     // NEW FILTER METHOD
     private void filterFriendsList(String query) {
         friendListPanel.removeAll();
         String q = query.toLowerCase();
-        
+
         boolean foundAny = false;
-        
+
         for (User friend : allFriends) {
             if (friend.getUserName().toLowerCase().contains(q)) {
                 friendListPanel.add(createFriendItem(friend));
                 foundAny = true;
             }
         }
-        
+
         if (!foundAny) {
             JLabel emptyLabel = new JLabel("No friends found");
             emptyLabel.setFont(new Font("Arial", Font.PLAIN, 14));
@@ -407,7 +421,7 @@ public class ChatPanel extends JPanel {
             emptyLabel.setBorder(new EmptyBorder(50, 0, 0, 0));
             friendListPanel.add(emptyLabel);
         }
-        
+
         friendListPanel.revalidate();
         friendListPanel.repaint();
     }
@@ -455,10 +469,12 @@ public class ChatPanel extends JPanel {
                 item.setBackground(new Color(248, 248, 248));
                 infoPanel.setBackground(new Color(248, 248, 248));
             }
+
             public void mouseExited(MouseEvent e) {
                 item.setBackground(Color.WHITE);
                 infoPanel.setBackground(Color.WHITE);
             }
+
             public void mouseClicked(MouseEvent e) {
                 openChat(friend);
             }
@@ -468,7 +484,8 @@ public class ChatPanel extends JPanel {
 
     private Color getRandomColor(String seed) {
         int hash = seed.hashCode();
-        Color[] colors = { new Color(76, 175, 80), new Color(33, 150, 243), new Color(156, 39, 176), new Color(255, 152, 0), new Color(233, 30, 99), new Color(0, 150, 136) };
+        Color[] colors = { new Color(76, 175, 80), new Color(33, 150, 243), new Color(156, 39, 176),
+                new Color(255, 152, 0), new Color(233, 30, 99), new Color(0, 150, 136) };
         return colors[Math.abs(hash) % colors.length];
     }
 
@@ -544,12 +561,15 @@ public class ChatPanel extends JPanel {
         messagePanel.setLayout(new BoxLayout(messagePanel, BoxLayout.X_AXIS));
         messagePanel.setBackground(new Color(245, 245, 245));
         messagePanel.setAlignmentX(isSentByMe ? Component.RIGHT_ALIGNMENT : Component.LEFT_ALIGNMENT);
-        if (!isSentByMe) messagePanel.add(Box.createHorizontalGlue());
+        if (!isSentByMe)
+            messagePanel.add(Box.createHorizontalGlue());
 
         JPanel bubble = new JPanel();
         bubble.setLayout(new BoxLayout(bubble, BoxLayout.Y_AXIS));
         bubble.setBackground(isSentByMe ? UIConstants.PRIMARY_GREEN : Color.WHITE);
-        bubble.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(isSentByMe ? UIConstants.PRIMARY_GREEN : new Color(220, 220, 220)), new EmptyBorder(10, 15, 10, 15)));
+        bubble.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(isSentByMe ? UIConstants.PRIMARY_GREEN : new Color(220, 220, 220)),
+                new EmptyBorder(10, 15, 10, 15)));
 
         JLabel textLabel = new JLabel("<html><div style='width: 250px;'>" + content + "</div></html>");
         textLabel.setFont(new Font("Arial", Font.PLAIN, 13));
@@ -566,7 +586,8 @@ public class ChatPanel extends JPanel {
         bubble.add(timeLabel);
         messagePanel.add(bubble);
 
-        if (isSentByMe) messagePanel.add(Box.createHorizontalGlue());
+        if (isSentByMe)
+            messagePanel.add(Box.createHorizontalGlue());
         return messagePanel;
     }
 
@@ -574,12 +595,14 @@ public class ChatPanel extends JPanel {
         JPanel messagePanel = new JPanel();
         messagePanel.setLayout(new BoxLayout(messagePanel, BoxLayout.X_AXIS));
         messagePanel.setBackground(new Color(245, 245, 245));
-        if (!isSentByMe) messagePanel.add(Box.createHorizontalGlue());
+        if (!isSentByMe)
+            messagePanel.add(Box.createHorizontalGlue());
 
         JPanel productCard = new JPanel();
         productCard.setLayout(new BoxLayout(productCard, BoxLayout.Y_AXIS));
         productCard.setBackground(Color.WHITE);
-        productCard.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)), new EmptyBorder(15, 15, 15, 15)));
+        productCard.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(220, 220, 220)), new EmptyBorder(15, 15, 15, 15)));
         productCard.setMaximumSize(new Dimension(280, 200));
 
         JLabel productIcon = new JLabel("🛍️", SwingConstants.CENTER);
@@ -605,19 +628,22 @@ public class ChatPanel extends JPanel {
         productCard.add(viewButton);
         messagePanel.add(productCard);
 
-        if (isSentByMe) messagePanel.add(Box.createHorizontalGlue());
+        if (isSentByMe)
+            messagePanel.add(Box.createHorizontalGlue());
         return messagePanel;
     }
 
     private String formatTime(java.sql.Timestamp timestamp) {
-        if (timestamp == null) return "";
+        if (timestamp == null)
+            return "";
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
         return sdf.format(timestamp);
     }
 
     private void sendMessage() {
         String content = messageField.getText().trim();
-        if (content.isEmpty() || currentFriendName.isEmpty()) return;
+        if (content.isEmpty() || currentFriendName.isEmpty())
+            return;
         try {
             int senderId = UserSession.getCurrentUserId();
             chatController.sendMessage(senderId, currentFriendName, content);
@@ -632,7 +658,8 @@ public class ChatPanel extends JPanel {
     private void showRecommendProductDialog() {
         List<Product> products = productServiceInstance.getAllProducts();
         if (products == null || products.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "You don't have any saved products to recommend!", "No Products", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, "You don't have any saved products to recommend!", "No Products",
+                    JOptionPane.INFORMATION_MESSAGE);
             return;
         }
         JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Recommend a Product", true);
@@ -651,7 +678,8 @@ public class ChatPanel extends JPanel {
         productsPanel.setBorder(new EmptyBorder(10, 20, 10, 20));
 
         for (Product product : products) {
-            JButton productBtn = new JButton(product.getName() + " - $" + String.format("%.2f", product.getPriceAfterDiscount()));
+            JButton productBtn = new JButton(
+                    product.getName() + " - $" + String.format("%.2f", product.getPriceAfterDiscount()));
             productBtn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
             productBtn.setFont(new Font("Arial", Font.PLAIN, 13));
             productBtn.setHorizontalAlignment(SwingConstants.LEFT);

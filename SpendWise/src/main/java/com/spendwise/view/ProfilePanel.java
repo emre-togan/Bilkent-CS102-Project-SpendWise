@@ -55,7 +55,7 @@ public class ProfilePanel extends JPanel {
         setBackground(new Color(250, 250, 250));
 
         add(createSideMenu(), BorderLayout.WEST);
-        
+
         // Scroll Pane for the main content
         JScrollPane scrollPane = new JScrollPane(createContent());
         scrollPane.setBorder(null);
@@ -73,7 +73,16 @@ public class ProfilePanel extends JPanel {
         sideMenu.setLayout(null);
         sideMenu.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, new Color(240, 240, 240)));
 
-        JLabel logo = new JLabel("W$");
+        JLabel logo = new JLabel();
+        try {
+            ImageIcon logoIcon = new ImageIcon(getClass().getResource("/Resim1.png"));
+            Image image = logoIcon.getImage();
+            Image newimg = image.getScaledInstance(50, 50, java.awt.Image.SCALE_SMOOTH);
+            logoIcon = new ImageIcon(newimg);
+            logo.setIcon(logoIcon);
+        } catch (Exception e) {
+            logo.setText("W$");
+        }
         logo.setBounds(20, 25, 50, 50);
         logo.setFont(new Font("Arial", Font.BOLD, 40));
         logo.setForeground(UIConstants.PRIMARY_GREEN);
@@ -144,7 +153,8 @@ public class ProfilePanel extends JPanel {
     }
 
     private String getInitials(String name) {
-        if (name == null || name.isEmpty()) return "??";
+        if (name == null || name.isEmpty())
+            return "??";
         String[] parts = name.trim().split("\\s+");
         if (parts.length == 1) {
             return parts[0].substring(0, Math.min(2, parts[0].length())).toUpperCase();
@@ -177,6 +187,7 @@ public class ProfilePanel extends JPanel {
                     btn.setOpaque(true);
                 }
             }
+
             public void mouseExited(MouseEvent e) {
                 if (!active) {
                     btn.setContentAreaFilled(false);
@@ -192,7 +203,7 @@ public class ProfilePanel extends JPanel {
         JPanel content = new JPanel();
         content.setLayout(null);
         content.setBackground(new Color(250, 250, 250));
-        
+
         // Ensure preferred size is large enough to trigger scrolling
         content.setPreferredSize(new Dimension(1100, 950));
 
@@ -218,8 +229,8 @@ public class ProfilePanel extends JPanel {
         editBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         editBtn.setToolTipText("Edit Profile");
         editBtn.addActionListener(e -> {
-             new PersonalInfoDialog((JFrame) SwingUtilities.getWindowAncestor(this)).setVisible(true);
-             refreshData();
+            new PersonalInfoDialog((JFrame) SwingUtilities.getWindowAncestor(this)).setVisible(true);
+            refreshData();
         });
         content.add(editBtn);
 
@@ -329,13 +340,13 @@ public class ProfilePanel extends JPanel {
         addFriendBtn.setBorder(BorderFactory.createLineBorder(UIConstants.PRIMARY_GREEN));
         addFriendBtn.setFocusPainted(false);
         addFriendBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        
+
         // Link to AddFriendDialog
         addFriendBtn.addActionListener(e -> {
             new AddFriendDialog((Frame) SwingUtilities.getWindowAncestor(this)).setVisible(true);
-            refreshData(); 
+            refreshData();
         });
-        
+
         sectionHeader.add(addFriendBtn, BorderLayout.EAST);
         parent.add(sectionHeader);
 
@@ -436,6 +447,7 @@ public class ProfilePanel extends JPanel {
                 btn.setBackground(new Color(248, 248, 248));
                 textPanel.setBackground(new Color(248, 248, 248));
             }
+
             public void mouseExited(MouseEvent e) {
                 btn.setBackground(Color.WHITE);
                 textPanel.setBackground(Color.WHITE);
@@ -567,8 +579,10 @@ public class ProfilePanel extends JPanel {
     }
 
     private String truncateText(String text, int maxLength) {
-        if (text == null) return "";
-        if (text.length() <= maxLength) return text;
+        if (text == null)
+            return "";
+        if (text.length() <= maxLength)
+            return text;
         return text.substring(0, maxLength) + "...";
     }
 
@@ -606,15 +620,18 @@ public class ProfilePanel extends JPanel {
 
             // USE CHAT SERVICE FOR FRIENDS TO ENSURE CONSISTENCY
             friends = ChatService.getFriends(userId);
-            if (friends == null) friends = new ArrayList<>();
+            if (friends == null)
+                friends = new ArrayList<>();
             updateFriendsList();
 
             savedProducts = productServiceInstance.getAllProducts();
-            if (savedProducts == null) savedProducts = new ArrayList<>();
+            if (savedProducts == null)
+                savedProducts = new ArrayList<>();
             updateSavedProducts();
 
             purchases = profileService.getOrders("" + userId);
-            if (purchases == null) purchases = new ArrayList<>();
+            if (purchases == null)
+                purchases = new ArrayList<>();
 
             purchaseCountLabel.setText(String.valueOf(purchases.size()));
             dealsFoundLabel.setText(String.valueOf(savedProducts.size()));

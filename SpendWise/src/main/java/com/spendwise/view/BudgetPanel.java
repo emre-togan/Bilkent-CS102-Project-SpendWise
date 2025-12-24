@@ -83,7 +83,16 @@ public class BudgetPanel extends JPanel {
         sideMenu.setLayout(null);
         sideMenu.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, new Color(240, 240, 240)));
 
-        JLabel logo = new JLabel("W$");
+        JLabel logo = new JLabel();
+        try {
+            ImageIcon logoIcon = new ImageIcon(getClass().getResource("/Resim1.png"));
+            Image image = logoIcon.getImage();
+            Image newimg = image.getScaledInstance(50, 50, java.awt.Image.SCALE_SMOOTH);
+            logoIcon = new ImageIcon(newimg);
+            logo.setIcon(logoIcon);
+        } catch (Exception e) {
+            logo.setText("W$");
+        }
         logo.setBounds(20, 25, 50, 50);
         logo.setFont(new Font("Arial", Font.BOLD, 40));
         logo.setForeground(UIConstants.PRIMARY_GREEN);
@@ -159,14 +168,18 @@ public class BudgetPanel extends JPanel {
     private void updateSidebarUser() {
         User u = UserSession.getCurrentUser();
         if (u != null) {
-            if (sidebarNameLabel != null) sidebarNameLabel.setText(u.getUserName());
-            if (sidebarEmailLabel != null) sidebarEmailLabel.setText(u.geteMail());
-            if (sidebarAvatarLabel != null) sidebarAvatarLabel.setText(getInitials(u.getUserName()));
+            if (sidebarNameLabel != null)
+                sidebarNameLabel.setText(u.getUserName());
+            if (sidebarEmailLabel != null)
+                sidebarEmailLabel.setText(u.geteMail());
+            if (sidebarAvatarLabel != null)
+                sidebarAvatarLabel.setText(getInitials(u.getUserName()));
         }
     }
 
     private String getInitials(String name) {
-        if (name == null || name.isEmpty()) return "??";
+        if (name == null || name.isEmpty())
+            return "??";
         String[] parts = name.trim().split("\\s+");
         if (parts.length == 1) {
             return parts[0].substring(0, Math.min(2, parts[0].length())).toUpperCase();
