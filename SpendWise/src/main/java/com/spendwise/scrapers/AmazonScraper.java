@@ -58,12 +58,12 @@ public class AmazonScraper {
                     }
                     String name = nameLoc.count() > 0 ? nameLoc.first().innerText() : "No Name";
 
-                    // Fiyat
+                    // expense
                     Locator priceLoc = item.locator(".a-price .a-offscreen");
                     String priceText = priceLoc.count() > 0 ? priceLoc.first().innerText() : "0";
                     double price = parsePrice(priceText);
 
-                    // Resim
+                    // picture
                     Locator imgLoc = item.locator("img.s-image");
                     String imageUrl = imgLoc.count() > 0 ? imgLoc.first().getAttribute("src") : "";
 

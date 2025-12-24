@@ -46,26 +46,24 @@ public class N11Scraper {
             for (int i = 0; i < limit; i++) {
                 Locator item = items.get(i);
                 try {
-                    // İsim
+
                     Locator nameLoc = item.locator(".product-item-title");
                     if (nameLoc.count() == 0) {
                         nameLoc = item.locator(".proName");
                     }
                     String name = nameLoc.count() > 0 ? nameLoc.first().innerText().trim() : "No Name";
 
-                    // Fiyat
                     Locator priceLoc = item.locator(".price-currency"); // New selector
                     if (priceLoc.count() == 0) {
                         priceLoc = item.locator(".newPrice ins");
                     }
                     if (priceLoc.count() == 0) {
-                        // İndirim yoksa normal fiyat
+
                         priceLoc = item.locator(".newPrice");
                     }
                     String priceText = priceLoc.count() > 0 ? priceLoc.first().innerText() : "0";
                     double price = parsePrice(priceText);
 
-                    // Resim
                     Locator imgLoc = item.locator(".listing-items-image"); // New selector
                     if (imgLoc.count() == 0) {
                         imgLoc = item.locator(".cardImage img");

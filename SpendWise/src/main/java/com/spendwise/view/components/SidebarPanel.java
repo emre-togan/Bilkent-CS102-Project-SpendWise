@@ -73,27 +73,16 @@ public class SidebarPanel extends JPanel {
         addMenuButton(Icons.getProfileIcon(20, Color.GRAY), "Profile", "PROFILE", startY + gap * 5);
         addMenuButton(Icons.getSettingsIcon(20, Color.GRAY), "Settings", "SETTINGS", startY + gap * 6);
 
-        // --- Profile Card (Bottom) ---
-        // Design in image shows simple clean profile at bottom
         JPanel profileCard = createProfileCard();
-        // Position relative to bottom is tricky with absolute layout in Swing unless we
-        // use LayoutManager.
-        // But for now, sticking to the existing fixed layout height assumptions or we
-        // can use BorderLayout for the Panel itself.
-        // Actually, let's stick to setBounds for consistency with current frame size
-        // (900px height).
+
         profileCard.setBounds(20, 780, 220, 60);
-        // Wait, window height is 900.
-        // Let's place it at y=800-ish.
-        // Ideally we should use SpringLayout or GridBag for the whole sidebar but
-        // preserving style:
+
         profileCard.setBounds(20, 700, 220, 70);
         add(profileCard);
 
-        // --- Logout Button ---
         JLabel logoutLabel = new JLabel("Logout");
-        logoutLabel.setIcon(new ImageIcon("")); // Icon TODO
-        // For now using simple button
+        logoutLabel.setIcon(new ImageIcon("")); 
+
 
         JButton logoutBtn = new JButton("🛑 Logout");
         logoutBtn.setBounds(20, 790, 100, 30);
@@ -125,13 +114,6 @@ public class SidebarPanel extends JPanel {
 
         if (key.equals(activePanelKey)) {
             btn.setForeground(Color.WHITE);
-            // Active icon color to white. Since VectorIcon is simple, we might need a way
-            // to change color.
-            // But for now let's regenerate it or just let it be gray/white if we implement
-            // color changing.
-            // Actually, VectorIcons are static. Let's make them dynamic or just recreate
-            // for active state.
-            // Optimization: Just create new Icon for active.
 
             if (key.equals("DASHBOARD"))
                 btn.setIcon(Icons.getDashboardIcon(20, Color.WHITE));
@@ -163,9 +145,9 @@ public class SidebarPanel extends JPanel {
     }
 
     private JPanel createProfileCard() {
-        // As per image design: Green Avatar Circle on left, Name/Email text
-        RoundedPanel card = new RoundedPanel(20, new Color(248, 249, 250)); // Light box? Or just transparent?
-        // Image shows it might be transparent or very light gray.
+
+        RoundedPanel card = new RoundedPanel(20, new Color(248, 249, 250));
+
         card.setLayout(null);
 
         User u = UserSession.getCurrentUser();
@@ -177,15 +159,9 @@ public class SidebarPanel extends JPanel {
         sidebarAvatarLabel.setBounds(10, 10, 40, 40);
         sidebarAvatarLabel.setHorizontalAlignment(SwingConstants.CENTER);
         sidebarAvatarLabel.setOpaque(true);
-        sidebarAvatarLabel.setBackground(UIConstants.SELECTION_GREEN); // Match theme
+        sidebarAvatarLabel.setBackground(UIConstants.SELECTION_GREEN); 
         sidebarAvatarLabel.setForeground(Color.WHITE);
         sidebarAvatarLabel.setFont(new Font("Arial", Font.BOLD, 14));
-
-        // Make avatar circular? Swing JLabel is square.
-        // We can't easily make it circle without paintComponent.
-        // For now square with rounded corners is acceptable or create a CircleLabel
-        // class.
-        // Let's assume square for velocity unless requested.
 
         card.add(sidebarAvatarLabel);
 

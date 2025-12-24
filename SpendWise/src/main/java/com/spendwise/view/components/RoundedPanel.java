@@ -11,7 +11,7 @@ public class RoundedPanel extends JPanel {
         super();
         this.radius = radius;
         this.backgroundColor = backgroundColor;
-        setOpaque(false); // Make transparent to allow painting rounded shape
+        setOpaque(false); 
     }
 
     @Override

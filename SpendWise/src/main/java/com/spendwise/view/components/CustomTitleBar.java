@@ -16,9 +16,7 @@ public class CustomTitleBar extends JPanel {
         setLayout(new BorderLayout());
         setBackground(Color.WHITE);
         setPreferredSize(new Dimension(frame.getWidth(), 35));
-        setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(240, 240, 240))); // Light gray bottom border
-
-        // Dragging functionality
+        setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(240, 240, 240))); 
         addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent me) {
                 pX = me.getX();
@@ -32,12 +30,9 @@ public class CustomTitleBar extends JPanel {
             }
         });
 
-        // Left side: Icon + Title
         JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
         leftPanel.setOpaque(false);
 
-        // Small Logo (using text fallback if image missing, similar to others for
-        // safety)
         JLabel iconLabel = new JLabel();
         try {
             ImageIcon logoIcon = new ImageIcon(getClass().getResource("/Resim1.png"));
@@ -58,7 +53,6 @@ public class CustomTitleBar extends JPanel {
 
         add(leftPanel, BorderLayout.WEST);
 
-        // Right side: Controls
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         rightPanel.setOpaque(false);
 
@@ -69,7 +63,7 @@ public class CustomTitleBar extends JPanel {
         closeBtn.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
-                closeBtn.setBackground(new Color(232, 17, 35)); // Red
+                closeBtn.setBackground(new Color(232, 17, 35));
                 closeBtn.setForeground(Color.WHITE);
             }
 

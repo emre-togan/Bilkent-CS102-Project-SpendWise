@@ -10,16 +10,15 @@ public class Icons {
         return new VectorIcon(size, color) {
             @Override
             protected void paintIcon(Graphics2D g2, int width, int height) {
-                // Home Icon
+
                 Path2D path = new Path2D.Double();
-                path.moveTo(width / 2.0, 2); // Top tip
-                path.lineTo(2, height * 0.45); // Left roof
-                path.lineTo(2, height - 2); // Left bottom
-                path.lineTo(width - 2, height - 2); // Right bottom
-                path.lineTo(width - 2, height * 0.45); // Right roof
+                path.moveTo(width / 2.0, 2);
+                path.lineTo(2, height * 0.45); 
+                path.lineTo(2, height - 2); 
+                path.lineTo(width - 2, height - 2); 
+                path.lineTo(width - 2, height * 0.45);
                 path.closePath();
 
-                // Door
                 path.moveTo(width * 0.4, height - 2);
                 path.lineTo(width * 0.4, height * 0.6);
                 path.lineTo(width * 0.6, height * 0.6);
@@ -35,15 +34,13 @@ public class Icons {
         return new VectorIcon(size, color) {
             @Override
             protected void paintIcon(Graphics2D g2, int width, int height) {
-                // Credit Card
+
                 RoundRectangle2D rect = new RoundRectangle2D.Double(2, 4, width - 4, height - 8, 4, 4);
                 g2.setStroke(new BasicStroke(2f));
                 g2.draw(rect);
 
-                // Strip
                 g2.fill(new Rectangle2D.Double(2, 8, width - 4, 4));
 
-                // Chip
                 g2.draw(new Rectangle2D.Double(6, 15, 6, 4));
             }
         };
@@ -53,7 +50,7 @@ public class Icons {
         return new VectorIcon(size, color) {
             @Override
             protected void paintIcon(Graphics2D g2, int width, int height) {
-                // Bill / Receipt
+  
                 Path2D path = new Path2D.Double();
                 path.moveTo(4, 2);
                 path.lineTo(width - 4, 2);
@@ -67,7 +64,6 @@ public class Icons {
                 g2.setStroke(new BasicStroke(2f));
                 g2.draw(path);
 
-                // Lines
                 g2.draw(new Line2D.Double(8, 8, width - 8, 8));
                 g2.draw(new Line2D.Double(8, 12, width - 8, 12));
                 g2.draw(new Line2D.Double(8, 16, width * 0.6, 16));
@@ -144,8 +140,6 @@ public class Icons {
                 g2.draw(new Ellipse2D.Double(4, 4, width - 8, height - 8));
                 g2.draw(new Ellipse2D.Double(width / 2.0 - 2, height / 2.0 - 2, 4, 4));
 
-                // Teeth (simplified as dashes)
-                // Actually for simplicity, just a larger circle stroke
                 Stroke dashed = new BasicStroke(3f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10f,
                         new float[] { 4f }, 0f);
                 g2.setStroke(dashed);
@@ -160,10 +154,10 @@ public class Icons {
             protected void paintIcon(Graphics2D g2, int width, int height) {
                 g2.setStroke(new BasicStroke(2f));
 
-                // Circle part
+                // Circle
                 g2.draw(new Arc2D.Double(2, 2, width - 4, height - 4, 45, 270, Arc2D.OPEN));
 
-                // Line part
+                // Line 
                 g2.draw(new Line2D.Double(width / 2.0, height / 2.0, width / 2.0, 2));
             }
         };
@@ -298,8 +292,7 @@ public class Icons {
         return new VectorIcon(size, color) {
             @Override
             protected void paintIcon(Graphics2D g2, int width, int height) {
-                // Clapperboard or Music Note
-                // Music Note
+
                 g2.setStroke(new BasicStroke(2f));
                 g2.fill(new Ellipse2D.Double(4, height - 8, 6, 6));
                 g2.draw(new Line2D.Double(10, height - 6, 10, 4));
@@ -310,7 +303,6 @@ public class Icons {
         };
     }
 
-    // Abstract base class for vector icons
     private static abstract class VectorIcon implements Icon {
         private int size;
         private Color color;

@@ -352,12 +352,12 @@ public class ChatPanel extends JPanel {
 
     private JPanel createFriendItem(User friend) {
         boolean isSelected = friend.getUserName().equals(currentFriendName);
-        Color bgColor = isSelected ? new Color(232, 245, 233) : Color.WHITE; // Light green if selected
+        Color bgColor = isSelected ? new Color(232, 245, 233) : Color.WHITE; 
 
         JPanel itemWrapper = new JPanel(new BorderLayout());
         itemWrapper.setBackground(Color.WHITE);
         itemWrapper.setBorder(new EmptyBorder(5, 15, 5, 15));
-        // Important: Set Max Height on Wrapper to prevent BoxLayout stretching
+
         itemWrapper.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80));
         itemWrapper.setAlignmentX(Component.LEFT_ALIGNMENT);
 

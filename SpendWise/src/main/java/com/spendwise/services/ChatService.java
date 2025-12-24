@@ -16,7 +16,6 @@ public class ChatService {
     public static List<User> getFriends(int currentUserId) {
         List<User> friends = new ArrayList<>();
 
-        // Ensure schema is updated
         ensureFriendStatusColumn();
 
         String sql = "SELECT u.* FROM users u " +
@@ -34,9 +33,6 @@ public class ChatService {
         return friends;
     }
 
-    /**
-     * Search for any user in the system by username.
-     */
     public static List<User> searchUsers(String query) {
         List<User> users = new ArrayList<>();
         String sql = "SELECT * FROM users WHERE username LIKE ?";
@@ -70,9 +66,8 @@ public class ChatService {
     }
 
     public static boolean acceptFriendRequest(int currentUserId, int requesterId) {
-        // Update requester -> current to ACCEPTED
+
         String updateSql = "UPDATE friends SET status = 'ACCEPTED' WHERE user_id = ? AND friend_id = ?";
-        // Insert current -> requester as ACCEPTED
         String insertSql = "INSERT INTO friends (user_id, friend_id, status) VALUES (?, ?, 'ACCEPTED')";
 
         int row1 = DBconnection.executeUpdate(updateSql, requesterId, currentUserId);
@@ -82,7 +77,7 @@ public class ChatService {
     }
 
     public static boolean rejectFriendRequest(int currentUserId, int requesterId) {
-        // Delete the request
+
         String sql = "DELETE FROM friends WHERE user_id = ? AND friend_id = ?";
         int row = DBconnection.executeUpdate(sql, requesterId, currentUserId);
         return row > 0;
@@ -91,7 +86,7 @@ public class ChatService {
     public static List<User> getFriendRequests(int currentUserId) {
         ensureFriendStatusColumn();
         List<User> requests = new ArrayList<>();
-        // Select users who added 'currentUserId' but status is PENDING
+
         String sql = "SELECT u.* FROM users u " +
                 "JOIN friends f ON u.user_id = f.user_id " +
                 "WHERE f.friend_id = ? AND f.status = 'PENDING'";
@@ -134,21 +129,18 @@ public class ChatService {
         return false;
     }
 
-    // Helper to add 'status' column if missing
     private static void ensureFriendStatusColumn() {
-        // Check if column exists using information_schema (MySQL specific but project
-        // uses MySQL)
+
         String checkSql = "SELECT count(*) as cnt FROM information_schema.columns " +
                 "WHERE table_name = 'friends' AND column_name = 'status' AND table_schema = 'spendwise'";
         try {
             ResultSet rs = DBconnection.executeQuery(checkSql);
             if (rs != null && rs.next()) {
                 if (rs.getInt("cnt") > 0) {
-                    return; // Column exists
+                    return; 
                 }
             }
 
-            // If we get here, column doesn't exist (or check failed, we assume it doesn't)
             System.out.println("Adding 'status' column to friends table...");
             String alterSql = "ALTER TABLE friends ADD COLUMN status VARCHAR(20) DEFAULT 'ACCEPTED'";
             DBconnection.executeUpdate(alterSql);

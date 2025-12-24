@@ -24,7 +24,7 @@ public class RoundedTextField extends JTextField implements FocusListener {
         setBorder(new EmptyBorder(10, 15, 10, 15)); // Inner padding
         addFocusListener(this);
         showingPlaceholder = true;
-        // Initial state handled in paintComponent
+
     }
 
     public void setPlaceholder(String placeholder) {
@@ -43,11 +43,9 @@ public class RoundedTextField extends JTextField implements FocusListener {
 
         super.paintComponent(g);
 
-        // Paint placeholder if empty
         if ((getText().isEmpty() || showingPlaceholder) && !hasFocus()) {
             g2.setColor(UIConstants.GRAY_TEXT);
             g2.setFont(getFont());
-            // Adjust y position to center vertically
             FontMetrics fm = g2.getFontMetrics();
             int y = (getHeight() - fm.getHeight()) / 2 + fm.getAscent();
             g2.drawString(placeholder, getInsets().left, y);

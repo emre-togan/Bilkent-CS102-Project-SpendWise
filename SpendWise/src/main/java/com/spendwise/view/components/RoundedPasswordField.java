@@ -33,11 +33,6 @@ public class RoundedPasswordField extends JPasswordField implements FocusListene
 
         super.paintComponent(g);
 
-        // Paint placeholder if empty and not focused
-        // Password field is tricky, getText() returns empty if password is visually
-        // masked but exists?
-        // Actually getPassword() is better but for placeholder logic, if empty char
-        // array:
         if ((getPassword().length == 0) && !hasFocus()) {
             g2.setColor(UIConstants.GRAY_TEXT);
             g2.setFont(getFont());

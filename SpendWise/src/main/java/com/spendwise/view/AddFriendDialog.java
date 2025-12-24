@@ -78,18 +78,18 @@ public class AddFriendDialog extends JDialog {
                 JButton addBtn = new JButton("Send Request");
                 addBtn.setForeground(UIConstants.PRIMARY_GREEN);
                 addBtn.addActionListener(e -> {
-                    // Ensure ChatService has addFriend method
-                    boolean success = ChatService.sendFriendRequest(currentUserId, u.getId());
-                    if (success) {
-                        JOptionPane.showMessageDialog(this, "Friend request sent!");
-                        addBtn.setEnabled(false);
-                        addBtn.setText("Sent");
-                    } else {
-                        JOptionPane.showMessageDialog(this, "Request failed or already pending/friends.", "Error",
-                                JOptionPane.ERROR_MESSAGE);
-                        addBtn.setEnabled(false);
-                        addBtn.setText("Sent/Friends");
-                    }
+
+                boolean success = ChatService.sendFriendRequest(currentUserId, u.getId());
+                if (success) {
+                    JOptionPane.showMessageDialog(this, "Friend request sent!");
+                    addBtn.setEnabled(false);
+                    addBtn.setText("Sent");
+                } else {
+                    JOptionPane.showMessageDialog(this, "Request failed or already pending/friends.", "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                    addBtn.setEnabled(false);
+                    addBtn.setText("Sent/Friends");
+                }
                 });
 
                 row.add(name, BorderLayout.CENTER);
