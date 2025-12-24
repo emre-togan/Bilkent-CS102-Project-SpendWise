@@ -55,7 +55,7 @@ public class ExpensesPanel extends JPanel {
     private JPanel transactionsContainer;
     private JComboBox<String> categoryFilter;
     private RoundedTextField searchField;
-    private JLayeredPane layeredPane;
+    private JLayeredPane layeredPane; 
     private JButton fabBtn;
 
     // Services & Data
