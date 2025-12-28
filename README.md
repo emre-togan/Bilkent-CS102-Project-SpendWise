@@ -1,5 +1,11 @@
 # Bilkent-CS102-Project-SpendWise
-these are the tables for database 
+
+The code runs from the Main.java file in the SpendWise\src\main\java\com\spendwise folder.
+
+The project's build tool is Maven.
+
+To run the code you have to change DBConnections.java. The password needs to be the same as local database's password.
+Below are the SQL codes to create necessary tables for the database:
 
 CREATE TABLE `addresses` (
   `address_id` int NOT NULL AUTO_INCREMENT,
